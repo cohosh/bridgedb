@@ -67,9 +67,6 @@ def addGreeting(template):
 
     return greeting
 
-def addKeyfile(template):
-    return u'%s\n\n' % strings.BRIDGEDB_OPENPGP_KEY
-
 def addBridgeAnswer(template, answer):
     # Give the user their bridges, i.e. the `answer`:
     bridgeLines = u""
@@ -87,10 +84,6 @@ def addHowto(template):
         languages set.
     """
     return template.gettext(strings.HOWTO_TBB[2])
-
-def buildKeyMessage(template, clientAddress=None):
-    message  = addKeyfile(template)
-    return message
 
 def buildAnswerMessage(template, clientAddress=None, answer=None):
     try:

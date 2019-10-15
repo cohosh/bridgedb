@@ -25,11 +25,6 @@ from . import util
 EMAIL_DIST = True
 EMAIL_ROTATION_PERIOD = "1 day"
 EMAIL_INCLUDE_FINGERPRINTS = True
-EMAIL_GPG_SIGNING_ENABLED = True
-EMAIL_GPG_HOMEDIR = '.gnupg'
-EMAIL_GPG_PRIMARY_KEY_FINGERPRINT = '0017098C5DF4197E3C884DCFF1B240D43F148C21'
-EMAIL_GPG_PASSPHRASE = None
-EMAIL_GPG_PASSPHRASE_FILE = None
 EMAIL_DOMAIN_MAP = {
    'googlemail.com': 'gmail.com',
    'mail.google.com': 'gmail.com',
@@ -56,11 +51,6 @@ TEST_CONFIG_FILE = io.StringIO("""\
 EMAIL_DIST = %s
 EMAIL_ROTATION_PERIOD = %s
 EMAIL_INCLUDE_FINGERPRINTS = %s
-EMAIL_GPG_SIGNING_ENABLED = %s
-EMAIL_GPG_HOMEDIR = %s
-EMAIL_GPG_PRIMARY_KEY_FINGERPRINT = %s
-EMAIL_GPG_PASSPHRASE = %s
-EMAIL_GPG_PASSPHRASE_FILE = %s
 EMAIL_DOMAIN_MAP = %s
 EMAIL_DOMAIN_RULES = %s
 EMAIL_DOMAINS = %s
@@ -78,11 +68,6 @@ EMAIL_PORT = %s
 """ % (repr(EMAIL_DIST),
        repr(EMAIL_ROTATION_PERIOD),
        repr(EMAIL_INCLUDE_FINGERPRINTS),
-       repr(EMAIL_GPG_SIGNING_ENABLED),
-       repr(EMAIL_GPG_HOMEDIR),
-       repr(EMAIL_GPG_PRIMARY_KEY_FINGERPRINT),
-       repr(EMAIL_GPG_PASSPHRASE),
-       repr(EMAIL_GPG_PASSPHRASE_FILE),
        repr(EMAIL_DOMAIN_MAP),
        repr(EMAIL_DOMAIN_RULES),
        repr(EMAIL_DOMAINS),
@@ -150,10 +135,10 @@ class DummyEmailDistributorWithState(DummyEmailDistributor):
     :exc:`bridgedb.distributors.email.distributor.IgnoreEmail` on the third.
 
     Note that the state tracking is done in a really dumb way. For example, we
-    currently don't consider requests for help text or GnuPG keys to be a
-    "real" request, so in the real email distributor they won't trigger either
-    a TooSoonEmail or IgnoreEmail. Here we only track the total number of
-    *any* type of request per client.
+    currently don't consider requests for help text to be a "real" request, so
+    in the real email distributor they won't trigger either a TooSoonEmail or
+    IgnoreEmail. Here we only track the total number of *any* type of request
+    per client.
     """
 
     def __init__(self, *args, **kwargs):

@@ -35,16 +35,8 @@ from bridgedb.test.email_helpers import DummyEmailDistributorWithState
 class CreateResponseBodyTests(unittest.TestCase):
     """Tests for :func:`bridgedb.distributors.email.autoresponder.createResponseBody`."""
 
-    def _moveGPGTestKeyfile(self):
-        here          = os.getcwd()
-        topDir        = here.rstrip('_trial_temp')
-        self.gpgFile  = os.path.join(topDir, '.gnupg', 'TESTING.subkeys.sec')
-        self.gpgMoved = os.path.join(here, 'TESTING.subkeys.sec')
-        shutil.copy(self.gpgFile, self.gpgMoved)
-
     def setUp(self):
         """Create fake email, distributor, and associated context data."""
-        self._moveGPGTestKeyfile()
         self.toAddress = "user@example.com"
         self.config = _createConfig()
         self.ctx = _createMailServerContext(self.config)
@@ -61,13 +53,6 @@ class CreateResponseBodyTests(unittest.TestCase):
             "get bridges",
         ]
         return lines
-
-    def test_createResponseBody_getKey(self):
-        """A request for 'get key' should receive our GPG key."""
-        lines = self._getIncomingLines()
-        lines[4] = "get key"
-        ret = autoresponder.createResponseBody(lines, self.ctx, self.toAddress)
-        self.assertSubstring('-----BEGIN PGP PUBLIC KEY BLOCK-----', ret)
 
     def test_createResponseBody_bridges_invalid(self):
         """An invalid request for 'transport obfs3' should still return

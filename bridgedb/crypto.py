@@ -9,9 +9,9 @@
 # :license: 3-clause BSD, see included LICENSE for information
 
 """This module contains general utilities for working with external
-cryptographic tools and libraries, including OpenSSL and GnuPG. It also
-includes utilities for creating callable HMAC functions, generating HMACs for
-data, and generating and/or storing key material.
+cryptographic tools and libraries, like OpenSSL. It also includes utilities for
+creating callable HMAC functions, generating HMACs for data, and generating
+and/or storing key material.
 
 .. py:module:: bridgedb.crypto
    :synopsis: BridgeDB general cryptographic utilities.
@@ -19,12 +19,10 @@ data, and generating and/or storing key material.
 ::
 
    bridgedb.crypto
-     |_getGPGContext() - Get a pre-configured GPGME context.
      |_getHMAC() - Compute an HMAC with some key for some data.
      |_getHMACFunc() - Get a callable for producing HMACs with the given key.
      |_getKey() - Load the master HMAC key from a file, or create a new one.
      |_getRSAKey() - Load an RSA key from a file, or create a new one.
-     |_gpgSignMessage() - Sign a message string according to a GPGME context.
      |_writeKeyToFile() - Write to a file readable only by the process owner.
      |
      \_SSLVerifyingContextFactory - OpenSSL.SSL.Context factory which verifies
@@ -40,7 +38,6 @@ data, and generating and/or storing key material.
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import gnupg
 import hashlib
 import hmac
 import io
@@ -263,96 +260,6 @@ def removePKCS1Padding(message):
         unpadded = message[start:]
 
     return unpadded
-
-def initializeGnuPG(config):
-    """Initialize a GnuPG interface and test our configured keys.
-
-    .. note:: This function uses python-gnupg_.
-
-    :type config: :class:`bridgedb.persistent.Conf`
-    :param config: The loaded config file.
-    :rtype: 2-tuple
-    :returns: If ``EMAIL_GPG_SIGNING_ENABLED`` isn't ``True``, or we couldn't
-        initialize GnuPG and make a successful test signature with the
-        specified key, then a 2-tuple of ``None`` is returned.  Otherwise, the
-        first item in the tuple is a :class:`gnupg.GPG` interface_ with the
-        GnuPG homedir set to the ``EMAIL_GPG_HOMEDIR`` option and the signing
-        key specified by the ``EMAIL_GPG_SIGNING_KEY_FINGERPRINT`` option in
-        bridgedb.conf set as the default key. The second item in the tuple is
-        a signing function with the passphrase (as specified in either
-        ``EMAIL_GPG_PASSPHRASE`` or ``EMAIL_GPG_PASSPHRASE_FILE``) already
-        set.
-
-    .. _python-gnupg: https://pypi.python.org/pypi/gnupg/
-    .. _interface: https://python-gnupg.readthedocs.org/en/latest/gnupg.html#gnupg-module
-    """
-    ret = (None, None)
-
-    if not config.EMAIL_GPG_SIGNING_ENABLED:
-        return ret
-
-    homedir = config.EMAIL_GPG_HOMEDIR
-    primary = config.EMAIL_GPG_PRIMARY_KEY_FINGERPRINT
-    passphrase = config.EMAIL_GPG_PASSPHRASE
-    passFile = config.EMAIL_GPG_PASSPHRASE_FILE
-
-    logging.info("Using %s as our GnuPG home directory..." % homedir)
-    gpg = gnupg.GPG(homedir=homedir)
-    logging.info("Initialized GnuPG interface using %s binary with version %s."
-                 % (gpg.binary, gpg.binary_version))
-
-    primarySK = None
-    primaryPK = None
-    secrets = gpg.list_keys(secret=True)
-    publics = gpg.list_keys()
-
-    if not secrets:
-        logging.warn("No secret keys found in %s!" % gpg.secring)
-        return ret
-
-    primarySK = list(filter(lambda key: key['fingerprint'] == primary, secrets))
-    primaryPK = list(filter(lambda key: key['fingerprint'] == primary, publics))
-
-    if primarySK and primaryPK:
-        logging.info("Found GnuPG primary key with fingerprint: %s" % primary)
-
-        for sub in primaryPK[0]['subkeys']:
-            logging.info("  Subkey: %s  Usage: %s" % (sub[0], sub[1].upper()))
-    else:
-        logging.warn("GnuPG key %s could not be found in %s!" % (primary, gpg.secring))
-        return ret
-
-    if passphrase:
-        logging.info("Read GnuPG passphrase from config.")
-    elif passFile:
-        try:
-            with open(passFile) as fh:
-                passphrase = fh.read()
-        except (IOError, OSError):
-            logging.error("Could not open GnuPG passphrase file: %s!" % passFile)
-        else:
-            logging.info("Read GnuPG passphrase from file: %s" % passFile)
-
-    def gpgSignMessage(message):
-        """Sign **message** with the default key specified by
-        ``EMAIL_GPG_PRIMARY_KEY_FINGERPRINT``.
-
-        :param str message: A message to sign.
-        :rtype: str or ``None``.
-        :returns: A string containing the clearsigned message, or ``None`` if
-            the signing failed.
-        """
-        sig = gpg.sign(message, default_key=primary, passphrase=passphrase)
-        if sig and sig.data:
-            return sig.data
-
-    logging.debug("Testing signature created with GnuPG key...")
-    sig = gpgSignMessage("Testing 1 2 3")
-    if sig:
-        logging.info("Test signature with GnuPG key %s okay:\n%s" % (primary, sig))
-        return (gpg, gpgSignMessage)
-
-    return ret
 
 
 class SSLVerifyingContextFactory(ssl.CertificateOptions):

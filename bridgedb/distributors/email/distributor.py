@@ -20,7 +20,7 @@ bridgedb.distributors.email.autoresponder
 A :class:`~bridgedb.distribute.Distributor` which hands out :class:`bridges
 <bridgedb.bridges.Bridge>` to clients via an email interface.
 
-.. inheritance-diagram:: IgnoreEmail TooSoonEmail EmailRequestedKey EmailDistributor
+.. inheritance-diagram:: IgnoreEmail TooSoonEmail EmailDistributor
     :parts: 1
 """
 
@@ -53,10 +53,6 @@ class IgnoreEmail(addr.BadEmail):
 
 class TooSoonEmail(addr.BadEmail):
     """Raised when we got a request from this address too recently."""
-
-
-class EmailRequestedKey(Exception):
-    """Raised when an incoming email requested a copy of our GnuPG keys."""
 
 
 class EmailDistributor(Distributor):

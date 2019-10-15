@@ -1143,7 +1143,6 @@ def addWebServer(config, distributor):
     info    = InfoResource()
     robots  = static.File(os.path.join(TEMPLATE_DIR, 'robots.txt'))
     assets  = static.File(os.path.join(TEMPLATE_DIR, 'assets/'))
-    keys    = static.Data(strings.BRIDGEDB_OPENPGP_KEY.encode('utf-8'), 'text/plain')
     csp     = CSPResource(enabled=config.CSP_ENABLED,
                           includeSelf=config.CSP_INCLUDE_SELF,
                           reportViolations=config.CSP_REPORT_ONLY,
@@ -1152,7 +1151,6 @@ def addWebServer(config, distributor):
     root = CustomErrorHandlingResource()
     root.putChild(b'', index)
     root.putChild(b'robots.txt', robots)
-    root.putChild(b'keys', keys)
     root.putChild(b'assets', assets)
     root.putChild(b'options', options)
     root.putChild(b'howto', howto)

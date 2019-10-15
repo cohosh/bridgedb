@@ -1,3 +1,9 @@
+        * FIXES https://bugs.torproject.org/17548
+        This patch removes PGP support.  BridgeDB's signing key expired on
+        2015-09-11.  Nobody ever complained and maintaining the bits and pieces
+        necessary to sign emails isn't worth the effort, so this patch removes
+        that feature.
+
         * FIXES https://bugs.torproject.org/30941
         Make our email responder more usable.  This patch removes the concept of
         "valid" email commands and returns bridges (obfs4, for now) no matter
