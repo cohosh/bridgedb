@@ -90,9 +90,10 @@ logging.debug("Set template root to %s" % TEMPLATE_DIR)
 #: A list of supported language tuples. Use getSortedLangList() to read this variable.
 supported_langs = []
 
-# We use our metrics singleton to keep track of BridgeDB metrics such as
+# We use our metrics singletons to keep track of BridgeDB metrics such as
 # "number of failed HTTPS bridge requests."
-metrix = metrics.HTTPSMetrics()
+httpsMetrix = metrics.HTTPSMetrics()
+internalMetrix = metrics.InternalMetrics()
 
 
 def stringifyRequestArgs(args):
@@ -574,7 +575,7 @@ class CaptchaProtectedResource(CustomErrorHandlingResource, CSPResource):
 
         try:
             if self.checkSolution(request) is True:
-                metrix.recordValidHTTPSRequest(request)
+                httpsMetrix.recordValidHTTPSRequest(request)
                 return self.resource.render(request)
         except ValueError as err:
             logging.debug(str(err))
@@ -584,14 +585,14 @@ class CaptchaProtectedResource(CustomErrorHandlingResource, CSPResource):
             # work of art" as pennance for their sins.
             d = task.deferLater(reactor, 1, lambda: request)
             d.addCallback(redirectMaliciousRequest)
-            metrix.recordInvalidHTTPSRequest(request)
+            httpsMetrix.recordInvalidHTTPSRequest(request)
             return NOT_DONE_YET
         except Exception as err:
             logging.debug(str(err))
-            metrix.recordInvalidHTTPSRequest(request)
+            httpsMetrix.recordInvalidHTTPSRequest(request)
             return replaceErrorPage(request, err)
 
-        metrix.recordInvalidHTTPSRequest(request)
+        httpsMetrix.recordInvalidHTTPSRequest(request)
         logging.debug("Client failed a CAPTCHA; returning redirect to %s"
                       % request.uri)
         return redirectTo(request.uri, request)
@@ -847,12 +848,12 @@ class ReCaptchaProtectedResource(CaptchaProtectedResource):
             # breaking). Hence, the 'no cover' pragma.
             if solution.is_valid:  # pragma: no cover
                 logging.info("Valid CAPTCHA solution from %r." % clientIP)
-                metrix.recordValidHTTPSRequest(request)
+                httpsMetrix.recordValidHTTPSRequest(request)
                 return (True, request)
             else:
                 logging.info("Invalid CAPTCHA solution from %r: %r"
                              % (clientIP, solution.error_code))
-                metrix.recordInvalidHTTPSRequest(request)
+                httpsMetrix.recordInvalidHTTPSRequest(request)
                 return (False, request)
 
         d = txrecaptcha.submit(challenge, response, self.secretKey,
@@ -1000,6 +1001,8 @@ class BridgesResource(CustomErrorHandlingResource, CSPResource):
             bridgeLines = [replaceControlChars(bridge.getBridgeLine(
                 bridgeRequest, self.includeFingerprints)) for bridge in bridges]
 
+            internalMetrix.recordHandoutsPerBridge(bridgeRequest, bridges)
+
             if antibot.isRequestFromBot(request):
                 transports = bridgeRequest.transports
                 # Return either a decoy bridge or no bridge.
@@ -1058,6 +1061,9 @@ class BridgesResource(CustomErrorHandlingResource, CSPResource):
         """
         rtl = False
         format = self.getResponseFormat(request)
+
+        if not bridgeLines:
+            internalMetrix.recordEmptyHTTPSResponse()
 
         if format == 'plain':
             request.setHeader("Content-Type", "text/plain")

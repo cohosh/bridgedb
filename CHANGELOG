@@ -1,3 +1,7 @@
+    * FIXES https://bugs.torproject.org/31422
+    Make BridgeDB report internal metrics, like the median number of users that
+    bridges were handed out to.
+
     * FIXES https://bugs.torproject.org/34260
     Parse bridge blocking information from SQL database.
 

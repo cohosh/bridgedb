@@ -12,3 +12,4 @@ qrcode==6.1
 service_identity==18.1.0
 stem==1.8.0
 zope.interface==5.1.0
+numpy==1.18.5

@@ -483,6 +483,23 @@ def run(options, reactor=reactor):
         else:
             logging.warn("No Moat distributor created!")
 
+        metrix = metrics.InternalMetrics()
+        logging.info("Logging bridge ring metrics for %d rings." %
+                     len(hashring.ringsByName))
+        for ringName, ring in hashring.ringsByName.items():
+            # Ring is of type FilteredBridgeSplitter or UnallocatedHolder.
+            # FilteredBridgeSplitter splits bridges into subhashrings based on
+            # filters.
+            if hasattr(ring, "filterRings"):
+                for (ringname, (filterFn, subring)) in ring.filterRings.items():
+                    subRingName = "-".join(ring.extractFilterNames(ringname))
+                    metrix.recordBridgesInHashring(ringName,
+                                                   subRingName,
+                                                   len(subring))
+            elif hasattr(ring, "fingerprints"):
+                metrix.recordBridgesInHashring(ringName, "unallocated",
+                                               len(ring.fingerprints))
+
         # Dump bridge pool assignments to disk.
         writeAssignments(hashring, state.ASSIGNMENTS_FILE)
         state.save()
