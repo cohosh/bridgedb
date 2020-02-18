@@ -1,0 +1,191 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of  BridgeDB, a Tor bridge distribution system.
+#
+# This script sends an email request for bridges to BridgeDB and then checks if
+# it got a response.  The result is written to STATUS_FILE, which is consumed
+# by Nagios.  Whenever BridgeDB fails to respond with bridges, we will get a
+# Nagios alert.
+#
+# Run this script via crontab every three hours as follows:
+#   0 */3 * * * path/to/nagios-email-check $(cat path/to/gmail.key)
+
+
+import sys
+import smtplib
+import time
+import imaplib
+import email
+import email.utils
+
+# Standard Nagios return codes
+OK, WARNING, CRITICAL, UNKNOWN = range(4)
+
+FROM_EMAIL = "testbridgestorbrowser@gmail.com"
+TO_EMAIL = "bridges@torproject.org"
+SMTP_SERVER = "imap.gmail.com"
+SMTP_PORT = 993
+
+MESSAGE_FROM = TO_EMAIL
+MESSAGE_BODY = "Here are your bridges:"
+
+STATUS_FILE = "/srv/bridges.torproject.org/check/status"
+
+# This will contain our test email's message ID.  We later make sure that this
+# message ID is referenced in the In-Reply-To header of BridgeDB's response.
+MESSAGE_ID = None
+
+
+def log(*args, **kwargs):
+    """
+    Generic log function.
+    """
+
+    print("[+]", *args, file=sys.stderr, **kwargs)
+
+
+def get_email_response(password):
+    """
+    Open our Gmail inbox and see if we got a response.
+    """
+
+    log("Checking for email response.")
+    mail = imaplib.IMAP4_SSL(SMTP_SERVER)
+    try:
+        mail.login(FROM_EMAIL, password)
+    except Exception as e:
+        return WARNING, str(e)
+
+    mail.select("INBOX")
+
+    _, data = mail.search(None, "ALL")
+    email_ids = data[0].split()
+    if len(email_ids) == 0:
+        log("Found no response.")
+        return CRITICAL, "No emails from BridgeDB found"
+
+    return check_email(mail, email_ids)
+
+
+def check_email(mail, email_ids):
+    """
+    Check if we got our expected email response.
+    """
+
+    log("Checking {:,} emails.".format(len(email_ids)))
+    for email_id in email_ids:
+        _, data = mail.fetch(email_id, "(RFC822)")
+
+        # The variable `data` contains the full email object fetched by imaplib
+        # <https://docs.python.org/3/library/imaplib.html#imaplib.IMAP4.fetch>
+        # We are only interested in the response part containing the email
+        # envelope.
+        for response_part in data:
+            if isinstance(response_part, tuple):
+                m = str(response_part[1], "utf-8")
+                msg = email.message_from_string(m)
+                email_from = "{}".format(msg["From"])
+                email_body = "{}".format(msg.as_string())
+                email_reply_to = "{}".format(msg["In-Reply-To"])
+
+                if (MESSAGE_FROM == email_from) and \
+                   (MESSAGE_BODY in email_body) and \
+                   (MESSAGE_ID == email_reply_to):
+                    mail.store(email_id, '+X-GM-LABELS', '\\Trash')
+                    mail.expunge()
+                    mail.close()
+                    mail.logout()
+                    log("Found correct response (referencing {})."
+                        .format(MESSAGE_ID))
+                    return OK, "BridgeDB's email responder works"
+                else:
+                    mail.store(email_id, '+X-GM-LABELS', '\\Trash')
+    mail.expunge()
+    mail.close()
+    mail.logout()
+    log("Found no response.")
+    return WARNING, "No emails from BridgeDB found"
+
+
+def send_email_request(password):
+    """
+    Attempt to send a bridge request over Gmail.
+    """
+
+    subject = "Bridges"
+    body = "get bridges"
+
+    log("Sending email.")
+    global MESSAGE_ID
+    MESSAGE_ID = email.utils.make_msgid(idstring="test-bridgedb",
+                                        domain="gmail.com")
+    email_text = "From: %s\r\nTo: %s\r\nMessage-ID: %s\r\nSubject: %s\r\n" \
+                 "\r\n%s" % (FROM_EMAIL, TO_EMAIL, MESSAGE_ID, subject, body)
+
+    try:
+        mail = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+        mail.login(FROM_EMAIL, password)
+        mail.sendmail(FROM_EMAIL, TO_EMAIL, email_text)
+        mail.close()
+        log("Email successfully sent (message ID: %s)." % MESSAGE_ID)
+        return OK, "Sent email bridge request"
+    except Exception as e:
+        log("Error while sending email: %s" % err)
+        return UNKNOWN, str(e)
+
+
+def write_status_file(status, message):
+    """
+    Write the given `status` and `message` to our Nagios status file.
+    """
+
+    codes = {
+        0: "OK",
+        1: "WARNING",
+        2: "CRITICAL",
+        3: "UNKNOWN"
+    }
+    code = codes.get(status, UNKNOWN)
+
+    with open(STATUS_FILE, "w") as fd:
+        fd.write("{}\n{}: {}".format(code, status, message))
+    log("Wrote status='%s', message='%s' to status file." % (status, message))
+
+
+if __name__ == "__main__":
+    status, message = None, None
+
+    # Our Gmail password should be in sys.argv[1].
+
+    if len(sys.argv) == 2:
+        password = sys.argv[1]
+    else:
+        log("No email password provided.")
+        write_status_file(UNKNOWN, "No email password provided")
+        sys.exit(1)
+
+    # Send an email request to BridgeDB.
+
+    try:
+        status, message = send_email_request(password)
+    except Exception as e:
+        write_status_file(UNKNOWN, repr(e))
+        sys.exit(1)
+
+    wait_time = 60
+    log("Waiting %d seconds for a response." % wait_time)
+    time.sleep(wait_time)
+
+    # Check if we've received an email response.
+
+    try:
+        status, message = get_email_response(password)
+    except KeyboardInterrupt:
+        status, message = CRITICAL, "Caught Control-C..."
+    except Exception as e:
+        status = CRITICAL
+        message = repr(e)
+    finally:
+        write_status_file(status, message)
+        sys.exit(status)
