@@ -17,7 +17,7 @@ import warnings
 import time
 from datetime import datetime
 
-import bridgedb.Bridges
+import bridgedb.bridgerings
 import bridgedb.main
 import bridgedb.schedule
 import bridgedb.Storage
@@ -62,7 +62,7 @@ def fakeBridge(orport=8080, running=True, stable=True, or_addresses=False,
     ip = randomIPv4()
     nn = "bridge-%s" % int(ip)
     fp = "".join([random.choice("0123456789ABCDEF") for _ in range(40)])
-    b = bridgedb.Bridges.Bridge(nn,ip,orport,fingerprint=fp)
+    b = bridgedb.bridges.Bridge(nn,ip,orport,fingerprint=fp)
     b.setStatus(running, stable)
 
     oraddrs = []
@@ -72,7 +72,7 @@ def fakeBridge(orport=8080, running=True, stable=True, or_addresses=False,
 
     if transports:
         for i in range(0,8):
-            b.transports.append(bridgedb.Bridges.PluggableTransport(b,
+            b.transports.append(bridgedb.bridgerings.PluggableTransport(b,
                 random.choice(["obfs", "obfs2", "pt1"]),
                 randomIP(), randomPort()))
     return b
@@ -82,7 +82,7 @@ def fakeBridge6(orport=8080, running=True, stable=True, or_addresses=False,
     ip = randomIPv6()
     nn = "bridge-%s" % int(ip)
     fp = "".join([random.choice("0123456789ABCDEF") for _ in range(40)])
-    b = bridgedb.Bridges.Bridge(nn,ip,orport,fingerprint=fp)
+    b = bridgedb.bridges.Bridge(nn,ip,orport,fingerprint=fp)
     b.setStatus(running, stable)
 
     oraddrs = []
@@ -92,7 +92,7 @@ def fakeBridge6(orport=8080, running=True, stable=True, or_addresses=False,
 
     if transports:
         for i in range(0,8):
-            b.transports.append(bridgedb.Bridges.PluggableTransport(b,
+            b.transports.append(bridgedb.bridgerings.PluggableTransport(b,
                 random.choice(["obfs", "obfs2", "pt1"]),
                 randomIP(), randomPort()))
     return b
@@ -115,7 +115,7 @@ class SQLStorageTests(unittest.TestCase):
 
     def testBridgeStorage(self):
         db = self.db
-        B = bridgedb.Bridges.Bridge
+        B = bridgedb.bridges.Bridge
         t = time.time()
         cur = self.cur
 

@@ -9,7 +9,7 @@
 # :license: see LICENSE for licensing information
 #_____________________________________________________________________________
 
-"""Unittests for :mod:`bridgedb.Bridges`."""
+"""Unittests for :mod:`bridgedb.bridgerings`."""
 
 from __future__ import print_function
 
@@ -24,7 +24,7 @@ from twisted.trial import unittest
 
 import bridgedb.Storage
 
-from bridgedb import Bridges
+from bridgedb import bridgerings
 from bridgedb import crypto
 from bridgedb.test import util
 from bridgedb.distributors.https.distributor import HTTPSDistributor
@@ -33,14 +33,14 @@ from bridgedb.distributors.moat.distributor import MoatDistributor
 # For additional logger output for debugging, comment out the following:
 logging.disable(50)
 # and then uncomment the following line:
-#Bridges.logging.getLogger().setLevel(10)
+#bridgerings.logging.getLogger().setLevel(10)
 
 
 class BridgeRingTests(unittest.TestCase):
-    """Unittests for :class:`bridgedb.Bridges.BridgeRing`."""
+    """Unittests for :class:`bridgedb.bridgerings.BridgeRing`."""
 
     def setUp(self):
-        self.ring = Bridges.BridgeRing('fake-hmac-key')
+        self.ring = bridgerings.BridgeRing('fake-hmac-key')
 
     def addRandomBridges(self):
         bridges = copy.deepcopy(util.generateFakeBridges())
@@ -99,7 +99,7 @@ class BridgeRingTests(unittest.TestCase):
         filtering by distinct subnets.
         """
         self.addRandomBridges()
-        bridges = self.ring.getBridges(b'a' * Bridges.DIGEST_LEN, N=3, filterBySubnet=True)
+        bridges = self.ring.getBridges(b'a' * bridgerings.DIGEST_LEN, N=3, filterBySubnet=True)
         self.assertEqual(len(bridges), 3)
 
     def test_dumpAssignments(self):
@@ -121,7 +121,7 @@ class BridgeRingTests(unittest.TestCase):
 
 
 class BridgeSplitterTests(unittest.TestCase):
-    """Unittests for :class:`bridgedb.Bridges.BridgeSplitter`."""
+    """Unittests for :class:`bridgedb.bridgerings.BridgeSplitter`."""
 
     def setUp(self):
 
@@ -133,9 +133,9 @@ class BridgeSplitterTests(unittest.TestCase):
         bridgedb.Storage.setDBFilename(self.fname)
 
         key = 'fake-hmac-key'
-        self.splitter = Bridges.BridgeSplitter(key)
-        ringParams = Bridges.BridgeRingParameters(needPorts=[(443, 1)],
-                                                  needFlags=[("Stable", 1)])
+        self.splitter = bridgerings.BridgeSplitter(key)
+        ringParams = bridgerings.BridgeRingParameters(needPorts=[(443, 1)],
+                                                      needFlags=[("Stable", 1)])
         self.https_distributor = HTTPSDistributor(
             4,
             crypto.getHMAC(key, "HTTPS-IP-Dist-Key"),
@@ -146,7 +146,7 @@ class BridgeSplitterTests(unittest.TestCase):
             crypto.getHMAC(key, "Moat-Dist-Key"),
             None,
             answerParameters=ringParams)
-        self.unallocated_distributor = Bridges.UnallocatedHolder()
+        self.unallocated_distributor = bridgerings.UnallocatedHolder()
 
         self.splitter.addRing(self.https_distributor.hashring, "https", p=10)
         self.splitter.addRing(self.moat_distributor.hashring, "moat", p=10)

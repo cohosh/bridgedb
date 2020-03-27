@@ -199,7 +199,7 @@ class BridgeRing(object):
         If the (presumably same) bridge is already at that determined position
         in this hashring, replace the old one.
 
-        :type bridge: :class:`~bridgedb.Bridges.Bridge`
+        :type bridge: :class:`~bridgedb.bridges.Bridge`
         :param bridge: The bridge to insert into this hashring.
         """
         for tp, val, _, subring in self.subrings:
@@ -257,7 +257,7 @@ class BridgeRing(object):
             first position after this one which has a bridge assigned to it.
         :param int N: The number of bridges to return.
         :rtype: list
-        :returns: A list of :class:`~bridgedb.Bridges.Bridge`s.
+        :returns: A list of :class:`~bridgedb.bridges.Bridge`s.
         """
         assert len(pos) == DIGEST_LEN
         if N >= len(self.sortedKeys):

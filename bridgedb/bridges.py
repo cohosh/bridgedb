@@ -814,12 +814,12 @@ class BridgeBackwardsCompatibility(BridgeBase):
         This method is provided for backwards compatibility and should not
         be relied upon.
 
-        The old ``bridgedb.Bridges.Bridge.getConfigLine()`` method didn't know
+        The old ``bridgedb.bridges.Bridge.getConfigLine()`` method didn't know
         about :class:`~bridgedb.bridgerequest.BridgeRequestBase`s, and so this
         modified version is backwards compatible by creating a
         :class:`~bridgedb.bridgerequest.BridgeRequestBase` for
         :meth:`getBridgeLine`. The default parameters are the same as they
-        were in the old ``bridgedb.Bridges.Bridge`` class.
+        were in the old ``bridgedb.bridges.Bridge`` class.
 
         :param bool includeFingerprint: If ``True``, include the
             ``fingerprint`` of this :class:`Bridge` in the returned bridge
