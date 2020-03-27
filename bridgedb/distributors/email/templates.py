@@ -102,45 +102,8 @@ def addHowto(template):
     howToTBB += u'\n\n'
     return howToTBB
 
-def addFooter(template, clientAddress=None):
-    """Add a footer::
-
-        --
-        <3 BridgeDB
-       ________________________________________________________________________
-       Public Keys: https://bridges.torproject.org/keys
-
-       This email was generated with rainbows, unicorns, and sparkles
-       for alice@example.com on Friday, 09 May, 2014 at 18:59:39.
-
-
-    :type template: ``gettext.NullTranslation`` or ``gettext.GNUTranslation``
-    :param template: A gettext translations instance, optionally with fallback
-        languages set.
-    :type clientAddress: :api:`twisted.mail.smtp.Address`
-    :param clientAddress: The client's email address which should be in the
-        ``To:`` header of the response email.
-    """
-    now = datetime.utcnow()
-    clientAddr = clientAddress.addrstr
-
-    footer  = u' --\n'
-    footer += u' <3 BridgeDB\n'
-    footer += u'_' * 70
-    footer += u'\n'
-    footer += template.gettext(strings.EMAIL_MISC_TEXT[8])
-    footer += u': https://bridges.torproject.org/keys\n'
-    footer += template.gettext(strings.EMAIL_MISC_TEXT[9]) \
-              % (clientAddr,
-                 now.strftime('%A, %d %B, %Y'),
-                 now.strftime('%H:%M:%S'))
-    footer += u'\n\n'
-
-    return footer
-
 def buildKeyMessage(template, clientAddress=None):
     message  = addKeyfile(template)
-    message += addFooter(template, clientAddress)
     return message
 
 def buildWelcomeText(template, clientAddress=None):
@@ -159,8 +122,6 @@ def buildWelcomeText(template, clientAddress=None):
     message  = u"\n\n".join(sections)
     # Add the markdown links at the end:
     message += strings.EMAIL_REFERENCE_LINKS.get("WELCOME0")
-    message += u"\n\n"
-    message += addFooter(template, clientAddress)
 
     return message
 
@@ -171,8 +132,6 @@ def buildAnswerMessage(template, clientAddress=None, answer=None):
         message += addHowto(template)
         message += u'\n\n'
         message += addCommands(template)
-        message += u'\n\n'
-        message += addFooter(template, clientAddress)
     except Exception as error:  # pragma: no cover
         logging.error("Error while formatting email message template:")
         logging.exception(error)
@@ -187,8 +146,6 @@ def buildSpamWarning(template, clientAddress=None):
         message += u"\n\n"
         message += template.gettext(strings.EMAIL_MISC_TEXT[2]) \
                    % str(MAX_EMAIL_RATE / 3600)
-        message += u"\n\n"
-        message += addFooter(template, clientAddress)
     except Exception as error:  # pragma: no cover
         logging.error("Error while formatting email spam template:")
         logging.exception(error)

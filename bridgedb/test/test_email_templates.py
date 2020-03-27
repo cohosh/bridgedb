@@ -54,9 +54,6 @@ class EmailTemplatesTests(unittest.TestCase):
     def shouldIncludeKey(self, text):
         self.assertSubstring('-----BEGIN PGP PUBLIC KEY BLOCK-----', text)
 
-    def shouldIncludeFooter(self, text):
-        self.assertSubstring('rainbows, unicorns, and sparkles', text)
-
     def test_templates_addCommands(self):
         text = templates.addCommands(self.t)
         self.shouldIncludeCommands(text)
@@ -90,16 +87,11 @@ class EmailTemplatesTests(unittest.TestCase):
         text = templates.addBridgeAnswer(self.t, self.answer)
         self.shouldIncludeBridges(text)
 
-    def test_templates_addFooter(self):
-        text = templates.addFooter(self.t, self.client)
-        self.shouldIncludeFooter(text)
-
     def test_templates_buildAnswerMessage(self):
         text = templates.buildAnswerMessage(self.t, self.client, self.answer)
         self.assertSubstring(self.answer, text)
         self.shouldIncludeAutomationNotice(text)
         self.shouldIncludeCommands(text)
-        self.shouldIncludeFooter(text)
 
     def test_templates_buildKeyMessage(self):
         text = templates.buildKeyMessage(self.t, self.client)
@@ -110,10 +102,8 @@ class EmailTemplatesTests(unittest.TestCase):
         self.shouldIncludeGreeting(text)
         self.assertSubstring('Welcome to BridgeDB!', text)
         self.shouldIncludeCommands(text)
-        self.shouldIncludeFooter(text)
 
     def test_templates_buildSpamWarning(self):
         text = templates.buildSpamWarning(self.t, self.client)
         self.shouldIncludeGreeting(text)
         self.shouldIncludeAutomationNotice(text)
-        self.shouldIncludeFooter(text)
