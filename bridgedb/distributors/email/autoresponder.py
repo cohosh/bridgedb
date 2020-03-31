@@ -55,7 +55,6 @@ from bridgedb import safelog
 from bridgedb.distributors.email import dkim
 from bridgedb.distributors.email import request
 from bridgedb.distributors.email import templates
-from bridgedb.distributors.email.distributor import EmailRequestedHelp
 from bridgedb.distributors.email.distributor import EmailRequestedKey
 from bridgedb.distributors.email.distributor import TooSoonEmail
 from bridgedb.distributors.email.distributor import IgnoreEmail
@@ -98,18 +97,9 @@ def createResponseBody(lines, context, client, lang='en'):
         bridgeRequest = request.determineBridgeRequestOptions(lines)
         bridgeRequest.client = str(client)
 
-        # The request was invalid, respond with a help email which explains
-        # valid email commands:
-        if not bridgeRequest.isValid():
-            raise EmailRequestedHelp("Email request from '%s' was invalid."
-                                     % str(client))
-
         # Otherwise they must have requested bridges:
         interval = context.schedule.intervalStart(time.time())
         bridges = context.distributor.getBridges(bridgeRequest, interval)
-    except EmailRequestedHelp as error:
-        logging.info(error)
-        return templates.buildWelcomeText(translator, client)
     except EmailRequestedKey as error:
         logging.info(error)
         return templates.buildKeyMessage(translator, client)

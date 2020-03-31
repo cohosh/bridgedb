@@ -70,11 +70,12 @@ class CreateResponseBodyTests(unittest.TestCase):
         self.assertSubstring('-----BEGIN PGP PUBLIC KEY BLOCK-----', ret)
 
     def test_createResponseBody_bridges_invalid(self):
-        """An invalid request for 'transport obfs3' should get help text."""
+        """An invalid request for 'transport obfs3' should still return
+        bridges."""
         lines = self._getIncomingLines("testing@localhost")
         lines[4] = "transport obfs3"
         ret = autoresponder.createResponseBody(lines, self.ctx, self.toAddress)
-        self.assertSubstring("COMMANDs", ret)
+        self.assertSubstring("Here are your bridges:", ret)
 
     def test_createResponseBody_bridges_obfs3(self):
         """A request for 'get transport obfs3' should receive a response."""

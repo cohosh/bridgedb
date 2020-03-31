@@ -21,9 +21,6 @@ bridgedb.distributors.email.templates
 Templates for formatting emails sent out by the email distributor.
 """
 
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import logging
 import os
 
@@ -34,12 +31,17 @@ from bridgedb.distributors.email.distributor import MAX_EMAIL_RATE
 
 
 def addCommands(template):
-    """Add some text telling a client about supported email command, as well as
-    which Pluggable Transports are currently available.
+    """Add text telling a client about supported email command.
+
+    :type template: ``gettext.NullTranslation`` or ``gettext.GNUTranslation``
+    :param template: A gettext translations instance, optionally with fallback
+        languages set.
+    :rtype: str
+    :returns: A string explaining email commands.
     """
     # Tell them about the various email commands:
     cmdlist = []
-    cmdlist.append(template.gettext(strings.EMAIL_MISC_TEXT.get(3)))
+    cmdlist.append(template.gettext(strings.EMAIL_MISC_TEXT.get(3)) + "\n")
     for cmd, desc in strings.EMAIL_COMMANDS.items():
         command  = '  '
         command += cmd
@@ -48,29 +50,20 @@ def addCommands(template):
         command += template.gettext(desc)
         cmdlist.append(command)
 
-    commands  = "\n".join(cmdlist) + "\n\n"
-    # And include the currently supported transports:
-    commands += template.gettext(strings.EMAIL_MISC_TEXT.get(5))
-    commands += "\n"
-    for pt in strings._getSupportedTransports():
-        commands += '  ' + pt + "\n"
+    return "\n".join(cmdlist) + "\n\n"
 
-    return commands
+def addGreeting(template):
+    """Our "greeting" clarifies that this is an automated email response.
 
-def addGreeting(template, clientName=None, welcome=False):
-    greeting = ""
-    clientName = clientName.decode('utf-8') if isinstance(clientName, bytes) else clientName
+    :type template: ``gettext.NullTranslation`` or ``gettext.GNUTranslation``
+    :param template: A gettext translations instance, optionally with fallback
+        languages set.
+    :rtype: str
+    :returns: A string containing our "greeting".
+    """
 
-    if not clientName:
-        greeting = template.gettext(strings.EMAIL_MISC_TEXT[7])
-    else:
-        greeting = template.gettext(strings.EMAIL_MISC_TEXT[6]) % clientName
-
-    if greeting:
-        if welcome:
-            greeting += u' '
-            greeting += template.gettext(strings.EMAIL_MISC_TEXT[4])
-        greeting += u'\n\n'
+    greeting = template.gettext(strings.EMAIL_MISC_TEXT[0])
+    greeting += u"\n\n"
 
     return greeting
 
@@ -79,11 +72,10 @@ def addKeyfile(template):
 
 def addBridgeAnswer(template, answer):
     # Give the user their bridges, i.e. the `answer`:
-    bridgeLines  = template.gettext(strings.EMAIL_MISC_TEXT[0])
-    bridgeLines += u"\n\n"
+    bridgeLines = u""
     bridgeLines += template.gettext(strings.EMAIL_MISC_TEXT[1])
     bridgeLines += u"\n\n"
-    bridgeLines += u"%s\n\n" % answer
+    bridgeLines += u"%s\n" % answer
 
     return bridgeLines
 
@@ -94,40 +86,15 @@ def addHowto(template):
     :param template: A gettext translations instance, optionally with fallback
         languages set.
     """
-    howToTBB  = template.gettext(strings.HOWTO_TBB[1]) % strings.EMAIL_SPRINTF["HOWTO_TBB1"]
-    howToTBB += u'\n\n'
-    howToTBB += strings.EMAIL_REFERENCE_LINKS.get("HOWTO_TBB1")
-    howToTBB += strings.EMAIL_REFERENCE_LINKS.get("HOWTO_TBB2")
-    howToTBB += strings.EMAIL_REFERENCE_LINKS.get("HOWTO_TBB3")
-    howToTBB += u'\n\n'
-    return howToTBB
+    return template.gettext(strings.HOWTO_TBB[2])
 
 def buildKeyMessage(template, clientAddress=None):
     message  = addKeyfile(template)
     return message
 
-def buildWelcomeText(template, clientAddress=None):
-    sections = []
-    sections.append(addGreeting(template, clientAddress.local, welcome=True))
-
-    commands = addCommands(template)
-    sections.append(commands)
-
-    # Include the same messages as the homepage of the HTTPS distributor:
-    welcome  = template.gettext(strings.WELCOME[0]) % strings.EMAIL_SPRINTF["WELCOME0"]
-    welcome += template.gettext(strings.WELCOME[1])
-    welcome += template.gettext(strings.WELCOME[2]) % strings.EMAIL_SPRINTF["WELCOME2"]
-    sections.append(welcome)
-
-    message  = u"\n\n".join(sections)
-    # Add the markdown links at the end:
-    message += strings.EMAIL_REFERENCE_LINKS.get("WELCOME0")
-
-    return message
-
 def buildAnswerMessage(template, clientAddress=None, answer=None):
     try:
-        message  = addGreeting(template, clientAddress.local)
+        message  = addGreeting(template)
         message += addBridgeAnswer(template, answer)
         message += addHowto(template)
         message += u'\n\n'
@@ -139,11 +106,9 @@ def buildAnswerMessage(template, clientAddress=None, answer=None):
     return message
 
 def buildSpamWarning(template, clientAddress=None):
-    message = addGreeting(template, clientAddress.local)
+    message = addGreeting(template)
 
     try:
-        message += template.gettext(strings.EMAIL_MISC_TEXT[0])
-        message += u"\n\n"
         message += template.gettext(strings.EMAIL_MISC_TEXT[2]) \
                    % str(MAX_EMAIL_RATE / 3600)
     except Exception as error:  # pragma: no cover
