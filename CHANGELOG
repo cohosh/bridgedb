@@ -1,3 +1,7 @@
+        * FIXES https://bugs.torproject.org/29686
+        Rename files that contain "Bridges" to "bridgerings", to eliminate
+        headache on file systems that are case insensitive.
+
 Changes in version 0.10.0 - 2020-04-01
 
         * FIXES https://bugs.torproject.org/30317
