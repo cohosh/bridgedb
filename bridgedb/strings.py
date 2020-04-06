@@ -38,30 +38,17 @@ def _(text):
     return text
 
 
-# TRANSLATORS: Please do not translate the word "TYPE".
 EMAIL_MISC_TEXT = {
     0: _("""\
-[This is an automated message; please do not reply.]"""),
+[This is an automated email.]"""),
     1: _("""\
 Here are your bridges:"""),
     2: _("""\
 You have exceeded the rate limit. Please slow down! The minimum time between
 emails is %s hours. All further emails during this time period will be ignored."""),
     3: _("""\
-COMMANDs: (combine COMMANDs to specify multiple options simultaneously)"""),
-    # TRANSLATORS: Please DO NOT translate the word "BridgeDB".
-    4: _("Welcome to BridgeDB!"),
-    # TRANSLATORS: Please DO NOT translate the words "transport" or "TYPE".
-    5: _("Currently supported transport TYPEs:"),
-    6: _("Hey, %s!"),
-    7: _("Hello, friend!"),
-    8: _("Public Keys"),
-    # TRANSLATORS: This string will end up saying something like:
-    # "This email was generated with rainbows, unicorns, and sparkles
-    #  for alice@example.com on Friday, 09 May, 2014 at 18:59:39."
-    9: _("""\
-This email was generated with rainbows, unicorns, and sparkles
-for %s on %s at %s."""),
+If these bridges are not what you need, reply to this email with one of
+the following commands in the message body:"""),
 }
 
 WELCOME = {
@@ -90,11 +77,10 @@ Additionally, BridgeDB has plenty of plain-ol'-vanilla bridges %s without any
 Pluggable Transports %s which maybe doesn't sound as cool, but they can still
 help to circumvent internet censorship in many cases.\n\n"""),
 }
-"""These strings should go on the first "Welcome" email sent by the
-:mod:`~bridgedb.EmailServer`, as well as on the ``index.html`` template used
-by the :mod:`~bridgedb.distributors.https.server`. They are used as an introduction to
-explain what Tor bridges are, what bridges do, and why someone might want to
-use bridges.
+"""These strings should go on the ``options.html`` template used by the
+:mod:`~bridgedb.distributors.https.server`. They are used as an
+introduction to explain what Tor bridges are, what bridges do, and why
+someone might want to use bridges.
 """
 
 FAQ = {
@@ -186,22 +172,21 @@ HOWTO_TBB = {
  Manual explains how you can add your bridges to Tor Browser. If you are
  using Windows, Linux, or OS X, %sclick here%s to learn more. If you
  are using Android, %sclick here%s."""),
+    2: _("""\
+Add these bridges to your Tor Browser by opening your browser
+preferences, clicking on "Tor", and then adding them to the "Provide a
+bridge" field."""),
 }
 
 EMAIL_COMMANDS = {
-    "get help":             _("Displays this message."),
-# TRANSLATORS: Please try to make it clear that "vanilla" here refers to the
-# same non-Pluggable Transport bridges described above as being
-# "plain-ol'-vanilla" bridges.
-    "get bridges":          _("Request vanilla bridges."),
-    "get ipv6":             _("Request IPv6 bridges."),
-    # TRANSLATORS: Please DO NOT translate the word the word "TYPE".
-    "get transport [TYPE]": _("Request a Pluggable Transport by TYPE."),
+    "get bridges":          _("(Request unobfuscated Tor bridges.)"),
+    "get ipv6":             _("(Request IPv6 bridges.)"),
+    # TRANSLATORS: Please DO NOT translate the word "TYPE".
+    "get transport TYPE":   _("(Request obfuscated bridges. Replace TYPE with "
+                              "'obfs4'.)"),
     # TRANSLATORS: Please DO NOT translate "BridgeDB".
     # TRANSLATORS: Please DO NOT translate "GnuPG".
-    "get key":              _("Get a copy of BridgeDB's public GnuPG key."),
-    #"subscribe":            _("Subscribe to receive new bridges once per week"),
-    #"unsubscribe":          _("Cancel a subscription to new bridges"),
+    "get key":              _("(Get a copy of BridgeDB's public GnuPG key.)"),
 }
 
 #-----------------------------------------------------------------------------

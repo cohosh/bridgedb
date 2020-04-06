@@ -17,26 +17,25 @@ import ipaddr
 
 from twisted.trial import unittest
 
+from bridgedb import strings
 from bridgedb.distributors.email import request
 
 
 class DetermineBridgeRequestOptionsTests(unittest.TestCase):
     """Unittests for :func:`b.e.request.determineBridgeRequestOptions`."""
 
-    def test_determineBridgeRequestOptions_get_help(self):
-        """Requesting 'get help' should raise EmailRequestedHelp."""
+    def test_determineBridgeRequestOptions_multiline_invalid(self):
         lines = ['',
-                 'get help']
-        self.assertRaises(request.EmailRequestedHelp,
-                          request.determineBridgeRequestOptions, lines)
-        
-    def test_determineBridgeRequestOptions_get_halp(self):
-        """Requesting 'get halp' should raise EmailRequestedHelp."""
-        lines = ['',
-                 'get halp']
-        self.assertRaises(request.EmailRequestedHelp,
-                          request.determineBridgeRequestOptions, lines)
-        
+                 'help',
+                 'i need bridges',
+                 'give me your gpgs']
+        reqvest = request.determineBridgeRequestOptions(lines)
+        # We consider every request valid...
+        self.assertEqual(reqvest.isValid(), True)
+        self.assertFalse(reqvest.wantsKey())
+        # ...so by default, we return a bridge.
+        self.assertEqual(len(reqvest.transports), 1)
+
     def test_determineBridgeRequestOptions_get_key(self):
         """Requesting 'get key' should raise EmailRequestedKey."""
         lines = ['',
@@ -45,14 +44,14 @@ class DetermineBridgeRequestOptionsTests(unittest.TestCase):
                           request.determineBridgeRequestOptions, lines)
 
     def test_determineBridgeRequestOptions_multiline_invalid(self):
-        """Requests without a 'get' anywhere should be considered invalid."""
+        """Requests without a 'get' are incorrect but still valid, and should
+        return bridges."""
         lines = ['',
                  'transport obfs3',
                  'ipv6 vanilla bridges',
                  'give me your gpgs']
         reqvest = request.determineBridgeRequestOptions(lines)
-        # It's invalid because it didn't include a 'get' anywhere.
-        self.assertEqual(reqvest.isValid(), False)
+        self.assertEqual(reqvest.isValid(), True)
         self.assertFalse(reqvest.wantsKey())
         # Though they did request IPv6, technically.
         self.assertIs(reqvest.ipVersion, 6)
@@ -61,9 +60,8 @@ class DetermineBridgeRequestOptionsTests(unittest.TestCase):
         self.assertEqual(reqvest.transports[0], 'obfs3')
 
     def test_determineBridgeRequestOptions_multiline_valid(self):
-        """Though requests with a 'get' are considered valid."""
         lines = ['',
-                 'get transport obfs3',
+                 'transport obfs3',
                  'vanilla bridges',
                  'transport scramblesuit unblocked ca']
         reqvest = request.determineBridgeRequestOptions(lines)
@@ -73,6 +71,7 @@ class DetermineBridgeRequestOptionsTests(unittest.TestCase):
         # Though they didn't request IPv6, so it should default to IPv4.
         self.assertIs(reqvest.ipVersion, 4)
         # And they requested two transports.
+        print(reqvest.transports)
         self.assertEqual(len(reqvest.transports), 2)
         self.assertEqual(reqvest.transports[0], 'obfs3')
         self.assertEqual(reqvest.transports[1], 'scramblesuit')
@@ -103,13 +102,16 @@ class DetermineBridgeRequestOptionsTests(unittest.TestCase):
         self.assertEqual(reqvest.notBlockedIn[0], 'ca')
 
     def test_determineBridgeRequestOptions_get_transport(self):
-        """An invalid request for 'transport obfs3' (missing the 'get')."""
+        """An invalid request for 'transprot obfs3' (typo) should return our
+        default bridge."""
+        default_transport = "obfs4"
+        strings._setDefaultTransport(default_transport)
         lines = ['',
-                 'transport obfs3']
+                 'transprot obfs3']
         reqvest = request.determineBridgeRequestOptions(lines)
         self.assertEqual(len(reqvest.transports), 1)
-        self.assertEqual(reqvest.transports[0], 'obfs3')
-        self.assertEqual(reqvest.isValid(), False)
+        self.assertEqual(reqvest.transports[0], default_transport)
+        self.assertEqual(reqvest.isValid(), True)
         
     def test_determineBridgeRequestOptions_get_ipv6(self):
         """An valid request for 'get ipv6'."""

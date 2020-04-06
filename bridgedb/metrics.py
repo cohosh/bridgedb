@@ -22,7 +22,6 @@ import datetime
 from bridgedb import geo
 from bridgedb.distributors.common.http import getClientIP
 from bridgedb.distributors.email import request
-from bridgedb.distributors.email.distributor import EmailRequestedHelp
 
 from twisted.mail.smtp import Address
 
@@ -387,11 +386,7 @@ class EmailMetrics(Metrics):
             emailAddr = emailAddrs[0]
 
         # Get the requested transport protocol.
-        try:
-            br = request.determineBridgeRequestOptions(
-                    smtpAutoresp.incoming.lines)
-        except EmailRequestedHelp:
-            return
+        br = request.determineBridgeRequestOptions( smtpAutoresp.incoming.lines)
         bridgeType = "vanilla" if not len(br.transports) else br.transports[0]
 
         # Over email, transports are requested by typing them.  Typos happen

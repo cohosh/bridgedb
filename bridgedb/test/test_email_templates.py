@@ -36,7 +36,7 @@ class EmailTemplatesTests(unittest.TestCase):
         self.offlineFingerprint = '7B78437015E63DF47BB1270ACBD97AA24E8E472E'
 
     def shouldIncludeCommands(self, text):
-        self.assertSubstring('COMMANDs', text)
+        self.assertSubstring('commands', text)
 
     def shouldIncludeInstructions(self, text):
         self.assertSubstring('Tor Browser', text)
@@ -46,41 +46,21 @@ class EmailTemplatesTests(unittest.TestCase):
         self.assertSubstring('Here are your bridges:', text)
 
     def shouldIncludeGreeting(self, text):
-        self.assertSubstring('Hey, blackhole!', text)
+        self.assertSubstring('This is an automated email', text)
 
     def shouldIncludeAutomationNotice(self, text):
-        self.assertSubstring('automated message', text)
+        self.assertSubstring('automated email', text)
 
     def shouldIncludeKey(self, text):
         self.assertSubstring('-----BEGIN PGP PUBLIC KEY BLOCK-----', text)
-
-    def shouldIncludeFooter(self, text):
-        self.assertSubstring('rainbows, unicorns, and sparkles', text)
 
     def test_templates_addCommands(self):
         text = templates.addCommands(self.t)
         self.shouldIncludeCommands(text)
 
     def test_templates_addGreeting(self):
-        text = templates.addGreeting(self.t, self.client.local)
+        text = templates.addGreeting(self.t)
         self.shouldIncludeGreeting(text)
-
-    def test_templates_addGreeting_noClient(self):
-        text = templates.addGreeting(self.t, None)
-        self.assertSubstring('Hello, friend!', text)
-
-    def test_templates_addGreeting_withWelcome(self):
-        text = templates.addGreeting(self.t, self.client.local, welcome=True)
-        self.shouldIncludeGreeting(text)
-        self.assertSubstring('Welcome to BridgeDB!', text)
-
-    def test_templates_addGreeting_trueClient(self):
-        text = templates.addGreeting(self.t, True)
-        self.assertSubstring('Hey', text)
-
-    def test_templates_addGreeting_23Client(self):
-        text = templates.addGreeting(self.t, 23)
-        self.assertSubstring('Hey', text)
 
     def test_templates_addHowto(self):
         text = templates.addHowto(self.t)
@@ -90,30 +70,17 @@ class EmailTemplatesTests(unittest.TestCase):
         text = templates.addBridgeAnswer(self.t, self.answer)
         self.shouldIncludeBridges(text)
 
-    def test_templates_addFooter(self):
-        text = templates.addFooter(self.t, self.client)
-        self.shouldIncludeFooter(text)
-
     def test_templates_buildAnswerMessage(self):
         text = templates.buildAnswerMessage(self.t, self.client, self.answer)
         self.assertSubstring(self.answer, text)
         self.shouldIncludeAutomationNotice(text)
         self.shouldIncludeCommands(text)
-        self.shouldIncludeFooter(text)
 
     def test_templates_buildKeyMessage(self):
         text = templates.buildKeyMessage(self.t, self.client)
         self.assertSubstring(self.offlineFingerprint, text)
 
-    def test_templates_buildWelcomeText(self):
-        text = templates.buildWelcomeText(self.t, self.client)
-        self.shouldIncludeGreeting(text)
-        self.assertSubstring('Welcome to BridgeDB!', text)
-        self.shouldIncludeCommands(text)
-        self.shouldIncludeFooter(text)
-
     def test_templates_buildSpamWarning(self):
         text = templates.buildSpamWarning(self.t, self.client)
         self.shouldIncludeGreeting(text)
         self.shouldIncludeAutomationNotice(text)
-        self.shouldIncludeFooter(text)

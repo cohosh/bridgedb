@@ -1,3 +1,9 @@
+        * FIXES https://bugs.torproject.org/30941
+        Make our email responder more usable.  This patch removes the concept of
+        "valid" email commands and returns bridges (obfs4, for now) no matter
+        what the user sends.  BridgeDB still supports email commands in case the
+        user needs a vanilla or IPv6 bridge.
+
         * FIXES https://bugs.torproject.org/29686
         Rename files that contain "Bridges" to "bridgerings", to eliminate
         headache on file systems that are case insensitive.
