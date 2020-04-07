@@ -181,9 +181,7 @@ bridge" field."""),
 EMAIL_COMMANDS = {
     "get bridges":          _("(Request unobfuscated Tor bridges.)"),
     "get ipv6":             _("(Request IPv6 bridges.)"),
-    # TRANSLATORS: Please DO NOT translate the word "TYPE".
-    "get transport TYPE":   _("(Request obfuscated bridges. Replace TYPE with "
-                              "'obfs4'.)"),
+    "get transport obfs4":  _("(Request obfs4 obfuscated bridges.)"),
     # TRANSLATORS: Please DO NOT translate "BridgeDB".
     # TRANSLATORS: Please DO NOT translate "GnuPG".
     "get key":              _("(Get a copy of BridgeDB's public GnuPG key.)"),
