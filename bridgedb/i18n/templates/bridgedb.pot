@@ -5,11 +5,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: bridgedb 0.10.0+8.g97621c0\n"
+"Project-Id-Version: bridgedb 0.10.0+7.gbca6496.dirty\n"
 "Report-Msgid-Bugs-To: "
 "'https://trac.torproject.org/projects/tor/newticket?component=BridgeDB&keywords"
 "=bridgedb-reported,msgid&cc=isis,sysrqb&owner=isis'\n"
-"POT-Creation-Date: 2020-04-06 13:53-0700\n"
+"POT-Creation-Date: 2020-04-07 10:14-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -422,14 +422,13 @@ msgstr ""
 msgid "(Request IPv6 bridges.)"
 msgstr ""
 
-#. TRANSLATORS: Please DO NOT translate the word "TYPE".
-#: bridgedb/strings.py:185
-msgid "(Request obfuscated bridges. Replace TYPE with 'obfs4'.)"
+#: bridgedb/strings.py:184
+msgid "(Request obfs4 obfuscated bridges.)"
 msgstr ""
 
 #. TRANSLATORS: Please DO NOT translate "BridgeDB".
 #. TRANSLATORS: Please DO NOT translate "GnuPG".
-#: bridgedb/strings.py:189
+#: bridgedb/strings.py:187
 msgid "(Get a copy of BridgeDB's public GnuPG key.)"
 msgstr ""
 
