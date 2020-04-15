@@ -45,7 +45,6 @@ import re
 
 from bridgedb import strings
 from bridgedb import bridgerequest
-from bridgedb.distributors.email.distributor import EmailRequestedKey
 
 
 #: A regular expression for matching the Pluggable Transport method TYPE in
@@ -62,7 +61,6 @@ UNBLOCKED_PATTERN = re.compile(UNBLOCKED_REGEXP)
 #: valid as long as it wasn't quoted, i.e., the line didn't start with a '>'
 #: character.
 GET_LINE       = re.compile("([^>].*)?get")
-KEY_LINE       = re.compile("([^>].*)?key")
 IPV6_LINE      = re.compile("([^>].*)?ipv6")
 TRANSPORT_LINE = re.compile("([^>].*)?transport")
 UNBLOCKED_LINE = re.compile("([^>].*)?unblocked")
@@ -75,7 +73,6 @@ def determineBridgeRequestOptions(lines):
         and/or ``CC`` will *always* be stored as a *lowercase* string.
 
     :param list lines: A list of lines from an email, including the headers.
-    :raises EmailRequestedKey: if the client requested our GnuPG key.
     :rtype: :class:`EmailBridgeRequest`
     :returns: A :class:`~bridgerequest.BridgeRequest` with all of the requested
         parameters set. The returned ``BridgeRequest`` will have already had
@@ -93,9 +90,6 @@ def determineBridgeRequestOptions(lines):
         if GET_LINE.match(line) is not None:
             request.isValid(True)
             logging.debug("Email request was valid.")
-        if KEY_LINE.match(line) is not None:
-            request.wantsKey(True)
-            raise EmailRequestedKey("Email requested a copy of our GnuPG key.")
         if IPV6_LINE.match(line) is not None:
             request.withIPv6()
         if TRANSPORT_LINE.match(line) is not None:
@@ -127,22 +121,6 @@ class EmailBridgeRequest(bridgerequest.BridgeRequestBase):
         :class:`~bridgedb.distributors.email.distributor.EmailDistributor`.
         """
         super(EmailBridgeRequest, self).__init__()
-        self._wantsKey = False
-
-    def wantsKey(self, wantsKey=None):
-        """Get or set whether this bridge request wanted our GnuPG key.
-
-        If called without parameters, this method will return the current
-        state, otherwise (if called with the **wantsKey** parameter set), it
-        will set the current state for whether or not this request wanted our
-        key.
-
-        :param bool wantsKey: If given, set the validity state of this
-            request. Otherwise, get the current state.
-        """
-        if wantsKey is not None:
-            self._wantsKey = bool(wantsKey)
-        return self._wantsKey
 
     def withoutBlockInCountry(self, line):
         """This request was for bridges not blocked in **country**.

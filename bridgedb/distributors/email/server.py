@@ -66,7 +66,6 @@ from zope.interface import implementer
 
 from bridgedb import __version__
 from bridgedb import safelog
-from bridgedb.crypto import initializeGnuPG
 from bridgedb.distributors.email import autoresponder
 from bridgedb.distributors.email import templates
 from bridgedb.distributors.email import request
@@ -97,13 +96,6 @@ class MailServerContext(object):
     :ivar int fuzzyMatch: An integer specifying the maximum Levenshtein
         Distance from an incoming email address to a blacklisted email address
         for the incoming email to be dropped.
-    :ivar gpg: A :class:`gnupg.GPG` interface_, as returned by
-        :func:`~bridgedb.crypto.initialiseGnuPG`, or ``None`` if we couldn't
-        initialize GnuPG for some reason.
-    :ivar gpgSignFunc: A callable which signs a message, e.g. the one returned
-        from :func:`~bridgedb.crypto.initialiseGnuPG`.
-
-    .. _interface: https://pythonhosted.org/gnupg/gnupg.html#gnupg-module
     """
 
     def __init__(self, config, distributor, schedule):
@@ -138,8 +130,6 @@ class MailServerContext(object):
         self.whitelist = config.EMAIL_WHITELIST or {}
         self.blacklist = config.EMAIL_BLACKLIST or []
         self.fuzzyMatch = config.EMAIL_FUZZY_MATCH or 0
-
-        self.gpg, self.gpgSignFunc = initializeGnuPG(config)
 
     def buildCanonicalDomainMap(self):
         """Build a map for all email provider domains from which we will accept

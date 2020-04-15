@@ -30,10 +30,6 @@ class EmailTemplatesTests(unittest.TestCase):
         self.t = NullTranslations(StringIO('test'))
         self.client = Address('blackhole@torproject.org')
         self.answer = 'obfs3 1.1.1.1:1111\nobfs3 2.2.2.2:2222'
-        # This is the fingerprint of BridgeDB's offline, certification-only
-        # GnuPG key. It should be present in any responses to requests for our
-        # public keys.
-        self.offlineFingerprint = '7B78437015E63DF47BB1270ACBD97AA24E8E472E'
 
     def shouldIncludeCommands(self, text):
         self.assertSubstring('commands', text)
@@ -50,9 +46,6 @@ class EmailTemplatesTests(unittest.TestCase):
 
     def shouldIncludeAutomationNotice(self, text):
         self.assertSubstring('automated email', text)
-
-    def shouldIncludeKey(self, text):
-        self.assertSubstring('-----BEGIN PGP PUBLIC KEY BLOCK-----', text)
 
     def test_templates_addCommands(self):
         text = templates.addCommands(self.t)
@@ -75,10 +68,6 @@ class EmailTemplatesTests(unittest.TestCase):
         self.assertSubstring(self.answer, text)
         self.shouldIncludeAutomationNotice(text)
         self.shouldIncludeCommands(text)
-
-    def test_templates_buildKeyMessage(self):
-        text = templates.buildKeyMessage(self.t, self.client)
-        self.assertSubstring(self.offlineFingerprint, text)
 
     def test_templates_buildSpamWarning(self):
         text = templates.buildSpamWarning(self.t, self.client)

@@ -27,32 +27,21 @@ class DetermineBridgeRequestOptionsTests(unittest.TestCase):
     def test_determineBridgeRequestOptions_multiline_invalid(self):
         lines = ['',
                  'help',
-                 'i need bridges',
-                 'give me your gpgs']
+                 'i need bridges']
         reqvest = request.determineBridgeRequestOptions(lines)
         # We consider every request valid...
         self.assertEqual(reqvest.isValid(), True)
-        self.assertFalse(reqvest.wantsKey())
         # ...so by default, we return a bridge.
         self.assertEqual(len(reqvest.transports), 1)
-
-    def test_determineBridgeRequestOptions_get_key(self):
-        """Requesting 'get key' should raise EmailRequestedKey."""
-        lines = ['',
-                 'get key']
-        self.assertRaises(request.EmailRequestedKey,
-                          request.determineBridgeRequestOptions, lines)
 
     def test_determineBridgeRequestOptions_multiline_invalid(self):
         """Requests without a 'get' are incorrect but still valid, and should
         return bridges."""
         lines = ['',
                  'transport obfs3',
-                 'ipv6 vanilla bridges',
-                 'give me your gpgs']
+                 'ipv6 vanilla bridges']
         reqvest = request.determineBridgeRequestOptions(lines)
         self.assertEqual(reqvest.isValid(), True)
-        self.assertFalse(reqvest.wantsKey())
         # Though they did request IPv6, technically.
         self.assertIs(reqvest.ipVersion, 6)
         # And they did request a transport, technically.
@@ -67,7 +56,6 @@ class DetermineBridgeRequestOptionsTests(unittest.TestCase):
         reqvest = request.determineBridgeRequestOptions(lines)
         # It's valid because it included a 'get'.
         self.assertEqual(reqvest.isValid(), True)
-        self.assertFalse(reqvest.wantsKey())
         # Though they didn't request IPv6, so it should default to IPv4.
         self.assertIs(reqvest.ipVersion, 4)
         # And they requested two transports.
@@ -90,7 +78,6 @@ class DetermineBridgeRequestOptionsTests(unittest.TestCase):
         reqvest = request.determineBridgeRequestOptions(lines)
         # It's valid because it included a 'get'.
         self.assertEqual(reqvest.isValid(), True)
-        self.assertFalse(reqvest.wantsKey())
         # Though they didn't request IPv6, so it should default to IPv4.
         self.assertIs(reqvest.ipVersion, 4)
         # And they requested two transports.
@@ -155,25 +142,6 @@ class EmailBridgeRequestTests(unittest.TestCase):
         """
         self.request.isValid(False)
         self.assertEqual(self.request.isValid(), False)
-
-    def test_EmailBridgeRequest_wantsKey_initial(self):
-        """Initial value of EmailBridgeRequest.wantsKey() should be False."""
-        self.request.wantsKey(None)
-        self.assertEqual(self.request.wantsKey(), False)
-
-    def test_EmailBridgeRequest_wantsKey_True(self):
-        """The value of EmailBridgeRequest.wantsKey() should be True, after it
-        has been called with ``True`` as an argument.
-        """
-        self.request.wantsKey(True)
-        self.assertEqual(self.request.wantsKey(), True)
-
-    def test_EmailBridgeRequest_wantsKey_False(self):
-        """The value of EmailBridgeRequest.wantsKey() should be False, after
-        it has been called with ``False`` as an argument.
-        """
-        self.request.wantsKey(False)
-        self.assertEqual(self.request.wantsKey(), False)
 
     def test_EmailBridgeRequest_withIPv6(self):
         """IPv6 requests should have ``ipVersion == 6``."""

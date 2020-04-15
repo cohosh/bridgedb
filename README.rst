@@ -82,7 +82,6 @@ BridgeDB requires the following OS-level dependencies:
 -  python-dev
 -  `python3-dkim <https://pypi.org/project/dkimpy/>`__ (it contains the ``dkimverify`` binary)
 -  build-essential
--  gnupg (preferrably, gnupg2)
 -  OpenSSL>=1.0.1g
 -  `SQLite3 <http://www.maxmind.com/app/python>`__
 -  `MaxMind GeoIP <https://www.maxmind.com/en/geolocation_landing>`__
@@ -111,7 +110,7 @@ BridgeDB should work with or without a Python virtualenv.
    can do::
 
          sudo apt-get install build-essential openssl python python-dev \
-           python-setuptools sqlite3 gnupg2 libgeoip-dev geoip-database
+           python-setuptools sqlite3 libgeoip-dev geoip-database
 
 
 -  Install Pip 1.3.1 or later. Debian has this version, but if for some
@@ -253,32 +252,6 @@ To enable using a local cache of CAPTCHAs, set the following options::
       GIMP_CAPTCHA_RSA_KEYFILE
 
 -------
-
---------------------
-GnuPG email signing:
---------------------
-
-In your ``bridgedb.conf`` file, make sure that::
-
-      EMAIL_GPG_SIGNING_ENABLED = True
-
-and edit the following option to add the full fingerprint of the GnuPG key
-that should be used to by BridgeDB to sign outgoing emails::
-
-      EMAIL_GPG_PRIMARY_KEY_FINGERPRINT
-
-The key specified by ``EMAIL_GPG_PRIMARY_KEY_FINGERPRINT`` can be a master
-key, or a subkey (with or without the private portions of its corresponding
-master key), but it **must** be inside the ``secring.gpg`` and ``pubring.gpg``
-keyrings inside the directory specified in the ``bridgedb.conf`` option::
-
-      EMAIL_GPG_HOMEDIR
-
-If the key has requires a passphrase for signing, you'll also need to set
-either of::
-
-      EMAIL_GPG_PASSPHRASE
-      EMAIL_GPG_PASSPHRASE_FILE
 
 
 ----------------------------------------------------------

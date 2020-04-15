@@ -21,7 +21,6 @@ pycryptodome==3.9.6
 Twisted==20.3.0
 coverage==5.0.3
 coveralls==1.10.0
-gnupg==2.3.1
 ipaddr==2.2.0
 mechanize==0.4.5
 Pillow==6.2.2
