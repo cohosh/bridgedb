@@ -92,9 +92,8 @@ class HTTPSBridgeRequest(bridgerequest.BridgeRequestBase):
             :api:`request <twisted.web.http.Request>` ``unblocked=`` HTTP GET
             parameter will be added to the :data:`notBlockedIn` list.
 
-        If :data:`addClientCountryCode` is ``True``, the the client's own
-        geolocated country code will be added to the to the
-        :data`notBlockedIn` list.
+        If :data:`addClientCountryCode` is ``True``, then the client's own
+        geolocated country code will be added to the :data`notBlockedIn` list.
 
         :type request: :api:`twisted.web.http.Request`
         :param request: A ``Request`` object containing the HTTP method, full
