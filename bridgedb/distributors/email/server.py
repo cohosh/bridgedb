@@ -212,7 +212,7 @@ class SMTPMessage(object):
         if self.nBytes > self.context.maximumSize:
             self.ignoring = True
         else:
-            self.lines.append(line.decode('utf-8') if isinstance(line, bytes) else line)
+            self.lines.append(line.decode('utf-8', 'ignore') if isinstance(line, bytes) else line)
         if not safelog.safe_logging:
             try:
                 ln = line.rstrip("\r\n").encode('utf-8', 'replace')
