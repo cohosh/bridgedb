@@ -68,15 +68,15 @@ class ReplaceErrorPageTests(unittest.TestCase):
     def test_replaceErrorPage(self):
         """``replaceErrorPage`` should return the error-500.html page."""
         request = DummyRequest([''])
-        exc = Exception("vegan gümmibären")
+        exc = Exception("Under Maintenance")
         errorPage = server.replaceErrorPage(request, exc)
-        self.assertSubstring(b"Bad News Bears", errorPage)
-        self.assertNotSubstring("vegan gümmibären".encode("utf-8"), errorPage)
+        self.assertSubstring(b"Internal Error", errorPage)
+        self.assertNotSubstring("Under Maintenance".encode("utf-8"), errorPage)
 
     def test_replaceErrorPage_matches_resource500(self):
         """``replaceErrorPage`` should return the error-500.html page."""
         request = DummyRequest([''])
-        exc = Exception("vegan gümmibären")
+        exc = Exception("Under Maintenance")
         errorPage = server.replaceErrorPage(request, exc)
         error500Page = server.resource500.render(request)
         self.assertEqual(errorPage, error500Page)
@@ -89,8 +89,8 @@ class ReplaceErrorPageTests(unittest.TestCase):
         exc = Exception("vegan gümmibären")
         server.resource500 = None
         errorPage = server.replaceErrorPage(request, exc)
-        self.assertNotSubstring(b"Bad News Bears", errorPage)
-        self.assertNotSubstring("vegan gümmibären".encode("utf-8"), errorPage)
+        self.assertNotSubstring(b"Bad Request", errorPage)
+        self.assertNotSubstring("Under Maintenance".encode("utf-8"), errorPage)
         self.assertSubstring(b"Sorry! Something went wrong with your request.",
                              errorPage)
 
@@ -108,7 +108,7 @@ class ErrorResourceTests(unittest.TestCase):
     def test_resource500(self):
         """``server.resource500`` should display the error-500.html page."""
         page = server.resource500.render(self.request)
-        self.assertSubstring(b'Bad News Bears', page)
+        self.assertSubstring(b'Internal Error', page)
 
     def test_maintenance(self):
         """``server.maintenance`` should display the error-503.html page."""
@@ -549,7 +549,7 @@ class ReCaptchaProtectedResourceTests(unittest.TestCase):
             """Check the ``Request`` returned from ``_renderDeferred``."""
             self.assertIsInstance(request, DummyRequest)
             html = b''.join(request.written)
-            self.assertSubstring(b'Uh oh, spaghettios!', html)
+            self.assertSubstring(b'BridgeDB encountered an error.', html)
 
         d = task.deferLater(reactor, 0, lambda x: x, (True, self.request))
         d.addCallback(self.captchaResource._renderDeferred)
@@ -913,7 +913,7 @@ class BridgesResourceTests(unittest.TestCase):
         page = self.bridgesResource.renderAnswer(request, bridgeLines=None)
 
         # We don't want the fancy version:
-        self.assertNotSubstring(b"Bad News Bears", page)
+        self.assertNotSubstring(b"Bad Request", page)
         self.assertSubstring(b"Sorry! Something went wrong with your request.",
                              page)
 

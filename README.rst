@@ -78,8 +78,8 @@ Dependencies and installation
 
 BridgeDB requires the following OS-level dependencies:
 
--  python>=2.7
--  python-dev
+-  python>=3
+-  python3-dev
 -  `python3-dkim <https://pypi.org/project/dkimpy/>`__ (it contains the ``dkimverify`` binary)
 -  build-essential
 -  OpenSSL>=1.0.1g
@@ -106,11 +106,11 @@ Deploying BridgeDB
 
 BridgeDB should work with or without a Python virtualenv.
 
--  Install Python 2.7, and other OS-level dependencies. On Debian, you
+-  Install Python 3, and other OS-level dependencies. On Debian, you
    can do::
 
-         sudo apt-get install build-essential openssl python python-dev \
-           python-setuptools sqlite3 libgeoip-dev geoip-database
+         sudo apt-get install build-essential openssl python3 python3-dev \
+           python3-setuptools sqlite3 gnupg2 libgeoip-dev geoip-database
 
 
 -  Install Pip 1.3.1 or later. Debian has this version, but if for some
@@ -146,7 +146,7 @@ BridgeDB should work with or without a Python virtualenv.
 -  **(virtualenv installs only)** To install, set PYTHONPATH to include the
    root directory of the virtualenv::
 
-         export PYTHONPATH=$PYTHONPATH:${VIRTUAL_ENV}/lib/python2.7/site-packages
+         export PYTHONPATH=$PYTHONPATH:${VIRTUAL_ENV}/lib/python3.7/site-packages
 
 
 -  Then, proceed as usual::
