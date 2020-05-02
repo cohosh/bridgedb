@@ -86,7 +86,7 @@ class ReplaceErrorPageTests(unittest.TestCase):
         ``replaceErrorPage`` should return custom hardcoded HTML error text.
         """
         request = DummyRequest([''])
-        exc = Exception("vegan gümmibären")
+        exc = Exception("Error while rendering")
         server.resource500 = None
         errorPage = server.replaceErrorPage(request, exc)
         self.assertNotSubstring(b"Bad Request", errorPage)
