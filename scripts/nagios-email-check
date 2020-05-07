@@ -149,7 +149,7 @@ def write_status_file(status, message):
     code = codes.get(status, UNKNOWN)
 
     with open(STATUS_FILE, "w") as fd:
-        fd.write("{}\n{}: {}".format(code, status, message))
+        fd.write("{}\n{}: {}\n".format(code, status, message))
     log("Wrote status='%s', message='%s' to status file." % (status, message))
 
 
