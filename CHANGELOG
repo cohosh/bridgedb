@@ -1,3 +1,7 @@
+    * FIXES https://bugs.torproject.org/33945
+    This patch fixes a bug that caused the email autoresponder to fail after
+    a while.
+
     * FIXES https://bugs.torproject.org/34154
     Add new fields to the SQLite table BlockedBridges in preparation for taking
     into account OONI's bridge measurement results.
