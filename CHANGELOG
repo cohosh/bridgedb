@@ -1,3 +1,8 @@
+        * FIXES https://bugs.torproject.org/12802
+        Add a script that sends a bridge request over email, and then checks if
+        it received a response from BridgeDB.  We use this script as part of
+        our nagios setup, so we notice when our autoresponder breaks.
+
         * FIXES https://bugs.torproject.org/17548
         This patch removes PGP support.  BridgeDB's signing key expired on
         2015-09-11.  Nobody ever complained and maintaining the bits and pieces
