@@ -10,8 +10,12 @@
 #
 # Run this script via crontab every three hours as follows:
 #   0 */3 * * * path/to/nagios-email-check $(cat path/to/gmail.key)
+#
+# You can provide the Gmail key as an argument (as exemplified above) or by
+# using the environment variable BRIDGEDB_GMAIL_KEY, e.g.:
+#   BRIDGEDB_GMAIL_KEY=foo path/to/nagios-email-check $(cat path/to/gmail.key)
 
-
+import os
 import sys
 import smtplib
 import time
@@ -161,9 +165,15 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         password = sys.argv[1]
     else:
-        log("No email password provided.")
-        write_status_file(UNKNOWN, "No email password provided")
-        sys.exit(1)
+
+        # Try to find our password in an environment variable.
+
+        try:
+            password = os.environ["BRIDGEDB_GMAIL_KEY"]
+        except KeyError:
+            log("No email password provided.")
+            write_status_file(UNKNOWN, "No email password provided")
+            sys.exit(1)
 
     # Send an email request to BridgeDB.
 
