@@ -1,3 +1,10 @@
+        * FIXES https://bugs.torproject.org/31528
+        BridgeDB's UI uses a bunch of obscure "chatspeak" references in its UI.
+        One example is that it responds with "Uh oh, spaghettios!" if there are
+        currently no bridges available.  While funny to some, this is difficult
+        to translate and shouldn't be part of software that's used by an
+        international audience.  This patch removes such references.
+
         * FIXES https://bugs.torproject.org/12802
         Add a script that sends a bridge request over email, and then checks if
         it received a response from BridgeDB.  We use this script as part of
