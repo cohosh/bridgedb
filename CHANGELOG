@@ -1,1542 +1,1474 @@
-        * FIXES https://bugs.torproject.org/12802
-        Add a script that sends a bridge request over email, and then checks if
-        it received a response from BridgeDB.  We use this script as part of
-        our nagios setup, so we notice when our autoresponder breaks.
+    * FIXES https://bugs.torproject.org/31528
+    BridgeDB's UI uses a bunch of obscure "chatspeak" references in its UI.  One
+    example is that it responds with "Uh oh, spaghettios!" if there are
+    currently no bridges available.  While funny to some, this is difficult to
+    translate and shouldn't be part of software that's used by an international
+    audience.  This patch removes such references.
 
-        * FIXES https://bugs.torproject.org/17548
-        This patch removes PGP support.  BridgeDB's signing key expired on
-        2015-09-11.  Nobody ever complained and maintaining the bits and pieces
-        necessary to sign emails isn't worth the effort, so this patch removes
-        that feature.
+    * FIXES https://bugs.torproject.org/12802
+    Add a script that sends a bridge request over email, and then checks if it
+    received a response from BridgeDB.  We use this script as part of our nagios
+    setup, so we notice when our autoresponder breaks.
 
-        * FIXES https://bugs.torproject.org/30941
-        Make our email responder more usable.  This patch removes the concept of
-        "valid" email commands and returns bridges (obfs4, for now) no matter
-        what the user sends.  BridgeDB still supports email commands in case the
-        user needs a vanilla or IPv6 bridge.
+    * FIXES https://bugs.torproject.org/17548
+    This patch removes PGP support.  BridgeDB's signing key expired on
+    2015-09-11.  Nobody ever complained and maintaining the bits and pieces
+    necessary to sign emails isn't worth the effort, so this patch removes that
+    feature.
 
-        * FIXES https://bugs.torproject.org/29686
-        Rename files that contain "Bridges" to "bridgerings", to eliminate
-        headache on file systems that are case insensitive.
+    * FIXES https://bugs.torproject.org/30941
+    Make our email responder more usable.  This patch removes the concept of
+    "valid" email commands and returns bridges (obfs4, for now) no matter what
+    the user sends.  BridgeDB still supports email commands in case the user
+    needs a vanilla or IPv6 bridge.
+
+    * FIXES https://bugs.torproject.org/29686
+    Rename files that contain "Bridges" to "bridgerings", to eliminate headache
+    on file systems that are case insensitive.
 
 Changes in version 0.10.0 - 2020-04-01
 
-        * FIXES https://bugs.torproject.org/30317
-        Update our "howto" box, which explains how one adds bridges to Tor
-        Browser.  In addition to updating the instructions, this patch also
-        links to instructions for Android.
+    * FIXES https://bugs.torproject.org/30317
+    Update our "howto" box, which explains how one adds bridges to Tor Browser.
+    In addition to updating the instructions, this patch also links to
+    instructions for Android.
 
-        * FIXES https://bugs.torproject.org/33631
-        So far, BridgeDB remembered only the first distribution mechanism it
-        ever learned for a given bridge.  That means that if a bridge would
-        change its mind and re-configure its distribution mechanism using
-        BridgeDistribution, BridgeDB would ignore it.  This patch changes this
-        behavior, so bridges can actually change their distribution mechanism.
+    * FIXES https://bugs.torproject.org/33631
+    So far, BridgeDB remembered only the first distribution mechanism it ever
+    learned for a given bridge.  That means that if a bridge would change its
+    mind and re-configure its distribution mechanism using BridgeDistribution,
+    BridgeDB would ignore it.  This patch changes this behavior, so bridges can
+    actually change their distribution mechanism.
 
-        * FIXES https://bugs.torproject.org/31967
-        Use a CSPRNG for selecting cached CAPTCHAs.
+    * FIXES https://bugs.torproject.org/31967
+    Use a CSPRNG for selecting cached CAPTCHAs.
 
-        * FIXES https://bugs.torproject.org/33008
-        Add an info page, available at bridges.torproject.org/info.  Relay
-        Search links to this info page to explain to bridge operators what their
-        bridge distribution mechanism means.
+    * FIXES https://bugs.torproject.org/33008
+    Add an info page, available at bridges.torproject.org/info.  Relay Search
+    links to this info page to explain to bridge operators what their bridge
+    distribution mechanism means.
 
 Changes in version 0.9.4 - 2020-02-19
 
-        * FIXES https://bugs.torproject.org/30946
-        This patch ports BridgeDB to Python 3.  Python 2 is no longer supported
-        since Jan 1, 2020.
+    * FIXES https://bugs.torproject.org/30946
+    This patch ports BridgeDB to Python 3.  Python 2 is no longer supported
+    since Jan 1, 2020.
 
 Changes in version 0.9.3 - 2020-02-18
 
-        * FIXES <https://bugs.torproject.org/33299>
-        This patch disables the distribution of FTE, ScrambleSuit, and obfs3.
+    * FIXES <https://bugs.torproject.org/33299>
+    This patch disables the distribution of FTE, ScrambleSuit, and obfs3.
 
 Changes in version 0.9.2 - 2020-02-04
 
-        * FIXES <https://bugs.torproject.org/31427>
-        This patch updates the AUTHORS file, HACKING.md, contact information,
-        the Trac URL to report bugs, our instructions on BridgeDB's landing
-        page, and it fixes a small bug in descriptor generation.
+    * FIXES <https://bugs.torproject.org/31427>
+    This patch updates the AUTHORS file, HACKING.md, contact information, the
+    Trac URL to report bugs, our instructions on BridgeDB's landing page, and it
+    fixes a small bug in descriptor generation.
 
 Changes in version 0.9.1 - 2019-10-29
 
-        * FIXES https://bugs.torproject.org/32203
-        The metrics code used to weed out vanilla bridges, so they did not show
-        up in our metrics.  This patch fixes this issue.
+    * FIXES https://bugs.torproject.org/32203
+    The metrics code used to weed out vanilla bridges, so they did not show up
+    in our metrics.  This patch fixes this issue.
 
-        * FIXES https://bugs.torproject.org/32134
-        While implementing our language switcher (#26543), we added a new
-        string, "Language", that requires translations.  This patch adds a new
-        translation request and also updates our instructions on how to request
-        new translations.
+    * FIXES https://bugs.torproject.org/32134
+    While implementing our language switcher (#26543), we added a new string,
+    "Language", that requires translations.  This patch adds a new translation
+    request and also updates our instructions on how to request new
+    translations.
 
-        * FIXES https://bugs.torproject.org/32105
-        Mention an undocumented OS-level dependency: python3-dkim.
+    * FIXES https://bugs.torproject.org/32105
+    Mention an undocumented OS-level dependency: python3-dkim.
 
 Changes in version 0.9.0 - 2019-10-16
 
-        * FIXES https://bugs.torproject.org/26543
-        Implement a language switcher that allows users to override the locale
-        that BridgeDB automatically selects by inspecting the client's request
-        headers.
+    * FIXES https://bugs.torproject.org/26543
+    Implement a language switcher that allows users to override the locale that
+    BridgeDB automatically selects by inspecting the client's request headers.
 
 Changes in version 0.8.3 - 2019-10-03
 
-        * FIXES https://bugs.torproject.org/31903
-        Update existing translations and request new translations.  Thanks to
-        all volunteers who helped translate BridgeDB!
+    * FIXES https://bugs.torproject.org/31903
+    Update existing translations and request new translations.  Thanks to all
+    volunteers who helped translate BridgeDB!
 
-        * FIXES https://bugs.torproject.org/31780
-        We implemented BridgeDB's metrics in #9316 but haven't specified its
-        format until now.  In addition to adding a specification, this patch
-        also makes our implementation consistent with our (slightly updated)
-        specification.
+    * FIXES https://bugs.torproject.org/31780
+    We implemented BridgeDB's metrics in #9316 but haven't specified its format
+    until now.  In addition to adding a specification, this patch also makes our
+    implementation consistent with our (slightly updated) specification.
 
-        * FIXES https://bugs.torproject.org/29484
-        Update BridgeDB's requirements to the latest respective versions.  Among
-        others, this patch set updates Twisted to 19.7.0, pyOpenSSL to 19.0.0,
-        and replaces (the abandoned) PyCrypto with PyCryptodome, which fixes
-        security vulnerabilities.
+    * FIXES https://bugs.torproject.org/29484
+    Update BridgeDB's requirements to the latest respective versions.  Among
+    others, this patch set updates Twisted to 19.7.0, pyOpenSSL to 19.0.0, and
+    replaces (the abandoned) PyCrypto with PyCryptodome, which fixes security
+    vulnerabilities.
 
 Changes in version 0.8.2 - 2019-09-20
 
-        Updated translations for the following languages:
-        bn, da, eo, fa, it, ko, nl, pt_BR, pt_PT, sr, zh_CN.
+    Updated translations for the following languages:
+    bn, da, eo, fa, it, ko, nl, pt_BR, pt_PT, sr, zh_CN.
 
 Changes in version 0.8.1 - 2019-09-11
 
-        * FIXES https://bugs.torproject.org/17626
-        BridgeDB gets confused when users reply to a "get help" email.  The
-        issue is that BridgeDB interprets commands anywhere in the email body,
-        even if it's in quoted text.  To fix this issue, we are ignoring
-        commands whose email body line starts with a '>' character, which is
-        typically used for email quotes.
+    * FIXES https://bugs.torproject.org/17626
+    BridgeDB gets confused when users reply to a "get help" email.  The issue is
+    that BridgeDB interprets commands anywhere in the email body, even if it's
+    in quoted text.  To fix this issue, we are ignoring commands whose email
+    body line starts with a '>' character, which is typically used for email
+    quotes.
 
-        * FIXES https://bugs.torproject.org/28533
-        The frontdesk is seeing plenty of empty bogus emails.  This fix removes
-        the email links and instead encourages users to take a look at the Tor
-        Browser Manual and at our Support Portal.
+    * FIXES https://bugs.torproject.org/28533
+    The frontdesk is seeing plenty of empty bogus emails.  This fix removes the
+    email links and instead encourages users to take a look at the Tor Browser
+    Manual and at our Support Portal.
 
 Changes in version 0.8.0 - 2019-08-20
 
-        * FIXES https://bugs.torproject.org/9316
-        Make BridgeDB export usage metrics every 24 hours.  At the end of each
-        24-hour measurement interval, BridgeDB will append usage metrics to the
-        file METRICS_FILE, which is configured in bridgedb.conf.  Our metrics
-        keep track of the number of (un)successful requests per transport type
-        per country code (or email provider) per distribution method.  This way,
-        we get to learn that, say, over the last 24 hours there were 31-40 users
-        in Iran who successfully requested an obfs4 bridge over Moat.
+    * FIXES https://bugs.torproject.org/9316
+    Make BridgeDB export usage metrics every 24 hours.  At the end of each
+    24-hour measurement interval, BridgeDB will append usage metrics to the file
+    METRICS_FILE, which is configured in bridgedb.conf.  Our metrics keep track
+    of the number of (un)successful requests per transport type per country code
+    (or email provider) per distribution method.  This way, we get to learn
+    that, say, over the last 24 hours there were 31-40 users in Iran who
+    successfully requested an obfs4 bridge over Moat.
 
-        * FIXES #26542 https://bugs.torproject.org/26542
-        Make BridgeDB distribute vanilla IPv6 bridges again.
+    * FIXES #26542 https://bugs.torproject.org/26542
+    Make BridgeDB distribute vanilla IPv6 bridges again.
 
-        * FIXES #22755 https://bugs.torproject.org/22755
-        Use stem instead of leekspin to create test descriptors.  We now don't
-        need to depend on leekspin anymore.
+    * FIXES #22755 https://bugs.torproject.org/22755
+    Use stem instead of leekspin to create test descriptors.  We now don't need
+    to depend on leekspin anymore.
 
-        * FIXES #31252 https://bugs.torproject.org/31252
-        Add an anti-bot mechanism that allows us to detect bots by matching
-        HTTP request headers for blacklisted patterns.  For example, bots may
-        have their Accept-Language set to "Klingon".  Blacklisted patterns are
-        configured in BLACKLISTED_REQUEST_HEADERS_FILE.  When BridgeDB detects
-        a bot request, we can answer their request with a decoy bridge that's
-        only handed out to bots.  Decoy bridges are configured in
-        DECOY_BRIDGES_FILE.
+    * FIXES #31252 https://bugs.torproject.org/31252
+    Add an anti-bot mechanism that allows us to detect bots by matching HTTP
+    request headers for blacklisted patterns.  For example, bots may have their
+    Accept-Language set to "Klingon".  Blacklisted patterns are configured in
+    BLACKLISTED_REQUEST_HEADERS_FILE.  When BridgeDB detects a bot request, we
+    can answer their request with a decoy bridge that's only handed out to bots.
+    Decoy bridges are configured in DECOY_BRIDGES_FILE.
 
 Changes in version 0.7.1 - 2019-06-07
 
-        * FIXES #28496 https://bugs.torproject.org/28496
-        Remove Yahoo from the list of allowed email domains.  Yahoo allows you
-        to create up to 500 disposable email addresses, which BridgeDB
-        interprets as unique:
-        https://bugs.torproject.org/28496#comment:8
-        We could address this issue in BridgeDB but at this point we seem better
-        off dropping support for Yahoo because the provider likely also fell
-        behind in Sybil protection.
+    * FIXES #28496 https://bugs.torproject.org/28496
+    Remove Yahoo from the list of allowed email domains.  Yahoo allows you to
+    create up to 500 disposable email addresses, which BridgeDB interprets as
+    unique:
+    https://bugs.torproject.org/28496#comment:8
+    We could address this issue in BridgeDB but at this point we seem better off
+    dropping support for Yahoo because the provider likely also fell behind in
+    Sybil protection.
 
 Changes in version 0.7.0 - 2019-06-07
 
-        * FIXES #28655 https://bugs.torproject.org/28655
-        When a bridge supports an active probing-resistant transport, it should
-        not give out flavors that are vulnerable to active probing.  For
-        example, if a bridge supports obfs4 and obfs3, it should only give out
-        obfs4.
+    * FIXES #28655 https://bugs.torproject.org/28655
+    When a bridge supports an active probing-resistant transport, it should not
+    give out flavors that are vulnerable to active probing.  For example, if a
+    bridge supports obfs4 and obfs3, it should only give out obfs4.
 
-        * FIXES #30706 https://bugs.torproject.org/30706
-        Do some simple BridgeDB housekeeping: Add missing CHANGELOG entries, add
-        Philipp's contact info to the support section, fix a broken Trac URL,
-        and turn HTTP link into HTTPS.
+    * FIXES #30706 https://bugs.torproject.org/30706
+    Do some simple BridgeDB housekeeping: Add missing CHANGELOG entries, add
+    Philipp's contact info to the support section, fix a broken Trac URL, and
+    turn HTTP link into HTTPS.
 
-        * FIXES #30157: https://bugs.torproject.org/30157
-        Update BridgeDB translations.  This ticket both adds new translations
-        and updates existing ones.
+    * FIXES #30157: https://bugs.torproject.org/30157
+    Update BridgeDB translations.  This ticket both adds new translations and
+    updates existing ones.
 
 Changes in version 0.6.9 - 2018-11-20
 
-        * FIXES #23894 https://bugs.torproject.org/23894
-        Really change the contact address, in the correct place this time.
+    * FIXES #23894 https://bugs.torproject.org/23894
+    Really change the contact address, in the correct place this time.
 
 Changes in version 0.6.8 - 2018-11-19
 
-        * FIXES #28528 https://bugs.torproject.org/28528
-        Change maintainer info.
+    * FIXES #28528 https://bugs.torproject.org/28528
+    Change maintainer info.
 
-        * FIXES #23894 https://bugs.torproject.org/23894
-        Change contact email address.
+    * FIXES #23894 https://bugs.torproject.org/23894
+    Change contact email address.
 
 Changes in version 0.6.7 - 2018-05-21
 
-        Print fingerprints in hex thank you very much.
+    Print fingerprints in hex thank you very much.
 
 Changes in version 0.6.6 - 2018-05-21
 
-        * FIXES #26150 https://bugs.torproject.org/26150
-        Hotfix for strange bridges missing address fields.
+    * FIXES #26150 https://bugs.torproject.org/26150
+    Hotfix for strange bridges missing address fields.
 
 Changes in version 0.6.5 - 2018-05-04
 
-        * FIXES #26023 https://bugs.torproject.org/26023
-        There's few bridges whose ed25519 certificates contain the year 491869,
-        which the datetime module (called from Stem) believes "out of range". So
-        instead we'll parse the descriptors one at a time and catch the errors
-        as we go.
+    * FIXES #26023 https://bugs.torproject.org/26023
+    There's few bridges whose ed25519 certificates contain the year 491869,
+    which the datetime module (called from Stem) believes "out of range". So
+    instead we'll parse the descriptors one at a time and catch the errors as we
+    go.
 
-        * FIXES #25246 https://bugs.torproject.org/25246
-        Add script for assigning unallocated bridges to another distributor.
+    * FIXES #25246 https://bugs.torproject.org/25246
+    Add script for assigning unallocated bridges to another distributor.
 
 Changes in version 0.6.4 - 2018-02-13
 
-        * FIXES #24432 https://bugs.torproject.org/24432
-        Add config option to skip loopback addresses in X-Forwarded-For parsing.
+    * FIXES #24432 https://bugs.torproject.org/24432
+    Add config option to skip loopback addresses in X-Forwarded-For parsing.
 
 Changes in version 0.6.3 - 2018-01-23
 
-        * FIXES #24432 https://bugs.torproject.org/24432
-        The production moat server had issues related to redirecting to
-        resources properly, which are now fixed.
+    * FIXES #24432 https://bugs.torproject.org/24432
+    The production moat server had issues related to redirecting to resources
+    properly, which are now fixed.
 
-        * FIXES #24701 https://bugs.torproject.org/24701
-        Adds a special surprise for the special someone who has been
-        automatedly requesting bridges not through driving a browser, but
-        through a script which is so thoroughly stupid that it doesn't
-        even send the URL parameters for the CAPTCHA challenge and solution.
-        Their script will now be delayed for quite some time and then
-        rickrolled.  Mess with the best, die like the rest.
+    * FIXES #24701 https://bugs.torproject.org/24701
+    Adds a special surprise for the special someone who has been automatedly
+    requesting bridges not through driving a browser, but through a script which
+    is so thoroughly stupid that it doesn't even send the URL parameters for the
+    CAPTCHA challenge and solution.  Their script will now be delayed for quite
+    some time and then rickrolled.  Mess with the best, die like the rest.
 
-        * FIXES #24704 https://bugs.torproject.org/24704
-        Bridges returned to a single request are now filtered such that
-        there will never be two bridges from the same IPv4 /16 or IPv6 /64.
+    * FIXES #24704 https://bugs.torproject.org/24704
+    Bridges returned to a single request are now filtered such that there will
+    never be two bridges from the same IPv4 /16 or IPv6 /64.
 
 And includes the following general changes:
 
-        * ADDS unittests for the legacy code in bridgedb/Bridges.py,
-        bringing the total test coverage above 90% for the first time.
-
+    * ADDS unittests for the legacy code in bridgedb/Bridges.py,
+    bringing the total test coverage above 90% for the first time.
 
 Changes in version 0.6.2 - 2017-12-20
 
-        * FIXES #24636 https://bugs.torproject.org/24636
-        The moat API specification included an extra response type which
-        could be sent if there was no overlap between transports the
-        client supported and those which the server supported.  This has
-        been removed from the specification, which now describes the
-        behaviour moat has always exhibited: if there is no overlap, the
-        server responds with a CAPTCHA image response which includes the
-        list of transports it does support.
+    * FIXES #24636 https://bugs.torproject.org/24636
+    The moat API specification included an extra response type which could be
+    sent if there was no overlap between transports the client supported and
+    those which the server supported.  This has been removed from the
+    specification, which now describes the behaviour moat has always exhibited:
+    if there is no overlap, the server responds with a CAPTCHA image response
+    which includes the list of transports it does support.
 
-        * FIXES #24637 https://bugs.torproject.org/24637
-        The moat server did not respond correctly with the specified JSON
-        API error type when there were no bridges available.  It now
-        responds correctly with a 404 error whose details describe why the
-        request could not be fulfilled.  The moat server also now logs
-        messages if there were not the configured
-        MOAT_BRIDGES_PER_RESPONSE number of bridges available.
-
+    * FIXES #24637 https://bugs.torproject.org/24637
+    The moat server did not respond correctly with the specified JSON API error
+    type when there were no bridges available.  It now responds correctly with a
+    404 error whose details describe why the request could not be fulfilled.
+    The moat server also now logs messages if there were not the configured
+    MOAT_BRIDGES_PER_RESPONSE number of bridges available.
 
 Changes in version 0.6.1 - 2017-12-13
 
-        * ADDS a shell script, scripts/test-moat, for testing either a
-        locally-running moat server, or a remote one through a meek
-        tunnel.
-        Thanks to David Fifield for his work on meek, assistance setting
-        it up, and providing the first version of this script.
+    * ADDS a shell script, scripts/test-moat, for testing either a
+    locally-running moat server, or a remote one through a meek tunnel.  Thanks
+    to David Fifield for his work on meek, assistance setting it up, and
+    providing the first version of this script.
 
-        * FIXES #24433 https://bugs.torproject.org/24433
-        The test-moat script wasn't sending an X-Forwarded-For header,
-        which triggered a bug in the moat server, since the CAPTCHA
-        solution includes an HMAC based on the client's IP (forwarded
-        through all the several layers of tunnels/proxies).
+    * FIXES #24433 https://bugs.torproject.org/24433
+    The test-moat script wasn't sending an X-Forwarded-For header, which
+    triggered a bug in the moat server, since the CAPTCHA solution includes an
+    HMAC based on the client's IP (forwarded through all the several layers of
+    tunnels/proxies).
 
-        * FIXES #24443 https://bugs.torproject.org/24443
-        Due to a difference between how booleans are parsed by Python's
-        json library and normal Python booleans, the moat server was
-        generating and returning QRCodes… regardless of whether the remote
-        client application asked for one.  This is now fixed.
+    * FIXES #24443 https://bugs.torproject.org/24443
+    Due to a difference between how booleans are parsed by Python's json library
+    and normal Python booleans, the moat server was generating and returning
+    QRCodes… regardless of whether the remote client application asked for one.
+    This is now fixed.
 
-        * FIXES #24460 https://bugs.torproject.org/24460
-        There was an unhandled error when sending certain (what appears to
-        be possibly malicious? but in a very strange way) requests to
-        BridgeDB's HTTPS distributor.  The robots making the requests were
-        attempting to request bridges, but were presenting a CAPTCHA
-        solution without the correct HTML form field parameters present,
-        which isn't possible through normal usage of the web interface.
-        Whoever or whatever is doing this is now going to be endlessly
-        redirected so that they may forever spiral in their own private
-        internet hell.  I reserve the right come up with a worse fate for
-        them later, should I get bored.
+    * FIXES #24460 https://bugs.torproject.org/24460
+    There was an unhandled error when sending certain (what appears to be
+    possibly malicious? but in a very strange way) requests to BridgeDB's HTTPS
+    distributor.  The robots making the requests were attempting to request
+    bridges, but were presenting a CAPTCHA solution without the correct HTML
+    form field parameters present, which isn't possible through normal usage of
+    the web interface.  Whoever or whatever is doing this is now going to be
+    endlessly redirected so that they may forever spiral in their own private
+    internet hell.  I reserve the right come up with a worse fate for them
+    later, should I get bored.
 
-        * FIXES #3015 https://bugs.torproject.org/3015
-        BridgeDB has had a partially-implemented concept of "buckets"
-        since the age of the dinosaurs: write some of the unallocated
-        bridges to a file which should (somehow) be manually distributed.
-        In addition to be unused and untested, there were several issues
-        with the buckets, the most significant of which were the inability
-        to request pluggable transports in a bucket and the fact that
-        buckets were not persistent in any way (e.g. if i request a bucket
-        of 50 bridges for Gomez and another with 50 for Morticia, they
-        might end up with some of the same bridges, further, tomorrow
-        they'll end up with 50 possibly different bridges than those they
-        received today).  All of this code is now removed.
+    * FIXES #3015 https://bugs.torproject.org/3015
+    BridgeDB has had a partially-implemented concept of "buckets" since the age
+    of the dinosaurs: write some of the unallocated bridges to a file which
+    should (somehow) be manually distributed.  In addition to be unused and
+    untested, there were several issues with the buckets, the most significant
+    of which were the inability to request pluggable transports in a bucket and
+    the fact that buckets were not persistent in any way (e.g. if i request a
+    bucket of 50 bridges for Gomez and another with 50 for Morticia, they might
+    end up with some of the same bridges, further, tomorrow they'll end up with
+    50 possibly different bridges than those they received today).  All of this
+    code is now removed.
 
 And includes the following general changes:
 
-        * FIXES issues with JSON quote syntax and a mistaken JSON API
-        "type" parameter in the specification of the moat server (in the
-        README).
-        Thanks to Mark Smith and Kathy Brade for pointing out the issues.
-
+    * FIXES issues with JSON quote syntax and a mistaken JSON API
+    "type" parameter in the specification of the moat server (in the README).
+    Thanks to Mark Smith and Kathy Brade for pointing out the issues.
 
 Changes in version 0.6.0 - 2017-11-15
 
-        * ADDS a new JSON API distributor called "moat", which is intended
-        for use for Tor Launcher to use to build an in-browser UI for
-        retrieving bridges.
+    * ADDS a new JSON API distributor called "moat", which is intended
+    for use for Tor Launcher to use to build an in-browser UI for retrieving
+    bridges.
 
-        * CHANGES the organisation of code to add a new
-        bridgedb.distributors package as well as a
-        bridgedb.distributors.common package for code shared between
-        multiple distributors.
-
+    * CHANGES the organisation of code to add a new
+    bridgedb.distributors package as well as a bridgedb.distributors.common
+    package for code shared between multiple distributors.
 
 Changes in version 0.5.0 - 2017-10-28
 
-        * FIXES #23957 https://bugs.torproject.org/23957
-        BridgeDB now supports bridge operators choosing how their bridge
-        will be distributed.  See the "BridgeDistribution" torrc option in
-        tor's manpage for details.
+    * FIXES #23957 https://bugs.torproject.org/23957
+    BridgeDB now supports bridge operators choosing how their bridge will be
+    distributed.  See the "BridgeDistribution" torrc option in tor's manpage for
+    details.
 
-        * FIXES #16650 https://bugs.torproject.org/16650
-        BridgeDB is now accessible via select remote user interfaces
-        through a meek tunnel.
+    * FIXES #16650 https://bugs.torproject.org/16650
+    BridgeDB is now accessible via select remote user interfaces through a meek
+    tunnel.
 
-        * FIXES #22998 https://bugs.torproject.org/23033
-        * FIXES #23033 https://bugs.torproject.org/23033
-        * FIXES #23034 https://bugs.torproject.org/23034
-        Upgrades BridgeDB to newer versions of Twisted and PyOpenSSL, and
-        fixes several issues due to non-backwards compatible changes
-        within those libraries.
-
+    * FIXES #22998 https://bugs.torproject.org/23033
+    * FIXES #23033 https://bugs.torproject.org/23033
+    * FIXES #23034 https://bugs.torproject.org/23034
+    Upgrades BridgeDB to newer versions of Twisted and PyOpenSSL, and fixes
+    several issues due to non-backwards compatible changes within those
+    libraries.
 
 Changes in version 0.4.0 - 2017-01-09
 
-        * FIXES #21162 https://bugs.torproject.org/21162
-        BridgeDB now supports arbitrarily blacklisting suspected bad
-        bridges from being distributed to clients.  This is in response
-        to a suspected sybil attack by an unknown party.  For more
-        details, see:
-        https://lists.torproject.org/pipermail/tor-project/2016-December/000851.html
-
+    * FIXES #21162 https://bugs.torproject.org/21162
+    BridgeDB now supports arbitrarily blacklisting suspected bad bridges from
+    being distributed to clients.  This is in response to a suspected sybil
+    attack by an unknown party.  For more details, see:
+    https://lists.torproject.org/pipermail/tor-project/2016-December/000851.html
 
 Changes in version 0.3.8 - 2016-09-22
 
-        * FIXES #20088 https://bugs.torproject.org/20088
-        BridgeDB now supports receiving descriptors from multiple Bridge
-        Authorities.  See also #19690.
+    * FIXES #20088 https://bugs.torproject.org/20088
+    BridgeDB now supports receiving descriptors from multiple Bridge
+    Authorities.  See also #19690.
 
-        * FIXES #20087 https://bugs.torproject.org/20087
-        BridgeDB's version of Stem now supports parsing transport lines in
-        bridge extrainfo descriptors which contain IPv6 addresses
-        contained within square brackets.
-
+    * FIXES #20087 https://bugs.torproject.org/20087
+    BridgeDB's version of Stem now supports parsing transport lines in bridge
+    extrainfo descriptors which contain IPv6 addresses contained within square
+    brackets.
 
 Changes in version 0.3.7 - 2016-08-04
 
-        * FIXES #19691 https://bugs.torproject.org
-        BridgeDB (as running on Tor Project infrastructure) is now
-        invocated with a redirection of stdout and stderr to the flog
-        utility, in order to ensure that file handles are properly closed
-        and reopened when BridgeDB receives a SIGHUP.
+    * FIXES #19691 https://bugs.torproject.org
+    BridgeDB (as running on Tor Project infrastructure) is now invocated with a
+    redirection of stdout and stderr to the flog utility, in order to ensure
+    that file handles are properly closed and reopened when BridgeDB receives a
+    SIGHUP.
 
 And includes the following general changes:
 
-        * ADDS some files which were missing from BridgeDB PyPI packages
-        to the MANIFEST.in, so that they are now included.
-
+    * ADDS some files which were missing from BridgeDB PyPI packages
+    to the MANIFEST.in, so that they are now included.
 
 Changes in version 0.3.6 - 2016-07-28
 
-        * FIXES #18237 https://bugs.torproject.org/18237
-        During descriptor parsing, BridgeDB saves copies of descriptor files
-        which couldn't be parsed, for later debugging purposes.  To avoid
-        filing up the runtime directory with these files, we now delete files
-        older than 24 hours, every 24 hours.
+    * FIXES #18237 https://bugs.torproject.org/18237
+    During descriptor parsing, BridgeDB saves copies of descriptor files which
+    couldn't be parsed, for later debugging purposes.  To avoid filing up the
+    runtime directory with these files, we now delete files older than 24 hours,
+    every 24 hours.
 
-        * FIXES #18949 https://bugs.torproject.org/18949
-        Since we've upgraded the host machine which runs The Tor Project's
-        BridgeDB instance to Debian Jessie, this patch updates the testing
-        configurations and continuous integration infrastructure to run
-        tests on versions of Python dependencies in Debian Jessie and Stretch.
-
+    * FIXES #18949 https://bugs.torproject.org/18949
+    Since we've upgraded the host machine which runs The Tor Project's BridgeDB
+    instance to Debian Jessie, this patch updates the testing configurations and
+    continuous integration infrastructure to run tests on versions of Python
+    dependencies in Debian Jessie and Stretch.
 
 Changes in version 0.3.4 - 0.3.5 - 2015-11-30
 
-        * FIXES #14685 https://bugs.torproject.org/14685
-        This disables distribution of obfs2 bridges.  This pluggable
-        transport has known distiguishers which allow adversaries to
-        identify client connections to obfs2 bridges, which in turn allows
-        these connections to be blocked/censored.  With numerous obfs3 and
-        obfs4 bridges both readily available, users should not be
-        presented with an easily-configurable choice that is known to be
-        unsafe for the majority of users.
+    * FIXES #14685 https://bugs.torproject.org/14685
+    This disables distribution of obfs2 bridges.  This pluggable transport has
+    known distiguishers which allow adversaries to identify client connections
+    to obfs2 bridges, which in turn allows these connections to be
+    blocked/censored.  With numerous obfs3 and obfs4 bridges both readily
+    available, users should not be presented with an easily-configurable choice
+    that is known to be unsafe for the majority of users.
 
 And includes the following general changes:
 
-        * ADDS error pages to BridgeDB's web interface, to provide
-        friendlier explanations for downtime, missing pages, and internal
-        server errors.  For example: https://bridges.torproject.org/404
-
+    * ADDS error pages to BridgeDB's web interface, to provide
+    friendlier explanations for downtime, missing pages, and internal server
+    errors.  For example: https://bridges.torproject.org/404
 
 Changes in version 0.3.3 - 2015-10-25
 
-        * FIXES #12029 https://bugs.torproject.org/12029
-        BridgeDB now has an API for creating Bridge Distributors.
-        See the bridgedb.distribute module, or its developer documentation
-        at https://pythonhosted.org/bridgedb/bridgedb.distribute.html.
+    * FIXES #12029 https://bugs.torproject.org/12029
+    BridgeDB now has an API for creating Bridge Distributors.  See the
+    bridgedb.distribute module, or its developer documentation at
+    https://pythonhosted.org/bridgedb/bridgedb.distribute.html.
 
-        * FIXES PART OF #12506  https://bugs.torproject.org/12506
-        BridgeDB's two Distributors (HTTPS and Email) are now entirely
-        modularised and self-contained within separate subdirectories in
-        the source code.  This is the first step to redesigning these
-        Distributors into their own separate processes, which will allow
-        the Distributors to remain functional while BridgeDB is reparsing
-        bridge descriptors.
+    * FIXES PART OF #12506  https://bugs.torproject.org/12506
+    BridgeDB's two Distributors (HTTPS and Email) are now entirely modularised
+    and self-contained within separate subdirectories in the source code.  This
+    is the first step to redesigning these Distributors into their own separate
+    processes, which will allow the Distributors to remain functional while
+    BridgeDB is reparsing bridge descriptors.
 
-        * FIXES #15968 https://bugs.torproject.org/15968
-        BridgeDB now sends a Content-Security-Policy header which
-        explicitly allows Javascript, images, CSS, and fonts, from
-        https://bridges.torproject.org.  All other types of content are
-        forbidden, including:
-          - embedding https://bridges.torproject.org within
-            <iframe>, <embed>, or <object>, and attempting to source
-            additional resources into its embedded context
-          - inline Javascript, including Javascript within SVG files
-          - inline CSS
-          - externally hosted fonts
-          - inline SVG, e.g. via the HTML5 <svg> tag
-          - any and all connections made via Javascript XMLHttpRequests,
-            WebSockets, sendBeacon(), and Web Workers
-          - plugins
-          - applets
-        BridgeDB's Content-Security-Policy does not yet make use of
-        certain newer, lesser supported, Content-Security-Policy v2.0
-        directives, such as "reflected-xss" and "frame-ancestors", but may
-        someday.
+    * FIXES #15968 https://bugs.torproject.org/15968
+    BridgeDB now sends a Content-Security-Policy header which explicitly allows
+    Javascript, images, CSS, and fonts, from https://bridges.torproject.org.
+    All other types of content are forbidden, including:
+      - embedding https://bridges.torproject.org within
+        <iframe>, <embed>, or <object>, and attempting to source
+        additional resources into its embedded context
+      - inline Javascript, including Javascript within SVG files
+      - inline CSS
+      - externally hosted fonts
+      - inline SVG, e.g. via the HTML5 <svg> tag
+      - any and all connections made via Javascript XMLHttpRequests,
+        WebSockets, sendBeacon(), and Web Workers
+      - plugins
+      - applets
+    BridgeDB's Content-Security-Policy does not yet make use of certain newer,
+    lesser supported, Content-Security-Policy v2.0 directives, such as
+    "reflected-xss" and "frame-ancestors", but may someday.
 
-        * FIXES #16273 https://bugs.torproject.org/16273
-        Several links to Tor Project gitweb URLs within the developer
-        documentation were outdated in that they still used the old gitweb
-        URL format.  These are now updated.
-        Thanks to David Fifield for the bug report and patches.
+    * FIXES #16273 https://bugs.torproject.org/16273
+    Several links to Tor Project gitweb URLs within the developer documentation
+    were outdated in that they still used the old gitweb URL format.  These are
+    now updated.  Thanks to David Fifield for the bug report and patches.
 
-        * FIXES #16330 https://bugs.torproject.org/16330
-        BridgeDB can now handle bridge-server-descriptors with
-        extra-info-digest fields which have two values, as well as both
-        bridge-server-descriptors and bridge-extrainfo descriptors which
-        contain Ed25519 key material and signatures.  See Tor proposals
-        #220 and #228 for more information on the changes to these
-        descriptors.  Note that BridgeDB can now parse this information,
-        but does not yet make use of any Ed25519 cryptographic material
-        within bridge descriptors.
-        https://gitweb.torproject.org/torspec.git/tree/proposals/220-ecc-id-keys.txt
-        https://gitweb.torproject.org/torspec.git/tree/proposals/228-cross-certification-onionkeys.txt
-        Thanks to Atagar for patching Stem.
+    * FIXES #16330 https://bugs.torproject.org/16330
+    BridgeDB can now handle bridge-server-descriptors with extra-info-digest
+    fields which have two values, as well as both bridge-server-descriptors and
+    bridge-extrainfo descriptors which contain Ed25519 key material and
+    signatures.  See Tor proposals #220 and #228 for more information on the
+    changes to these descriptors.  Note that BridgeDB can now parse this
+    information, but does not yet make use of any Ed25519 cryptographic material
+    within bridge descriptors.
+    https://gitweb.torproject.org/torspec.git/tree/proposals/220-ecc-id-keys.txt
+    https://gitweb.torproject.org/torspec.git/tree/proposals/228-cross-certification-onionkeys.txt
+    Thanks to Atagar for patching Stem.
 
-        * FIXES #16616 https://bugs.torproject.org/16616
-        The HSDir flag can now be included within bridge-networkstatus
-        documents.  BridgeDB now has unittests which guarantee that its
-        parsers safely ignore this flag, as well as any flags unknown to
-        BridgeDB which may appear in the future.
-        Thanks to Roger Dingledine for alerting me about the change.
+    * FIXES #16616 https://bugs.torproject.org/16616
+    The HSDir flag can now be included within bridge-networkstatus documents.
+    BridgeDB now has unittests which guarantee that its parsers safely ignore
+    this flag, as well as any flags unknown to BridgeDB which may appear in the
+    future.  Thanks to Roger Dingledine for alerting me about the change.
 
-        * FIXES #16649 https://bugs.torproject.org/16649
-        Mobile users, and other users with small screen pixel ratios, will
-        find that the UI of BridgeDB's HTTPS Distributor has greatly
-        increased in usability and readability.
-
+    * FIXES #16649 https://bugs.torproject.org/16649
+    Mobile users, and other users with small screen pixel ratios, will find that
+    the UI of BridgeDB's HTTPS Distributor has greatly increased in usability
+    and readability.
 
 And includes the following general changes:
 
-        * FIXES an error when requesting the non-HTML version of the
-        bridges page (e.g. https://bridges.torproject.org/bridges?format=plain)
+    * FIXES an error when requesting the non-HTML version of the
+    bridges page (e.g. https://bridges.torproject.org/bridges?format=plain)
 
-        * REMOVES the `bridgedb test` commandline option.
-        BridgeDB's tests can be run via `python setup.py test` or `make
-        test` (or `make coverage` for generating HTML test coverage
-        statistics).
+    * REMOVES the `bridgedb test` commandline option.
+    BridgeDB's tests can be run via `python setup.py test` or `make test` (or
+    `make coverage` for generating HTML test coverage statistics).
 
-        * CHANGES the HTTPS Distributor to HTML-encode Bridge Lines.
-        Previously, a malicious Pluggable Transport Bridge could include
-        in its PT arguments something like "evil=<script>[…]</script>" and
-        if such a Bridge were to be distributed to a user, that user's web
-        browser would execute the script (if Javacript was enabled).
-        Other characters, including non-ASCII, control characters, double
-        quotes, and backslashes, are also sanitised from Bridge Lines.
-        Thanks to Robert Ransom for the patches.
+    * CHANGES the HTTPS Distributor to HTML-encode Bridge Lines.
+    Previously, a malicious Pluggable Transport Bridge could include in its PT
+    arguments something like "evil=<script>[…]</script>" and if such a Bridge
+    were to be distributed to a user, that user's web browser would execute the
+    script (if Javacript was enabled).  Other characters, including non-ASCII,
+    control characters, double quotes, and backslashes, are also sanitised from
+    Bridge Lines.  Thanks to Robert Ransom for the patches.
 
-        * CHANGES BridgeDB's module/package version numbers to be
-        compliant with PEP440.
+    * CHANGES BridgeDB's module/package version numbers to be compliant with
+    PEP440.
 
-        * CHANGES the layout of BridgeDB's source code directories.
-        Rather than storing BridgeDB's source in "lib/bridgedb/", it is
-        now kept in "bridgedb/".  Similarly, the directory containing
-        BridgeDB's tests has been moved from "lib/bridgedb/test/" to
-        "test/", which means that the tests are no longer installed when
-        running `python setup.py install` or `make install`.
+    * CHANGES the layout of BridgeDB's source code directories.
+    Rather than storing BridgeDB's source in "lib/bridgedb/", it is now kept in
+    "bridgedb/".  Similarly, the directory containing BridgeDB's tests has been
+    moved from "lib/bridgedb/test/" to "test/", which means that the tests are
+    no longer installed when running `python setup.py install` or `make
+    install`.
 
-        * ADDS several improvements to the developer documentation at
-        https://pythonhosted.org/bridgedb.
+    * ADDS several improvements to the developer documentation at
+    https://pythonhosted.org/bridgedb.
 
-        * UPDATE English (en_US) translations.
+    * UPDATE English (en_US) translations.
 
-        * UPDATE English (en) translations.
+    * UPDATE English (en) translations.
 
-        * ADD Serbian (sr) translations.
-          Thanks to obj.petit.a, Ivan Radeljic, and Milenko Doder.
+    * ADD Serbian (sr) translations.
+      Thanks to obj.petit.a, Ivan Radeljic, and Milenko Doder.
 
-        * UPDATE Arabic (ar) translations.
-          Thanks to  A. Hassan, debo debo, KACIMI LAMINE, and Nudroid A.
+    * UPDATE Arabic (ar) translations.
+      Thanks to  A. Hassan, debo debo, KACIMI LAMINE, and Nudroid A.
 
-        * UPDATE Catalan (ca) translations.
-          Thanks to laia_.
+    * UPDATE Catalan (ca) translations.
+      Thanks to laia_.
 
-        * UPDATE Czech (cs) translations.
-          Thanks to Tomas Palik and Vlastimil Burián.
+    * UPDATE Czech (cs) translations.
+      Thanks to Tomas Palik and Vlastimil Burián.
 
-        * UPDATE Danish (da) translations.
-          Thanks to Mogelbjerg.
+    * UPDATE Danish (da) translations.
+      Thanks to Mogelbjerg.
 
-        * UPDATE German (de) translations.
-          Thanks to jschfr, Junge Limba, and Toralf Förster.
+    * UPDATE German (de) translations.
+      Thanks to jschfr, Junge Limba, and Toralf Förster.
 
-        * UPDATE English (en_GB) translations.
-          Thanks to Andi Chandler.
+    * UPDATE English (en_GB) translations.
+      Thanks to Andi Chandler.
 
-        * UPDATE Farsi (fa) translations.
-          Thanks to some awesome anonymous person for helping out.
+    * UPDATE Farsi (fa) translations.
+      Thanks to some awesome anonymous person for helping out.
 
-        * UPDATE Finish (fi) translations.
-          Thanks to Riku Viitanen.
+    * UPDATE Finish (fi) translations.
+      Thanks to Riku Viitanen.
 
-        * UPDATE French (fr) translations.
-          Thanks to elouann, Trans-fr, and Towinet.
+    * UPDATE French (fr) translations.
+      Thanks to elouann, Trans-fr, and Towinet.
 
-        * UPDATE French (fr_CA) translations.
-          Thanks to Trans-fr.
+    * UPDATE French (fr_CA) translations.
+      Thanks to Trans-fr.
 
-        * UPDATE Croatian (hr_HR) translations.
-          Thanks to some awesome anonymous person for helping out.
+    * UPDATE Croatian (hr_HR) translations.
+      Thanks to some awesome anonymous person for helping out.
 
-        * UPDATE Hungarian (hu) translations.
-          Thanks to some awesome anonymous person for helping out.
+    * UPDATE Hungarian (hu) translations.
+      Thanks to some awesome anonymous person for helping out.
 
-        * UPDATE Indonesian (id) translations.
-          Thanks to Anthony Santana, Astryd Viandila Dahlan, cholif yulian,
-          constantius damar wicaksono, Dwi Cahyono, L1Nus, km242saya, and
-          Zamani Karmana.
+    * UPDATE Indonesian (id) translations.
+      Thanks to Anthony Santana, Astryd Viandila Dahlan, cholif yulian,
+      constantius damar wicaksono, Dwi Cahyono, L1Nus, km242saya, and Zamani
+      Karmana.
 
-        * UPDATE Italian (it) translations.
-          Thanks to Random_R.
+    * UPDATE Italian (it) translations.
+      Thanks to Random_R.
 
-        * UPDATE Japanese (ja) translations.
-          Thanks to ABE Tsunehiko.
+    * UPDATE Japanese (ja) translations.
+      Thanks to ABE Tsunehiko.
 
-        * UPDATE Latvian (lv) translations.
-          Thanks to Ojārs Balcers.
+    * UPDATE Latvian (lv) translations.
+      Thanks to Ojārs Balcers.
 
-        * UPDATE Norwegian Bokmål (nb) translations.
-          Thanks to Erik Matson and Kristian Andre Henriksen.
+    * UPDATE Norwegian Bokmål (nb) translations.
+      Thanks to Erik Matson and Kristian Andre Henriksen.
 
-        * UPDATE Dutch (nl) translations.
-          Thanks to Mart3000.
+    * UPDATE Dutch (nl) translations.
+      Thanks to Mart3000.
 
-        * UPDATE Polish (pl) translations.
-          Thanks to Karol Obartuch.
+    * UPDATE Polish (pl) translations.
+      Thanks to Karol Obartuch.
 
-        * UPDATE Portuguese (pt) translations.
-          Thanks to Bruno D. Rodrigues and MMSRS.
+    * UPDATE Portuguese (pt) translations.
+      Thanks to Bruno D. Rodrigues and MMSRS.
 
-        * UPDATE Brazillian Portuguese (pt_BR) translations.
-          Thanks to Communia.
+    * UPDATE Brazillian Portuguese (pt_BR) translations.
+      Thanks to Communia.
 
-        * UPDATE Romanian (ro) translations.
-          Thanks to  Ana, axel_89, and Di N.
+    * UPDATE Romanian (ro) translations.
+      Thanks to  Ana, axel_89, and Di N.
 
-        * UPDATE Russian (ru) translations.
-          Thanks to Ivan.
+    * UPDATE Russian (ru) translations.
+      Thanks to Ivan.
 
-        * UPDATE Slovak (sk_SK) translations.
-          Thanks to StefanH.
+    * UPDATE Slovak (sk_SK) translations.
+      Thanks to StefanH.
 
-        * UPDATE Albanian (sq) translations.
-          Thanks to  some awesome unknown anonymous person who didn't add their
-          name to the list of translators.
+    * UPDATE Albanian (sq) translations.
+      Thanks to  some awesome unknown anonymous person who didn't add their name
+      to the list of translators.
 
-        * UPDATE Swedish (sv) translations.
-          Thanks to Peter Michanek.
+    * UPDATE Swedish (sv) translations.
+      Thanks to Peter Michanek.
 
-        * UPDATE Turkish (tr) translations.
-          Thanks to Bullgeschichte and Fomas.
+    * UPDATE Turkish (tr) translations.
+      Thanks to Bullgeschichte and Fomas.
 
-        * UPDATE Ukranian (uk) translations.
-          Thanks to Yasha.
+    * UPDATE Ukranian (uk) translations.
+      Thanks to Yasha.
 
-        * UPDATE Chinese Mandarin (zh_CN) translations.
-          Thanks to khi.
+    * UPDATE Chinese Mandarin (zh_CN) translations.
+      Thanks to khi.
 
-        * UPDATE Taiwanese Mandarin (zh_TW) translations.
-          Thanks to x4r.
-
+    * UPDATE Taiwanese Mandarin (zh_TW) translations.
+      Thanks to x4r.
 
 Changes in version 0.3.2 - 2015-05-01
 
-        * FIXES a problem with the calculation of Levenshtein distances
-        between blacklisted email addresses and those on incoming
-        email. This fixes a problem with the fuzzy matching implemented in
-        #9385: https://bugs.torproject.org/9385.
+    * FIXES a problem with the calculation of Levenshtein distances
+    between blacklisted email addresses and those on incoming email. This fixes
+    a problem with the fuzzy matching implemented in #9385:
+    https://bugs.torproject.org/9385.
 
-        * FIXES #1839 https://bugs.torproject.org/1839
-        BridgeDB's distributors now rotate their hashrings at
-        configurable scheduled intervals.
+    * FIXES #1839 https://bugs.torproject.org/1839
+    BridgeDB's distributors now rotate their hashrings at configurable scheduled
+    intervals.
 
-        * FIXES #4771 https://bugs.torproject.org/4771
-        BridgeDB now records which of the HTTPS Distributor's
-        sub-hashrings are used for clients coming from Tor Exit nodes and
-        other known proxies.
+    * FIXES #4771 https://bugs.torproject.org/4771
+    BridgeDB now records which of the HTTPS Distributor's sub-hashrings are used
+    for clients coming from Tor Exit nodes and other known proxies.
 
-        * FIXES #12504 https://bugs.torproject.org/12504
-        Which Pluggable Transports BridgeDB distributes is now easily
-        configurable via the bridgedb.conf configuration file.
+    * FIXES #12504 https://bugs.torproject.org/12504
+    Which Pluggable Transports BridgeDB distributes is now easily configurable
+    via the bridgedb.conf configuration file.
 
-        * FIXES #13202 https://bugs.torproject.org/13202
-        Old bridges running Tor-0.2.4.x with Pluggable Transports like
-        scramblesuit and obfs4proxy have a bug which causes them to not
-        include the PT arguments in the `transport` line they submit to
-        the BridgeAuthority in their extrainfo descriptors.  This causes
-        BridgeDB to have broken bridge lines for these bridges.
-                For example, scramblesuit requires a `password=` in the
-        `ClientTransportPlugin` for clients to connect to it.  If BridgeDB
-        receives a line in that bridge's extrainfo which says
-        `transport scramblesuit 1.2.3.4:1234` (without a password), then
-        when BridgeDB gives clients a bridge line for that bridge, it'll
-        look like "Bridge scramblesuit 1.2.3.4:1234" - meaning that it won't
-        work.  This fixes the issue by excluding broken transports from
-        being distributed to clients.
+    * FIXES #13202 https://bugs.torproject.org/13202
+    Old bridges running Tor-0.2.4.x with Pluggable Transports like scramblesuit
+    and obfs4proxy have a bug which causes them to not include the PT arguments
+    in the `transport` line they submit to the BridgeAuthority in their
+    extrainfo descriptors.  This causes BridgeDB to have broken bridge lines for
+    these bridges.  For example, scramblesuit requires a `password=` in the
+    `ClientTransportPlugin` for clients to connect to it.  If BridgeDB receives
+    a line in that bridge's extrainfo which says `transport scramblesuit
+    1.2.3.4:1234` (without a password), then when BridgeDB gives clients a
+    bridge line for that bridge, it'll look like "Bridge scramblesuit
+    1.2.3.4:1234" - meaning that it won't work.  This fixes the issue by
+    excluding broken transports from being distributed to clients.
 
-        * FIXES #15517 https://bugs.torproject.org/15517
-        For all clients who are coming from IPv6 addresses and are not
-        using Tor, who go to https://bridges.torproject.org, BridgeDB now
-        groups these clients together by /32.  This "grouping" causes all
-        IPv6 clients within the same IPv6 /32 to get the same bridges.
-        Previously, BridgeDB grouped IPv6 clients by /64 (which is
-        ridiculously small, considering standard IPv6 allocation sizes).
+    * FIXES #15517 https://bugs.torproject.org/15517
+    For all clients who are coming from IPv6 addresses and are not using Tor,
+    who go to https://bridges.torproject.org, BridgeDB now groups these clients
+    together by /32.  This "grouping" causes all IPv6 clients within the same
+    IPv6 /32 to get the same bridges.  Previously, BridgeDB grouped IPv6 clients
+    by /64 (which is ridiculously small, considering standard IPv6 allocation
+    sizes).
 
-        For all clients who are coming from IPv4 addresses and are not
-        using Tor, BridgeDB now groups these clients together by /16.
-        Previously, BridgeDB grouped IPv4 clients by /24.  (This latter
-        change was technically made as part of #4771.)
+    For all clients who are coming from IPv4 addresses and are not using Tor,
+    BridgeDB now groups these clients together by /16.  Previously, BridgeDB
+    grouped IPv4 clients by /24.  (This latter change was technically made as
+    part of #4771.)
 
-        * FIXES #15464 https://bugs.torproject.org/15464
-        The setup procedure for creating a BridgeDB Continuous Integration
-        build machine is now simplified and generalised to include build
-        environments like Jenkins, not just TravisCI.
+    * FIXES #15464 https://bugs.torproject.org/15464
+    The setup procedure for creating a BridgeDB Continuous Integration build
+    machine is now simplified and generalised to include build environments like
+    Jenkins, not just TravisCI.
 
-        * FIXES #15866 https://bugs.torproject.org/15866
-        BridgeDB now ignores nearly all the information in the
-        networkstatus-bridges file created by the BridgeAuthority.
+    * FIXES #15866 https://bugs.torproject.org/15866
+    BridgeDB now ignores nearly all the information in the networkstatus-bridges
+    file created by the BridgeAuthority.
 
-        * ADDS benchmark tests to BridgeDB's test suite, and some of
-        BridgeDB's algorithms have been revised to improve their speed.
-
+    * ADDS benchmark tests to BridgeDB's test suite, and some of
+    BridgeDB's algorithms have been revised to improve their speed.
 
 Changes in version 0.3.1 - 2015-03-24
 
-        * FIXES #14065 https://bugs.torproject.org/14065
-        When requesting vanilla IPv6 bridges from
-        https://bridges.torproject.org, BridgeDB would respond with IPv4
-        addresses.  It now correctly responds with IPv6 addresses.
+    * FIXES #14065 https://bugs.torproject.org/14065
+    When requesting vanilla IPv6 bridges from https://bridges.torproject.org,
+    BridgeDB would respond with IPv4 addresses.  It now correctly responds with
+    IPv6 addresses.
 
 And includes the following general changes:
 
-        * FIXES an issue with the filtering of hashrings while answering
-        requests for Pluggable Transports. (commit 3ef37df6)
+    * FIXES an issue with the filtering of hashrings while answering
+    requests for Pluggable Transports. (commit 3ef37df6)
 
-        * FIXES the return value from the GnuPG interface initialization
-        function (bridgedb.crypto.initializeGnuPG) when creating a test
-        signature has failed.
+    * FIXES the return value from the GnuPG interface initialization
+    function (bridgedb.crypto.initializeGnuPG) when creating a test signature
+    has failed.
 
-        * CHANGES the way BridgeDB handles the case where it parses to
-        duplicate extrainfo descriptors (for the same Bridge) which also
-        have identical timestamps.  Before, we assumed this wasn't
-        possible.  It turns out that it not only is possible, but that
-        usually every batch of descriptors has at least one Bridge with
-        such a set of perfectly identical extrainfo descriptors.  Even
-        stranger, it appears that only Bridges started for the first time
-        quite recently (within the last eight hours) display this
-        behaviour.  BridgeDB now logs these errors, rather than leaving
-        them unhandled.
-        (commit a27d7905)
+    * CHANGES the way BridgeDB handles the case where it parses to
+    duplicate extrainfo descriptors (for the same Bridge) which also have
+    identical timestamps.  Before, we assumed this wasn't possible.  It turns
+    out that it not only is possible, but that usually every batch of
+    descriptors has at least one Bridge with such a set of perfectly identical
+    extrainfo descriptors.  Even stranger, it appears that only Bridges started
+    for the first time quite recently (within the last eight hours) display this
+    behaviour.  BridgeDB now logs these errors, rather than leaving them
+    unhandled.  (commit a27d7905)
 
-        * ADDS an environment variable check to setup.py which controls
-        whether the setup.py script tries to install the dependencies
-        listed in the requirements.txt file with easy_install.  If the
-        environment variable BRIDGEDB_INSTALL_DEPENDENCIES=0, then
-        setup.py will not use easy_install.  When BridgeDB is installed
-        via `make install` the default is to not use easy_install;
-        however, when installed via `python setup.py install`, the default
-        is to use easy_install to check for, find, and install
-        dependencies.  (NOTE: the latter is *not* recommended.)
-        (commit d035fe64)
-
+    * ADDS an environment variable check to setup.py which controls
+    whether the setup.py script tries to install the dependencies listed in the
+    requirements.txt file with easy_install.  If the environment variable
+    BRIDGEDB_INSTALL_DEPENDENCIES=0, then setup.py will not use easy_install.
+    When BridgeDB is installed via `make install` the default is to not use
+    easy_install; however, when installed via `python setup.py install`, the
+    default is to use easy_install to check for, find, and install dependencies.
+    (NOTE: the latter is *not* recommended.) (commit d035fe64)
 
 Changes in version 0.3.0 - 2015-03-21
 
-        * FIXES #2895 https://bugs.torproject.org/2895
-        BridgeDB no longer assumes that any extrainfo descriptor files are
-        in chronological order.
+    * FIXES #2895 https://bugs.torproject.org/2895
+    BridgeDB no longer assumes that any extrainfo descriptor files are in
+    chronological order.
 
-        * FIXES #4405 https://bugs.torproject.org/4405
-        BridgeDB now has a built-in timer mechanism for scheduling
-        cronjobesque events. This is now used to routinely download and
-        parse the list of Tor exit relays in a completely asynchronous
-        manner.
+    * FIXES #4405 https://bugs.torproject.org/4405
+    BridgeDB now has a built-in timer mechanism for scheduling cronjobesque
+    events. This is now used to routinely download and parse the list of Tor
+    exit relays in a completely asynchronous manner.
 
-        * FIXES #9380 https://bugs.torproject.org/9380
-        BridgeDB now uses Stem (https://stem.torproject.org) for its
-        parsers, and has better classes for parsing and storing
-        information on Bridges and their Pluggable Transports.
-        Additionally, all of BridgeDB's parses and the new
-        Bridge/PluggableTransport classes all have 100% unittest and
-        integration test coverage.
+    * FIXES #9380 https://bugs.torproject.org/9380
+    BridgeDB now uses Stem (https://stem.torproject.org) for its parsers, and
+    has better classes for parsing and storing information on Bridges and their
+    Pluggable Transports.  Additionally, all of BridgeDB's parses and the new
+    Bridge/PluggableTransport classes all have 100% unittest and integration
+    test coverage.
 
-        * FIXES #10385 https://bugs.torproject.org/10385
-        BridgeDB now uses python-gnupg (https://pypi.python.org/gnupg)
-        instead of GPGME (libgpgme11 and pygpgme). Previously, when using
-        GPGME, BridgeDB was unable to sign emails with a subkey whose
-        master private key was not present, causing all signing to be
-        broken. Additionally, GPGME tried to access and modify the
-        BridgeDB users $HOME directory, and GPGME would also try to create
-        signatures with encryption-only subkeys, and try to
-        encrypt/decrypt with signing-only subkeys. All of these issues are
-        no more, because the writhing tangled mass of bugs known ad GPGME
-        is gone for good.
+    * FIXES #10385 https://bugs.torproject.org/10385
+    BridgeDB now uses python-gnupg (https://pypi.python.org/gnupg) instead of
+    GPGME (libgpgme11 and pygpgme). Previously, when using GPGME, BridgeDB was
+    unable to sign emails with a subkey whose master private key was not
+    present, causing all signing to be broken. Additionally, GPGME tried to
+    access and modify the BridgeDB users $HOME directory, and GPGME would also
+    try to create signatures with encryption-only subkeys, and try to
+    encrypt/decrypt with signing-only subkeys. All of these issues are no more,
+    because the writhing tangled mass of bugs known ad GPGME is gone for good.
 
-        * FIXES #11216 https://bugs.torproject.org/11216
-        BridgeDB no longer parses any extrainfo descriptor files
-        cumulatively. Before, a Bridge which had a descriptor in
-        cached-extrainfo and in cached-extrainfo.new and supported obfs3,
-        obfs4, and scramblesuit transports would be parsed twice,
-        resulting in the Bridge having six transports. This is no longer
-        the case.
+    * FIXES #11216 https://bugs.torproject.org/11216
+    BridgeDB no longer parses any extrainfo descriptor files cumulatively.
+    Before, a Bridge which had a descriptor in cached-extrainfo and in
+    cached-extrainfo.new and supported obfs3, obfs4, and scramblesuit transports
+    would be parsed twice, resulting in the Bridge having six transports. This
+    is no longer the case.
 
-        * HOTFIXES an issue with non-deterministic unittest failures in
-        the Mechanize-based integrations tests in
-        lib/bridgedb/test/test_https.py. hotfix/0.2.4-mechanize-tags
+    * HOTFIXES an issue with non-deterministic unittest failures in
+    the Mechanize-based integrations tests in lib/bridgedb/test/test_https.py.
+    hotfix/0.2.4-mechanize-tags
 
-        * FIXES part of #12507 https://bugs.torproject.org/12507
-        BridgeDB now has semi-automated developer documentation builds at
-        https://pythonhosted.org/bridgedb/.
+    * FIXES part of #12507 https://bugs.torproject.org/12507
+    BridgeDB now has semi-automated developer documentation builds at
+    https://pythonhosted.org/bridgedb/.
 
-        * FIXES #12805 https://bugs.torproject.org/12805
-        BridgeDB is now packaged on PyPI, in the hopes that someday other
-        organisations will be able to run their own BridgeDBs.
+    * FIXES #12805 https://bugs.torproject.org/12805
+    BridgeDB is now packaged on PyPI, in the hopes that someday other
+    organisations will be able to run their own BridgeDBs.
 
-        * FIXES #12843 https://bugs.torproject.org/12843
-        BridgeDB will no longer distribute bridges which it believes are
-        located in Iran or Syria.
+    * FIXES #12843 https://bugs.torproject.org/12843
+    BridgeDB will no longer distribute bridges which it believes are located in
+    Iran or Syria.
 
-        * FIXES #12872 https://bugs.torproject.org/12872
-        BridgeDB now has geolocational information for Bridges, telling it
-        which country each Bridge's primary ORAddress is within, as well
-        as geolocational information for each PluggableTransport address.
-        Thanks to Alden S. Page for the patches.
+    * FIXES #12872 https://bugs.torproject.org/12872
+    BridgeDB now has geolocational information for Bridges, telling it which
+    country each Bridge's primary ORAddress is within, as well as geolocational
+    information for each PluggableTransport address.  Thanks to Alden S. Page
+    for the patches.
 
-        * FIXES #15155 https://bugs.torproject.org/15155
-        The instructions for obtaining a copy of Tor Browser should now be
-        more clear.
-        Thanks to Jens Kubieziel, Nick Mathewson, and Peter Palfrader.
+    * FIXES #15155 https://bugs.torproject.org/15155
+    The instructions for obtaining a copy of Tor Browser should now be more
+    clear.  Thanks to Jens Kubieziel, Nick Mathewson, and Peter Palfrader.
 
 And includes the following general changes:
-        * CHANGES BridgeDB's continuous integration infrastructure to run
-        tests for:
-                - Twisted-13.2.0 (Debian Wheezy version),
-                - Twisted-14.0.2 (Debian Jessie version), and
-                - Twisted-15.0.0 (latest and greatest)
-        As well as testing both:
-                - pyOpenSSL-0.13.1 (Debian Wheezy version), and
-                - pyOpenSSL-0.14 (Debian Jessie version).
-        See https://travis-ci.org/isislovecruft/bridgedb/builds
+    * CHANGES BridgeDB's continuous integration infrastructure to run
+    tests for:
+            - Twisted-13.2.0 (Debian Wheezy version),
+            - Twisted-14.0.2 (Debian Jessie version), and
+            - Twisted-15.0.0 (latest and greatest)
+    As well as testing both:
+            - pyOpenSSL-0.13.1 (Debian Wheezy version), and
+            - pyOpenSSL-0.14 (Debian Jessie version).
+    See https://travis-ci.org/isislovecruft/bridgedb/builds
 
-        * FIXES an issue with the $PYTHON_EGG_CACHE directory being group
-        writable on Travis-CI build machines.
+    * FIXES an issue with the $PYTHON_EGG_CACHE directory being group
+    writable on Travis-CI build machines.
 
-        * UPDATE English (en_US) translations.
+    * UPDATE English (en_US) translations.
 
-        * UPDATE English (en) translations.
+    * UPDATE English (en) translations.
 
-        * ADD Tamil (ta) translations.
-          Thanks to git12a.
+    * ADD Tamil (ta) translations.
+      Thanks to git12a.
 
-        * ADD Albanian (sq) translations.
-          Thanks to Bujar Tafili.
+    * ADD Albanian (sq) translations.
+      Thanks to Bujar Tafili.
 
-        * ADD Slovenian (sl_SI) translations.
-          Thanks to Dušan, marko, and Nwolfy.
+    * ADD Slovenian (sl_SI) translations.
+      Thanks to Dušan, marko, and Nwolfy.
 
-        * ADD Slovak (sk_SK) translations.
-          Thanks to once.
+    * ADD Slovak (sk_SK) translations.
+      Thanks to once.
 
-        * ADD Esperanto (eo) translations.
-          Thanks to identity, Rico Chan, and trio.
+    * ADD Esperanto (eo) translations.
+      Thanks to identity, Rico Chan, and trio.
 
-        * ADD Bulgarian (bg) translations.
-          Thanks to aramaic.
+    * ADD Bulgarian (bg) translations.
+      Thanks to aramaic.
 
-        * ADD Azerbaijani (az) translations.
-          Thanks to E.
+    * ADD Azerbaijani (az) translations.
+      Thanks to E.
 
-        * UPDATE Chinese (zh_TW) translations.
-          Thanks to LNDDYL.
+    * UPDATE Chinese (zh_TW) translations.
+      Thanks to LNDDYL.
 
-        * UPDATE Chinese (zh_CN) translations.
-          Thanks to Wu Ming Shi and YF.
+    * UPDATE Chinese (zh_CN) translations.
+      Thanks to Wu Ming Shi and YF.
 
-        * UPDATE Ukranian (uk) translations.
-          Thanks to Eugene ghostishev, LinuxChata, Oleksii Golub, and
-        Андрій Бандура.
+    * UPDATE Ukranian (uk) translations.
+      Thanks to Eugene ghostishev, LinuxChata, Oleksii Golub, and
+      Андрій Бандура.
 
-        * UPDATE Turkish (tr) translations.
-          Thanks to eromytsatiffird, Emir Sarı, Idil Yuksel, ozkansib,
-        Volkan Gezer, and zeki.
+    * UPDATE Turkish (tr) translations.
+      Thanks to eromytsatiffird, Emir Sarı, Idil Yuksel, ozkansib,
+      Volkan Gezer, and zeki.
 
-        * UPDATE Swedish (sv) translations.
-          Thanks to Anders Jensen-Urstad, Emil Johansson, GabSeb, ph AA, phst,
-        and leveebreaks.
+    * UPDATE Swedish (sv) translations.
+      Thanks to Anders Jensen-Urstad, Emil Johansson, GabSeb, ph AA, phst,
+      and leveebreaks.
 
-        * UPDATE Slovak (sk) translations.
-          Thanks to elo, FooBar, Michal Slovák, Roman 'Kaktuxista' Benji, and
-        StefanH.
+    * UPDATE Slovak (sk) translations.
+      Thanks to elo, FooBar, Michal Slovák, Roman 'Kaktuxista' Benji, and
+      StefanH.
 
-        * UPDATE Russian (ru) translations.
-          Thanks to Andrey Yoker Ogurchikov, Evgrafov Denis, foo,
-        joshuaridney, Oleg, Sergey Briskin, Valid Olov, and Vitaliy Grishenko.
+    * UPDATE Russian (ru) translations.
+      Thanks to Andrey Yoker Ogurchikov, Evgrafov Denis, foo,
+      joshuaridney, Oleg, Sergey Briskin, Valid Olov, and Vitaliy Grishenko.
 
-        * UPDATE Romanian (ro) translations.
-          Thanks to Isus Satanescu, laura berindei, and clopotel.
+    * UPDATE Romanian (ro) translations.
+      Thanks to Isus Satanescu, laura berindei, and clopotel.
 
-        * UPDATE Portuguese (pt_BR) translations.
-          Thanks to João Paulo S.S.
+    * UPDATE Portuguese (pt_BR) translations.
+      Thanks to João Paulo S.S.
 
-        * UPDATE Portuguese (pt) translations.
-          Thanks to alfalb.as, André Monteiro, kagazz, Manuela Silva,
-        alfalb_mansil, Andrew_Melim, Pedro Albuquerque, Sérgio Marques, and
-        TiagoJMMC.
+    * UPDATE Portuguese (pt) translations.
+      Thanks to alfalb.as, André Monteiro, kagazz, Manuela Silva,
+      alfalb_mansil, Andrew_Melim, Pedro Albuquerque, Sérgio Marques, and
+      TiagoJMMC.
 
-        * UPDATE Polish (pl) translations.
-          Thanks to Aron, JerBen, bogdrozd, Dawid, Rikson, Krzysztof Łojowski,
-        oirpos, and seb.
+    * UPDATE Polish (pl) translations.
+      Thanks to Aron, JerBen, bogdrozd, Dawid, Rikson, Krzysztof Łojowski,
+      oirpos, and seb.
 
-        * UPDATE Dutch (nl) translations.
-          Thanks to Adriaan Callaerts, Ann Boen, Cleveridge, Dick,
-        Johann Behrens, Shondoit Walker, Marco Brohet, guryman, Marco
-        Brohet, Tom Becht, Tonko Mulder, math1985, and BBLN.
+    * UPDATE Dutch (nl) translations.
+      Thanks to Adriaan Callaerts, Ann Boen, Cleveridge, Dick,
+      Johann Behrens, Shondoit Walker, Marco Brohet, guryman, Marco
+      Brohet, Tom Becht, Tonko Mulder, math1985, and BBLN.
 
-        * UPDATE Norwegian Bokmål (nb) translations.
-          Thanks to Allan Nordhøy, Harald, lateralus, Per Thorsheim,
-        and thor574.
+    * UPDATE Norwegian Bokmål (nb) translations.
+      Thanks to Allan Nordhøy, Harald, lateralus, Per Thorsheim,
+      and thor574.
 
-        * UPDATE Latvian (lv) translations.
-          Thanks to Ojārs Balcers and ThePirateDuck.
+    * UPDATE Latvian (lv) translations.
+      Thanks to Ojārs Balcers and ThePirateDuck.
 
-        * UPDATE Khmer (km) translations.
-          Thanks to Seng Sutha, Sokhem Khoem, and Sok Sophea.
+    * UPDATE Khmer (km) translations.
+      Thanks to Seng Sutha, Sokhem Khoem, and Sok Sophea.
 
-        * UPDATE Japanese (ja) translations.
-          Thanks to brt, ABE Tsunehiko, タカハシ, Masaki Saito, and
-        藤前　甲.
+    * UPDATE Japanese (ja) translations.
+      Thanks to brt, ABE Tsunehiko, タカハシ, Masaki Saito, and
+      藤前　甲.
 
-        * UPDATE Italian (it) translations.
-          Thanks to fetidyoo, Francesca Ciceri, HostFat, ironbishop, and
-        Jacob Appelbaum.
+    * UPDATE Italian (it) translations.
+      Thanks to fetidyoo, Francesca Ciceri, HostFat, ironbishop, and
+      Jacob Appelbaum.
 
-        * UPDATE Hungarian (hu) translations.
-          Thanks to Blackywantscookies, Lajos Pasztor, Cerbo, and vargaviktor.
+    * UPDATE Hungarian (hu) translations.
+      Thanks to Blackywantscookies, Lajos Pasztor, Cerbo, and vargaviktor.
 
-        * UPDATE Croatian (hr) translations.
-          Thanks to Ana B, Armando Vega, skiddiep, Tomislav Siroglavić,
-        and gogo.
+    * UPDATE Croatian (hr) translations.
+      Thanks to Ana B, Armando Vega, skiddiep, Tomislav Siroglavić,
+      and gogo.
 
-        * UPDATE French (fr_CA) translations.
-          Thanks to Lunar, mehditaileb, Onizuka, and yahoe.001.
+    * UPDATE French (fr_CA) translations.
+      Thanks to Lunar, mehditaileb, Onizuka, and yahoe.001.
 
-        * UPDATE French (fr) translations.
-          Thanks to apaddlingduck, fayçal fatihi, Boubou, Cryptie,
-        Frisson Reynald, hpatte, Lucas Leroy, Lunar, Onizuka, and mehditaileb.
+    * UPDATE French (fr) translations.
+      Thanks to apaddlingduck, fayçal fatihi, Boubou, Cryptie,
+      Frisson Reynald, hpatte, Lucas Leroy, Lunar, Onizuka, and mehditaileb.
 
-        * UPDATE Finnish (fi) translations.
-          Thanks to Jorma Karvonen, Spacha, Ossi Kallunki, Sami Kuusisto,
-        viljaminojonen, and Finland355.
+    * UPDATE Finnish (fi) translations.
+      Thanks to Jorma Karvonen, Spacha, Ossi Kallunki, Sami Kuusisto,
+      viljaminojonen, and Finland355.
 
-        * UPDATE Farsi (fa) translations.
-          Thanks to arashaalaei, signal89, ardeshir, Gilberto, johnholzer,
-        Mohammad Hossein, perspolis, and Setareh.
+    * UPDATE Farsi (fa) translations.
+      Thanks to arashaalaei, signal89, ardeshir, Gilberto, johnholzer,
+      Mohammad Hossein, perspolis, and Setareh.
 
-        * UPDATE Spanish (es) translations.
-          Thanks to dark_yoshi, toypurina, BL, NinjaTuna, Noel Torres,
-        Paola Falcon, strel, and Jonis.
+    * UPDATE Spanish (es) translations.
+      Thanks to dark_yoshi, toypurina, BL, NinjaTuna, Noel Torres,
+      Paola Falcon, strel, and Jonis.
 
-        * UPDATE English (en_GB) translations.
-          Thanks to Andi Chandler, Richard Shaylor, and ronnietse.
+    * UPDATE English (en_GB) translations.
+      Thanks to Andi Chandler, Richard Shaylor, and ronnietse.
 
-        * UPDATE Greek (el) translations.
-          Thanks to Adrian Pappas, andromeas, oahanx, isv31, and kotkotkot.
+    * UPDATE Greek (el) translations.
+      Thanks to Adrian Pappas, andromeas, oahanx, isv31, and kotkotkot.
 
-        * UPDATE German (de) translations.
-          Thanks to trantor, Ettore Atalan, unknwon_anonymous, konstibae,
-        Locke, Tobias Bannert, qbi, Sebastian, and debakel.
+    * UPDATE German (de) translations.
+      Thanks to trantor, Ettore Atalan, unknwon_anonymous, konstibae,
+      Locke, Tobias Bannert, qbi, Sebastian, and debakel.
 
-        * UPDATE Danish (da) translations.
-          Thanks to Christian Villum, David Nielsen, OliverMller, torebjornson,
-        Thomas Pryds, and Tore Bjørnson.
+    * UPDATE Danish (da) translations.
+      Thanks to Christian Villum, David Nielsen, OliverMller, torebjornson,
+      Thomas Pryds, and Tore Bjørnson.
 
-        * UPDATE Czech (cs) translations.
-          Thanks to A5h8d0wf0x, Adam Slovacek, Elisa, Sanky, Jiří Vírava,
-        mxsedlacek, and Radek Bensch.
+    * UPDATE Czech (cs) translations.
+      Thanks to A5h8d0wf0x, Adam Slovacek, Elisa, Sanky, Jiří Vírava,
+      mxsedlacek, and Radek Bensch.
 
-        * UPDATE Catalan (ca) translations.
-          Thanks to Albert, Assumpta Anglada, Eloi García i Fargas, Humbert,
-        and laia_.
+    * UPDATE Catalan (ca) translations.
+      Thanks to Albert, Assumpta Anglada, Eloi García i Fargas, Humbert,
+      and laia_.
 
-        * UPDATE Arabic (ar) translations.
-          Thanks to Ash and Valetudinarian.
+    * UPDATE Arabic (ar) translations.
+      Thanks to Ash and Valetudinarian.
 
 Changes in version 0.2.4 - 2015-02-03
 
-        * HOTFIXES a UnicodeDecodeError resulting from patches for #12627.
-        https://bugs.torproject.org/12627
+    * HOTFIXES a UnicodeDecodeError resulting from patches for #12627.
+    https://bugs.torproject.org/12627
 
-        * FIXES #9874 https://bugs.torproject.org/9874
-        BridgeDB now has integration tests for all bridge distributors.
-        Thanks to trygve for the patches.
+    * FIXES #9874 https://bugs.torproject.org/9874
+    BridgeDB now has integration tests for all bridge distributors.  Thanks to
+    trygve for the patches.
 
-        * FIXES #12871 https://bugs.torproject.org/12871
-        Bridge Buckets now work, even if the code for calculating Bridge
-        stability is disabled.
-        Thanks to Matt Finkel for the patches.
+    * FIXES #12871 https://bugs.torproject.org/12871
+    Bridge Buckets now work, even if the code for calculating Bridge stability
+    is disabled.  Thanks to Matt Finkel for the patches.
 
-        * FIXES part of #12029 https://bugs.torproject.org/12029
-        Major sections of the bridgedb.Bridges module, which holds
-        BridgeDB's main data structures for storing and parsing Bridges,
-        have been refactored in preparation for upcoming changes to use
-        Stem's parsers (see #9380 https://bugs.torproject.org/9380)
+    * FIXES part of #12029 https://bugs.torproject.org/12029
+    Major sections of the bridgedb.Bridges module, which holds BridgeDB's main
+    data structures for storing and parsing Bridges, have been refactored in
+    preparation for upcoming changes to use Stem's parsers (see #9380
+    https://bugs.torproject.org/9380)
 
-        * FIXES #12932 https://bugs.torproject.org/12932
-        Arguments for Pluggable Transports in the bridge lines which
-        BridgeDB distributes to users are now properly
-        space-separated. This issue was affecting the deployment of the
-        obfs4 PT (see #12130 https://bugs.torproject.org/12130).
+    * FIXES #12932 https://bugs.torproject.org/12932
+    Arguments for Pluggable Transports in the bridge lines which BridgeDB
+    distributes to users are now properly space-separated. This issue was
+    affecting the deployment of the obfs4 PT (see #12130
+    https://bugs.torproject.org/12130).
 
-        * FIXES #13123 https://bugs.torproject.org/13123
-        Previously, there were two additional whitespace characters at the
-        beginning of bridge lines handed out by BridgeDB's HTTPS
-        distributor, which would be annoyingly copy+pasted into TorLauncher
-        and torrcs, etc.  These are now gone.
+    * FIXES #13123 https://bugs.torproject.org/13123
+    Previously, there were two additional whitespace characters at the beginning
+    of bridge lines handed out by BridgeDB's HTTPS distributor, which would be
+    annoyingly copy+pasted into TorLauncher and torrcs, etc.  These are now
+    gone.
 
-        * FIXES #12664 https://bugs.torproject.org/12664
-        Previously, for the bridge lines handed out by BridgeDB's HTTPS
-        distributor, the newlines were not properly pasted when a user
-        would copy+paste the lines. This is now fixed. Additionally, there
-        is now a "Select All" button (JS must be enabled) to select all
-        text for the bridge lines, to attempt to reduce user copy+paste
-        errors.  If the display area which contains the bridge lines is
-        clicked, and JS is enabled, it has the same effect as clicking the
-        "Select All" button.
+    * FIXES #12664 https://bugs.torproject.org/12664
+    Previously, for the bridge lines handed out by BridgeDB's HTTPS distributor,
+    the newlines were not properly pasted when a user would copy+paste the
+    lines. This is now fixed. Additionally, there is now a "Select All" button
+    (JS must be enabled) to select all text for the bridge lines, to attempt to
+    reduce user copy+paste errors.  If the display area which contains the
+    bridge lines is clicked, and JS is enabled, it has the same effect as
+    clicking the "Select All" button.
 
-        * FIXES #14064 https://bugs.torproject.org/14064
-        The bridge lines handed out by BridgeDB's HTTPS distributor are
-        now displayed with a horizontal scrollbar if they are too long to
-        fit into the display area.
+    * FIXES #14064 https://bugs.torproject.org/14064
+    The bridge lines handed out by BridgeDB's HTTPS distributor are now
+    displayed with a horizontal scrollbar if they are too long to fit into the
+    display area.
 
-        * FIXES #11345 https://bugs.torproject.org/11345
-        BridgeDB now supports giving users QRCodes for their bridge lines,
-        to facilitate getting bridges into Tails and onto mobile devices.
+    * FIXES #11345 https://bugs.torproject.org/11345
+    BridgeDB now supports giving users QRCodes for their bridge lines, to
+    facilitate getting bridges into Tails and onto mobile devices.
 
-        * FIXES #12130 https://bugs.torproject.org/12130
-        BridgeDB's distributors now have options to distribute obfs4 bridges.
+    * FIXES #12130 https://bugs.torproject.org/12130
+    BridgeDB's distributors now have options to distribute obfs4 bridges.
 
 And includes the following general changes:
-        * CHANGES the integration tests based on Mechanize to only run on
-        CI servers, not locally on developers laptops, since it requires
-        the running BridgeDB test/staging instance to offer a plaintext
-        HTTP interface. See commit 24acf6a72.
-        https://gitweb.torproject.org/bridgedb.git/commit/?id=24acf6a72931c602631c97dbbeb582c22cf446cb
+    * CHANGES the integration tests based on Mechanize to only run on
+    CI servers, not locally on developers laptops, since it requires the running
+    BridgeDB test/staging instance to offer a plaintext HTTP interface. See
+    commit 24acf6a72.
+    https://gitweb.torproject.org/bridgedb.git/commit/?id=24acf6a72931c602631c97dbbeb582c22cf446cb
 
-        * ADDS better installation instructions in README.rst for
-        developers who wish to test their changes to BridgeDB.
-        Thanks to Alden Page for the patch.
-
+    * ADDS better installation instructions in README.rst for
+    developers who wish to test their changes to BridgeDB.  Thanks to Alden Page
+    for the patch.
 
 Changes in version 0.2.3 - 2014-07-26
 
-        * FIXES #5463 https://bugs.torproject.org/5463
-        BridgeDB can now OpenPGP sign outgoing emails.
+    * FIXES #5463 https://bugs.torproject.org/5463
+    BridgeDB can now OpenPGP sign outgoing emails.
 
-        * FIXES #9385 https://bugs.torproject.org/9385
-        BridgeDB now has the ability to blacklist email addresses, and
-        configurable options to fuzzy match and block addresses which are
-        similar enough to those in the blacklist.
+    * FIXES #9385 https://bugs.torproject.org/9385
+    BridgeDB now has the ability to blacklist email addresses, and configurable
+    options to fuzzy match and block addresses which are similar enough to those
+    in the blacklist.
 
-        * FIXES #11139 https://bugs.torproject.org/11139
-        You can now email BridgeDB from Riseup email addresses!
+    * FIXES #11139 https://bugs.torproject.org/11139
+    You can now email BridgeDB from Riseup email addresses!
 
-        * FIXES #12147 https://bugs.torproject.org/12147
-        An additional issue with BridgeDB's code for scheduling actions
-        was identified by Robert Ransom, who also provided a unittest to
-        demonstrate the issue and test for future regressions. The issue
-        pointed out has also been fixed.
+    * FIXES #12147 https://bugs.torproject.org/12147
+    An additional issue with BridgeDB's code for scheduling actions was
+    identified by Robert Ransom, who also provided a unittest to demonstrate the
+    issue and test for future regressions. The issue pointed out has also been
+    fixed.
 
-        * FIXES #12635 https://bugs.torproject.org/12635
-        The links in BridgeDB's email and HTTPS distributor UIs have been
-        changed from the obsolete
-        https://www.torproject.org/projects/torbrowser.html.en#downloads-beta
-        to https://www.torproject.org/projects/torbrowser.html.
+    * FIXES #12635 https://bugs.torproject.org/12635
+    The links in BridgeDB's email and HTTPS distributor UIs have been changed
+    from the obsolete
+    https://www.torproject.org/projects/torbrowser.html.en#downloads-beta
+    to
+    https://www.torproject.org/projects/torbrowser.html.
 
-        * FIXES #12650 https://bugs.torproject.org/12650
-        BridgeDB's translation files sometimes take a little while to
-        update because real live human volunteers need to go to
-        Transifex.org and convert the strings between languages. Then I
-        need to import the strings, check all of them by hand to make sure
-        there's no funny business which could harm users in them, and then
-        commit all the diffs. Sadly, there isn't much more we can do to
-        speed up this process, so sometimes BridgeDB's UI falls back to
+    * FIXES #12650 https://bugs.torproject.org/12650
+    BridgeDB's translation files sometimes take a little while to update because
+    real live human volunteers need to go to Transifex.org and convert the
+    strings between languages. Then I need to import the strings, check all of
+    them by hand to make sure there's no funny business which could harm users
+    in them, and then commit all the diffs. Sadly, there isn't much more we can
+    do to speed up this process, so sometimes BridgeDB's UI falls back to
         English when it doesn't have new enough translations files. Sorry!
 
 And includes the following general changes:
 
-        * UPDATE translation: Chinese - Taiwan (zh_TW)
-                THANKS TO danfong.
-        * UPDATE translation: Chinese - China (zh_CN)
-                THANKS TO Meng3, leungsookfan, and Wu Ming Shi.
-        * UPDATE translation: Turkish (tr)
-                THANKS TO eromytsatiffird, Emre, Idil Yuksel, ozkansib,
-                Volkan Gezer, and zeki.
-        * UPDATE translation: Swedish (sv)
-                THANKS TO Anders Jensen-Urstad, GabSeb, and phst.
-        * UPDATE translation: Russian (ru)
-                THANKS TO Evgrafov Denis, Eugene, foo, Sergey Briskin,
-                Valid Olov, and Vitaliy Grishenko.
-        * UPDATE translation: Brazilian Portuguese (pt_BR)
-                THANKS TO Isabel Ferreira, and Rodrigo Emmanuel Santana
-                Borges.
-        * UPDATE translation: Portuguese (pt)
-                THANKS TO André Monteiro, kagazz, Manuela Silva,
-                Andrew_Melim, and Sérgio Marques.
-        * UPDATE translation: Polish (pl)
-                THANKS TO Aron, Dawid, Krzysztof Łojowski, and seb.
-        * UPDATE translation: Norwegian Bokmål (nb)
-                THANKS TO Allan Nordhøy, Harald, and thor574.
-        * UPDATE translation: Malay (ms_MY)
-                THANKS TO shahril.
-        * UPDATE translation: Latvian (lv)
-                THANKS TO Ojārs Balcers.
-        * UPDATE translation: Khmer (km)
-                THANKS TO Seng Sutha, Sokhem Khoem, and Sok Sophea.
-        * UPDATE translation: Hungarian (hu)
-                THANKS TO Blackywantscookies, and Cerbo.
-        * UPDATE translation: Croatian (hr_HR)
-                THANKS TO Ana B.
-        * UPDATE translation: Hebrew (he)
-                THANKS TO Elifelet.
-        * UPDATE translation: Canadian French (fr_CA)
-                THANKS TO yahoe.001.
-        * UPDATE translation: French (fr)
-                THANKS TO fayçal fatihi, Frisson Reynald, hpatte, Lunar,
-                Onizuka, themen, Towinet, and Yannick Heintz.
-        * UPDATE translation: Finish (fi)
-                THANKS TO viljaminojonen, and Finland355.
-        * UPDATE translation: Farsi (fa)
-                THANKS TO Mohammad Hossein.
-        * UPDATE translation: Spanish - Chile (es_CL)
-                THANKS TO Pablo Lezaeta.
-        * UPDATE translation: Spanish (es)
-                THANKS TO Paola Falcon.
-        * UPDATE translation: British English (en_GB)
-                THANKS TO richardshaylor.
-        * UPDATE translation: Greek (el)
-                THANKS TO Adrian Pappas, andromeas, isv31, and Wasilis
-                Mandratzis.
-        * UPDATE translation: German (de)
-                THANKS TO Tobias Bannert.
-        * UPDATE translation: Danish (da)
-                THANKS TO autofunk78.
-        * UPDATE translation: Arabic (ar)
-                THANKS TO Ahmad Gharbeia, Mohamed El-Feky, AnonymousLady,
-                0xidz, Sherief Alaa , and محيي الدين.
-
+    * UPDATE translation: Chinese - Taiwan (zh_TW)
+            THANKS TO danfong.
+    * UPDATE translation: Chinese - China (zh_CN)
+            THANKS TO Meng3, leungsookfan, and Wu Ming Shi.
+    * UPDATE translation: Turkish (tr)
+            THANKS TO eromytsatiffird, Emre, Idil Yuksel, ozkansib,
+            Volkan Gezer, and zeki.
+    * UPDATE translation: Swedish (sv)
+            THANKS TO Anders Jensen-Urstad, GabSeb, and phst.
+    * UPDATE translation: Russian (ru)
+            THANKS TO Evgrafov Denis, Eugene, foo, Sergey Briskin,
+            Valid Olov, and Vitaliy Grishenko.
+    * UPDATE translation: Brazilian Portuguese (pt_BR)
+            THANKS TO Isabel Ferreira, and Rodrigo Emmanuel Santana
+            Borges.
+    * UPDATE translation: Portuguese (pt)
+            THANKS TO André Monteiro, kagazz, Manuela Silva,
+            Andrew_Melim, and Sérgio Marques.
+    * UPDATE translation: Polish (pl)
+            THANKS TO Aron, Dawid, Krzysztof Łojowski, and seb.
+    * UPDATE translation: Norwegian Bokmål (nb)
+            THANKS TO Allan Nordhøy, Harald, and thor574.
+    * UPDATE translation: Malay (ms_MY)
+            THANKS TO shahril.
+    * UPDATE translation: Latvian (lv)
+            THANKS TO Ojārs Balcers.
+    * UPDATE translation: Khmer (km)
+            THANKS TO Seng Sutha, Sokhem Khoem, and Sok Sophea.
+    * UPDATE translation: Hungarian (hu)
+            THANKS TO Blackywantscookies, and Cerbo.
+    * UPDATE translation: Croatian (hr_HR)
+            THANKS TO Ana B.
+    * UPDATE translation: Hebrew (he)
+            THANKS TO Elifelet.
+    * UPDATE translation: Canadian French (fr_CA)
+            THANKS TO yahoe.001.
+    * UPDATE translation: French (fr)
+            THANKS TO fayçal fatihi, Frisson Reynald, hpatte, Lunar,
+            Onizuka, themen, Towinet, and Yannick Heintz.
+    * UPDATE translation: Finish (fi)
+            THANKS TO viljaminojonen, and Finland355.
+    * UPDATE translation: Farsi (fa)
+            THANKS TO Mohammad Hossein.
+    * UPDATE translation: Spanish - Chile (es_CL)
+            THANKS TO Pablo Lezaeta.
+    * UPDATE translation: Spanish (es)
+            THANKS TO Paola Falcon.
+    * UPDATE translation: British English (en_GB)
+            THANKS TO richardshaylor.
+    * UPDATE translation: Greek (el)
+            THANKS TO Adrian Pappas, andromeas, isv31, and Wasilis
+            Mandratzis.
+    * UPDATE translation: German (de)
+            THANKS TO Tobias Bannert.
+    * UPDATE translation: Danish (da)
+            THANKS TO autofunk78.
+    * UPDATE translation: Arabic (ar)
+            THANKS TO Ahmad Gharbeia, Mohamed El-Feky, AnonymousLady,
+            0xidz, Sherief Alaa , and محيي الدين.
 
 Changes in version 0.2.2 - 2014-06-06
 
-        * FIXES #9874 https://bugs.torproject.org/9874
-        BridgeDB's email and HTTPS distributors were written in a manner
-        that makes them largely impossible to write unittests for. Since
-        the recent rewrite of BridgeDB's email distributor server backends
-        for version 0.2.1, BridgeDB email distributor is now testable and
-        has near 100% code coverage, see
-        https://coveralls.io/r/isislovecruft/bridgedb
+    * FIXES #9874 https://bugs.torproject.org/9874
+    BridgeDB's email and HTTPS distributors were written in a manner that makes
+    them largely impossible to write unittests for. Since the recent rewrite of
+    BridgeDB's email distributor server backends for version 0.2.1, BridgeDB
+    email distributor is now testable and has near 100% code coverage, see
+    https://coveralls.io/r/isislovecruft/bridgedb
 
-        * FIXES #12086 https://bugs.torproject.org/12086
-        BridgeDB was found to accept incoming emails sent to any email
-        address whose local part included the word bridges, e.g. emails
-        sent to 'givemebridges@serious.ly' would be responded to as if
-        they were destined for BridgeDB's real email address.
-          - BridgeDB now strictly checks that the local part of the email
-            address that an incoming email was sent to (after removing plus
-            aliases, i.e. '+es_ES', '+fa', etc.) exactly matches BridgeDB
-            configured email address username.
-          - BridgeDB now checks that the domain name portion of the email
-            address that an incoming email was sent to either matches the
-            domain name portion of BridgeDB's configured email address, or
-            is a subdomain of that domain.
+    * FIXES #12086 https://bugs.torproject.org/12086
+    BridgeDB was found to accept incoming emails sent to any email address whose
+    local part included the word bridges, e.g. emails sent to
+    'givemebridges@serious.ly' would be responded to as if they were destined
+    for BridgeDB's real email address.
+      - BridgeDB now strictly checks that the local part of the email address
+        that an incoming email was sent to (after removing plus aliases, i.e.
+        '+es_ES', '+fa', etc.) exactly matches BridgeDB configured email address
+        username.
+      - BridgeDB now checks that the domain name portion of the email address
+        that an incoming email was sent to either matches the domain name
+        portion of BridgeDB's configured email address, or is a subdomain of
+        that domain.
 
-        * FIXES #12089 https://bugs.torproject.org/12089
-        There has been a bug for quite some time now where BridgeDB could
-        be used to email arbitrary email addresses (as long as these
-        addresses were ones which BridgeDB allows, i.e. Gmail or Yahoo
-        email addresses). This was due to BridgeDB not checking that the
-        email address used in the SMTP 'MAIL FROM:' command on an incoming
-        message matched the one used in that email's 'From:'
-        header.
-          - BridgeDB now checks that the email addresses in the SMTP 'MAIL
-            FROM:' and the 'From:' header on that incoming email match, in
-            addition to the previous checks that the email address' domain
-            is in the set of allowed domains.
+    * FIXES #12089 https://bugs.torproject.org/12089
+    There has been a bug for quite some time now where BridgeDB could be used to
+    email arbitrary email addresses (as long as these addresses were ones which
+    BridgeDB allows, i.e. Gmail or Yahoo email addresses). This was due to
+    BridgeDB not checking that the email address used in the SMTP 'MAIL FROM:'
+    command on an incoming message matched the one used in that email's 'From:'
+    header.
+      - BridgeDB now checks that the email addresses in the SMTP 'MAIL FROM:'
+        and the 'From:' header on that incoming email match, in addition to the
+        previous checks that the email address' domain is in the set of allowed
+        domains.
 
-        * FIXES #12090 https://bugs.torproject.org/12090
-        BridgeDB has been replying with an empty email. I don't actually
-        know for sure if this one is fixed. Before deploying version
-        0.2.1, the continuous integration tests showed email responses
-        being correctly generated, and I was also able to receive
-        correctly formed email responses from BridgeDB on a local testing
-        instance on my laptop. It appears that this bug occurs only on the
-        deployment server at ponticum.torproject.org, possibly due to the
-        outdated Python version in Debian Wheezy. I have not been able to
-        reproduce this bug on any other machine.
+    * FIXES #12090 https://bugs.torproject.org/12090
+    BridgeDB has been replying with an empty email. I don't actually know for
+    sure if this one is fixed. Before deploying version 0.2.1, the continuous
+    integration tests showed email responses being correctly generated, and I
+    was also able to receive correctly formed email responses from BridgeDB on a
+    local testing instance on my laptop. It appears that this bug occurs only on
+    the deployment server at ponticum.torproject.org, possibly due to the
+    outdated Python version in Debian Wheezy. I have not been able to reproduce
+    this bug on any other machine.
 
-        * FIXES #12091 https://bugs.torproject.org/12091
-        BridgeDB wasn't properly ignoring emails whose DKIM signature
-        verification header read "X-DKIM-Authentication-Results: dunno".
-          - Bridgedb now marks incoming emails which have a
-            "X-DKIM-Authentication-Results: dunno" header as invalid and
-            ignores them.
+    * FIXES #12091 https://bugs.torproject.org/12091
+    BridgeDB wasn't properly ignoring emails whose DKIM signature verification
+    header read "X-DKIM-Authentication-Results: dunno".
+      - Bridgedb now marks incoming emails which have a
+        "X-DKIM-Authentication-Results: dunno" header as invalid and ignores
+        them.
 
-        * FIXES #12147 https://bugs.torproject.org/12147
-        If a user refreshed https://bridges.torproject.org/bridges after
-        successfully solving a CAPTCHA, BridgeDB would reply with a new
-        set of bridges for each page refresh. This was due to the use of
-        `getInterval()` in `IPBasedDistributor.getBridgesForIP()`.  The
-        correct function to use is `getIntervalStart()`.  This had been
-        noted in a "XXX FIXME" comment above the call for quite some time,
-        however, when the `bridgedb.schedule` (previously called
-        `bridgedb.Time`) module was revised to support CAPTCHA timeouts
-        (#11215), the call to `getInterval()` was mistakenly not replaced
-        with the correct function.
-          - BridgeDB CAPTCHAs must be solved within 10 minutes.
-          - Hashring rotation for bridges in BridgeDB HTTPS distributor
-            occurs every 3 hours. Refreshing the page with bridges on it
-            will return these same bridges for that time period, and
-            afterwards redirect back to the CAPTCHA page.
-        THANKS TO francisco on IRC and arma for reporting the bug.
+    * FIXES #12147 https://bugs.torproject.org/12147
+    If a user refreshed https://bridges.torproject.org/bridges after
+    successfully solving a CAPTCHA, BridgeDB would reply with a new set of
+    bridges for each page refresh. This was due to the use of `getInterval()` in
+    `IPBasedDistributor.getBridgesForIP()`.  The correct function to use is
+    `getIntervalStart()`.  This had been noted in a "XXX FIXME" comment above
+    the call for quite some time, however, when the `bridgedb.schedule`
+    (previously called `bridgedb.Time`) module was revised to support CAPTCHA
+    timeouts (#11215), the call to `getInterval()` was mistakenly not replaced
+    with the correct function.
+      - BridgeDB CAPTCHAs must be solved within 10 minutes.
+      - Hashring rotation for bridges in BridgeDB HTTPS distributor occurs every
+        3 hours. Refreshing the page with bridges on it will return these same
+        bridges for that time period, and afterwards redirect back to the
+        CAPTCHA page.  THANKS TO francisco on IRC and arma for reporting the
+        bug.
 
-        * FIXES #12212 https://bugs.torproject.org/12122
-        TRANSLATOR comments are now properly extracted into the gettext PO
-        template file.
+    * FIXES #12212 https://bugs.torproject.org/12122
+    TRANSLATOR comments are now properly extracted into the gettext PO template
+    file.
 
 And include the following general changes:
-        * FIXES an issue where, when verifying GnuPG signatures made by
-        BridgeDB's email distributor, GnuPG would error, saying, "invalid
-        armor header".
+    * FIXES an issue where, when verifying GnuPG signatures made by
+    BridgeDB's email distributor, GnuPG would error, saying, "invalid armor
+    header".
 
-        * ADD Korean (ko) translations.
-          Thanks to ilbe123, cwt96, Dr.what, and pCsOrI.
+    * ADD Korean (ko) translations.
+      Thanks to ilbe123, cwt96, Dr.what, and pCsOrI.
 
-        * UPDATE Ukranian (uk) translations.
-          Thanks to LinuxChata and ghostishev.
+    * UPDATE Ukranian (uk) translations.
+      Thanks to LinuxChata and ghostishev.
 
-        * UPDATE Turkish (tr) translations.
-          Thanks to volkangezer.
+    * UPDATE Turkish (tr) translations.
+      Thanks to volkangezer.
 
-        * UPDATE Brazilian Portuguese (pt_BR) translations.
-          Thanks to Communia, Humberto Sartini, Anastasia01, and recognitium.
+    * UPDATE Brazilian Portuguese (pt_BR) translations.
+      Thanks to Communia, Humberto Sartini, Anastasia01, and recognitium.
 
-        * UPDATE Polish (pl) translations.
-          Thanks to hoek, yodaa, maxxx, and sebx.
+    * UPDATE Polish (pl) translations.
+      Thanks to hoek, yodaa, maxxx, and sebx.
 
-        * UPDATE Dutch (nl) translations.
-          Thanks to Ann Boen, erwindelaat, guryman, and BBLN.
-          You guys are extra awesome for translating the phrase:
-              "Uh oh, spaghettios!"
-          into the Dutch:
-              "Helaas pindakaas!"
-          which, in English, literally means:
-              "Unfortunately, peanut butter!"
-          You guys totally just made my day. Thanks.
+    * UPDATE Dutch (nl) translations.
+      Thanks to Ann Boen, erwindelaat, guryman, and BBLN.
+      You guys are extra awesome for translating the phrase:
+          "Uh oh, spaghettios!"
+      into the Dutch:
+          "Helaas pindakaas!"
+      which, in English, literally means:
+          "Unfortunately, peanut butter!"
+      You guys totally just made my day. Thanks.
 
-        * UPDATE Japanese (ja) translations.
-          Thanks to plazmism, who is extra awesome for translating the phrase:
-              "Uh oh, spaghettios!"
-          into the Japanese:
-              "おっとスパゲッティ！"
-          which apparently the literal English translation is:
-              "Husband spaghetti!"
+    * UPDATE Japanese (ja) translations.
+      Thanks to plazmism, who is extra awesome for translating the phrase:
+          "Uh oh, spaghettios!"
+      into the Japanese:
+          "おっとスパゲッティ！"
+      which apparently the literal English translation is:
+          "Husband spaghetti!"
 
-        * UPDATE Italian (it) translations.
-          Thanks to Random_R.
+    * UPDATE Italian (it) translations.
+      Thanks to Random_R.
 
-        * UPDATE Canadian French (fr_CA) translations.
-          Thanks to Lunar.
+    * UPDATE Canadian French (fr_CA) translations.
+      Thanks to Lunar.
 
-        * UPDATE Spanish (es) translations.
-          Thanks to dark_yoshi and strel.
+    * UPDATE Spanish (es) translations.
+      Thanks to dark_yoshi and strel.
 
-        * UPDATE Greek (el) translations.
-          Thanks to pappasadrian.
+    * UPDATE Greek (el) translations.
+      Thanks to pappasadrian.
 
-        * UPDATE German (de) translations.
-          Thanks to trantor and unknwon_anonymous.
+    * UPDATE German (de) translations.
+      Thanks to trantor and unknwon_anonymous.
 
-        * UPDATE Danish (da) translations.
-          Thanks to autofunk78 and DavidNielsen.
-
+    * UPDATE Danish (da) translations.
+      Thanks to autofunk78 and DavidNielsen.
 
 Changes in version 0.2.1 - 2014-05-16
-        * FIXES #5463 https://bugs.torproject.org/5463
-        Emails sent from BridgeDB's email distributor should now be signed.
-          - BridgeDB's emails will be signed with its online GnuPG keypair. The
-            public key has the following fingerprint:
-                DF81 1109 E17C 8BF1 34B5  EEB6 8DC4 3A28 4882 1E32
-            The online keypair rotates (a new one is placed on the server once
-            per year), and it will ALWAYS be signed with BridgeDB's offline
-            keypair.
-          - The online keypair above contains two subkeys. The signing subkey
-            has the fingerprint:
-                9FE3 9D1A 7438 9223 3B3F  66F2 21B5 54E9 5938 F4D0
-          - BridgeDB's offline keypair has the following fingerprint:
-                7B78 4370 15E6 3DF4 7BB1  270A CBD9 7AA2 4E8E 472E
-        All of BridgeDB's keys may be found on the public keyservers, as
-        well as at https://bridges.torproject.org/keys
+    * FIXES #5463 https://bugs.torproject.org/5463
+    Emails sent from BridgeDB's email distributor should now be signed.
+      - BridgeDB's emails will be signed with its online GnuPG keypair. The
+        public key has the following fingerprint:
+            DF81 1109 E17C 8BF1 34B5  EEB6 8DC4 3A28 4882 1E32
+        The online keypair rotates (a new one is placed on the server once per
+        year), and it will ALWAYS be signed with BridgeDB's offline keypair.
+      - The online keypair above contains two subkeys. The signing subkey has
+        the fingerprint:
+            9FE3 9D1A 7438 9223 3B3F  66F2 21B5 54E9 5938 F4D0
+      - BridgeDB's offline keypair has the following fingerprint:
+            7B78 4370 15E6 3DF4 7BB1  270A CBD9 7AA2 4E8E 472E
+    All of BridgeDB's keys may be found on the public keyservers, as well as at
+    https://bridges.torproject.org/keys
 
-        * FIXES #7547 https://bugs.torproject.org/7547
-        BridgeDB's email distributor will now send you a message
-        explaining how to use it, including valid commands and the list of
-        Pluggable Transport TYPES currently supported. To receive help
-        with the email distributor, simply send an email to
-        mailto:bridges@torproject.org.
-          - Any emails which do not contain a valid command will receive
-        the help text in response.
-          - Otherwise, to specifically request the help text, just say
-                "get help"
-        in the body of your email.
+    * FIXES #7547 https://bugs.torproject.org/7547
+    BridgeDB's email distributor will now send you a message explaining how to
+    use it, including valid commands and the list of Pluggable Transport TYPES
+    currently supported. To receive help with the email distributor, simply send
+    an email to mailto:bridges@torproject.org.
+      - Any emails which do not contain a valid command will receive the help
+        text in response.
+      - Otherwise, to specifically request the help text, just say "get help" in
+        the body of your email.
 
-        * FIXES #7550 https://bugs.torproject.org/7550
-        BridgeDB's email responder is now interactive, as described in the
-        above entry for ticket #7547.
+    * FIXES #7550 https://bugs.torproject.org/7550
+    BridgeDB's email responder is now interactive, as described in the above
+    entry for ticket #7547.
 
-        * FIXES #8241 https://bugs.torproject.org/8241
-        BridgeDB's HTTP distributor won't tell you how to get obfs3
-        bridges through email, although a blank email, or an email
-        containing "get help" will.
+    * FIXES #8241 https://bugs.torproject.org/8241
+    BridgeDB's HTTP distributor won't tell you how to get obfs3 bridges through
+    email, although a blank email, or an email containing "get help" will.
 
-        * CLOSES #9678 https://bugs.torproject.org/9678
-        A "Select Language" button was requested for the HTTP distributor
-        on https://bridges.torproject.org. Instead, translated pages are
-        distributed automatically (via detecting the "Accept-Language"
-        header which can be set in the Settings panel of all modern
-        browers).
-          - To request a specific translation, the "lang=LOCALE" argument
-        can be added to the URL of any page. For example:
-        https://bridges.torproject.org/options?lang=ar
-        will provide the bridge options selection page in Arabic.
+    * CLOSES #9678 https://bugs.torproject.org/9678
+    A "Select Language" button was requested for the HTTP distributor on
+    https://bridges.torproject.org. Instead, translated pages are distributed
+    automatically (via detecting the "Accept-Language" header which can be set
+    in the Settings panel of all modern browers).
+      - To request a specific translation, the "lang=LOCALE" argument can be
+        added to the URL of any page. For example:
+        https://bridges.torproject.org/options?lang=ar will provide the bridge
+        options selection page in Arabic.
 
-        * FIXES #11215 https://bugs.torproject.org/11215
-        BridgeDB's usage of gimp-captcha, which creates a local cache of
-        CAPTCHA for use on the HTTP distributor, now supports timeouts. If
-        a CAPTCHA is not solved within 30 minutes of being served to a
-        client, the solution is invalid regardless of its correctness.
+    * FIXES #11215 https://bugs.torproject.org/11215
+    BridgeDB's usage of gimp-captcha, which creates a local cache of CAPTCHA for
+    use on the HTTP distributor, now supports timeouts. If a CAPTCHA is not
+    solved within 30 minutes of being served to a client, the solution is
+    invalid regardless of its correctness.
 
-        * FIXES #11475 https://bugs.torproject.org/11475
-        BridgeDB's email responder, up until this point, explained how to
-        use bridges with Vidalia. It now uses the same help text as found
-        at https://bridges.torproject.org/howto which explains how to
-        enter bridges into TorLauncher (used by Tor Browser and Tails).
+    * FIXES #11475 https://bugs.torproject.org/11475
+    BridgeDB's email responder, up until this point, explained how to use
+    bridges with Vidalia. It now uses the same help text as found at
+    https://bridges.torproject.org/howto which explains how to enter bridges
+    into TorLauncher (used by Tor Browser and Tails).
 
-        * FIXES #11522 https://bugs.torproject.org/11522
-        There were several errors and bugs in BridgeDB's email
-        distributor. The entire system of server supporting BridgeDB's
-        email distribution system was rewritten.
+    * FIXES #11522 https://bugs.torproject.org/11522
+    There were several errors and bugs in BridgeDB's email distributor. The
+    entire system of server supporting BridgeDB's email distribution system was
+    rewritten.
 
-        * FIXES #11664 https://bugs.torproject.org/11664
-        Due to changes in the Python language builtin `buffer` in Python3,
-        which were backported to Python 2.7.6, but neither backported to
-        Python 2.6.x nor to Python <= 2.7.5, BridgeDB's use of
-        `io.StringIO` and `io.BytesIO` combined with buffers had to be
-        revised to support both the new and old Python `buffer` APIs.
+    * FIXES #11664 https://bugs.torproject.org/11664
+    Due to changes in the Python language builtin `buffer` in Python3, which
+    were backported to Python 2.7.6, but neither backported to Python 2.6.x nor
+    to Python <= 2.7.5, BridgeDB's use of `io.StringIO` and `io.BytesIO`
+    combined with buffers had to be revised to support both the new and old
+    Python `buffer` APIs.
 
-        * FIXES #11753 https://bugs.torproject.org/11753
-        BridgeDB's emails should now be translated.
-          - The translations system for BridgeDB, as well as the template
-        system for emails, was completely rewritten.  By default, email
-        responses are in English. To receive an alternate translation,
-        send an email to bridges+LOCALE@torproject.org, where "LOCALE" is
-        a locale specifier.
-          - For example, to receive BridgeDB emails translated into
-        Chinese, use mailto:bridges+zh_CN@torproject.org.
-          - Or for Farsi translations, use mailto:bridges+fa@torproject.org.
-          - For the full list of currently supported LOCALE codes, see
+    * FIXES #11753 https://bugs.torproject.org/11753
+    BridgeDB's emails should now be translated.
+      - The translations system for BridgeDB, as well as the template system for
+        emails, was completely rewritten.  By default, email responses are in
+        English. To receive an alternate translation, send an email to
+        bridges+LOCALE@torproject.org, where "LOCALE" is a locale specifier.
+      - For example, to receive BridgeDB emails translated into Chinese, use
+        mailto:bridges+zh_CN@torproject.org.
+      - Or for Farsi translations, use mailto:bridges+fa@torproject.org.
+      - For the full list of currently supported LOCALE codes, see
         https://gitweb.torproject.org/user/isis/bridgedb.git/tree/HEAD:/lib/bridgedb/i18n/
 
 And includes the following general changes:
-        * UPDATES the Italian (it) gettext file.
-          Thanks to Francesca Ciceri.
-        * ADD Welsh (cy) translations.
-          Thanks to huwwaters and littlegreykida.
-        * ADD Slovak (sk) translations.
-          Thanks to Michelozzo and Svistwarrior273.
-        * UPDATES the bridgedb.pot translation template file. All the new
-        strings in the email and HTTP user interfaces will now need
-        translation! To help out with translations, please see:
-        https://www.transifex.com/projects/p/torproject/resource/2-bridgedb-bridgedb-pot/
-        * FIXES several typos in the BridgeDB's code documentation.
-        * ADDS code documentation for several previously undocumented modules.
+    * UPDATES the Italian (it) gettext file.
+      Thanks to Francesca Ciceri.
+    * ADD Welsh (cy) translations.
+      Thanks to huwwaters and littlegreykida.
+    * ADD Slovak (sk) translations.
+      Thanks to Michelozzo and Svistwarrior273.
+    * UPDATES the bridgedb.pot translation template file. All the new
+    strings in the email and HTTP user interfaces will now need
+    translation! To help out with translations, please see:
+    https://www.transifex.com/projects/p/torproject/resource/2-bridgedb-bridgedb-pot/
+    * FIXES several typos in the BridgeDB's code documentation.
+    * ADDS code documentation for several previously undocumented modules.
 
 Changes in version 0.2.0 - 2014-04-19
-        * FIXES #5232 Perform long running and blocking transactions in
-                background threads. Primarily this moves bridge descriptor
-                reparsing into another thread, which significantly increases
-                the availability of BridgeDB.
-        * FIXES #9119 BridgeDB's logger now automatically sanitises all email
-                and IP addresses when the SAFELOGGING config option is enabled.
-        * FIXES #9875 BridgeDB logger now has 100% unittest coverage.
-        * FIXES #10803 Vidalia is no longer mentioned on
-                https://bridges.torproject.org, and instead there are new
-                instructions on how to enter bridges into TBB>=3.5 (with
-                TorLauncher).
-        * FIXES #11346 The web interface now has a homepage link. By clicking
-                "BridgeDB" in the upper left corner, users can go back to the
-                start of TBB downloading and bridge selection instructions at
-                https://bridges.torproject.org.
-        * FIXES #11370 We were using an old (and deprecated) module when we
-                created our email responses. Now we use the newer version.
-        * FIXES #11377 CAPTCHAs on BridgeDB's HTTPS interface are now
-                case-insensitive.
-                Thanks to Kostas Jakeliunas for the patch.
-        * FIXES #11522 fixes several issues with encodings and exception
-                handling in the email distributor.
+    * FIXES #5232 Perform long running and blocking transactions in
+            background threads. Primarily this moves bridge descriptor reparsing
+            into another thread, which significantly increases the availability
+            of BridgeDB.
+    * FIXES #9119 BridgeDB's logger now automatically sanitises all email
+            and IP addresses when the SAFELOGGING config option is enabled.
+    * FIXES #9875 BridgeDB logger now has 100% unittest coverage.  FIXES #10803
+    * Vidalia is no longer mentioned on
+            https://bridges.torproject.org, and instead there are new
+            instructions on how to enter bridges into TBB>=3.5 (with
+            TorLauncher).
+    * FIXES #11346 The web interface now has a homepage link. By clicking
+            "BridgeDB" in the upper left corner, users can go back to the start
+            of TBB downloading and bridge selection instructions at
+            https://bridges.torproject.org.
+    * FIXES #11370 We were using an old (and deprecated) module when we
+            created our email responses. Now we use the newer version.
+    * FIXES #11377 CAPTCHAs on BridgeDB's HTTPS interface are now
+            case-insensitive.  Thanks to Kostas Jakeliunas for the patch.
+    * FIXES #11522 fixes several issues with encodings and exception
+            handling in the email distributor.
 
 And includes the following general changes:
-        * NEW interface design for https://bridges.torproject.org, including
-                updated CSS stylesheets, fonts, and HTML templates. In
-                particular, the https://bridges.torproject.org/options page has
-                been redesigned completely.
-                Thanks to Xengi for providing a modified design of the "roots"
-                Tor Project logo, which is used to link to
-                https://www.torproject.org.
-        * CHANGES the TBB download link on the main web interface page to link
-                to the new TBB-3.6.x-beta bundles, which include patches by
-                David Fifield to unify TBB and PTTBB into one browser, so that
-                Pluggable Transports (PTs) are only enabled when the user
-                includes a bridge line which uses that PT.
-        * FIXES plaintext responses on https://bridges.torproject.org,
-                these can be requested by using the 'format' HTTP parameter,
-                like so: https://bridges.torproject.org/bridges?format=plain
-        * FIXES the logging of all lines of (including headers!) of incoming
-                emails.
-        * FIXES logfile rotation so that the files are only reable/writable
-                by the running process owner, and no other user.
-        * CHANGES the data format used for encrypted-then-HMACed CAPTCHAs
-                to assume that the HMAC is the first 20 bytes. Before we
-                assumed that the HMAC was separated from the encrypted data
-                with a ';' character, which causes intermittent issues with
-                some encoding and CAPTCHA solution values.
-        * REFACTORS some of the translations handling code, so that soon emails
-                will be translated (see #7550), and
-                https://bridges.torproject.org should have a "Select Language"
-                button (see #9678).
-        * BUMPS leekspin version to 0.1.3.
+    * NEW interface design for https://bridges.torproject.org, including
+            updated CSS stylesheets, fonts, and HTML templates. In particular,
+            the https://bridges.torproject.org/options page has been redesigned
+            completely.  Thanks to Xengi for providing a modified design of the
+            "roots" Tor Project logo, which is used to link to
+            https://www.torproject.org.
+    * CHANGES the TBB download link on the main web interface page to link
+            to the new TBB-3.6.x-beta bundles, which include patches by David
+            Fifield to unify TBB and PTTBB into one browser, so that Pluggable
+            Transports (PTs) are only enabled when the user includes a bridge
+            line which uses that PT.
+    * FIXES plaintext responses on https://bridges.torproject.org,
+            these can be requested by using the 'format' HTTP parameter, like
+            so: https://bridges.torproject.org/bridges?format=plain
+    * FIXES the logging of all lines of (including headers!) of incoming
+            emails.
+    * FIXES logfile rotation so that the files are only reable/writable
+            by the running process owner, and no other user.
+    * CHANGES the data format used for encrypted-then-HMACed CAPTCHAs
+            to assume that the HMAC is the first 20 bytes. Before we assumed
+            that the HMAC was separated from the encrypted data with a ';'
+            character, which causes intermittent issues with some encoding and
+            CAPTCHA solution values.
+    * REFACTORS some of the translations handling code, so that soon emails
+            will be translated (see #7550), and https://bridges.torproject.org
+            should have a "Select Language" button (see #9678).
+    * BUMPS leekspin version to 0.1.3.
 
 Changes in version 0.1.6 - 2014-03-26
 BridgeDB 0.1.6 includes fixes for the following bugs:
-        * FIXES #11196 BridgeDB should use leekspin
-        * FIXES #11218 ReCaptchaProtectedResource.checkSolution()
-                doesn't expect a deferred
-        * FIXES #11219 BridgeDB's twisted version doesn´t have a
-                `t.w.client.HTTPConnectionPool` class
-        * FIXES #11231 BridgeDB's txrecaptcha returns the "No bridges
-                available!" page if 'captcha_response_field' is blank
+    * FIXES #11196 BridgeDB should use leekspin
+    * FIXES #11218 ReCaptchaProtectedResource.checkSolution()
+            doesn't expect a deferred
+    * FIXES #11219 BridgeDB's twisted version doesn´t have a
+            `t.w.client.HTTPConnectionPool` class
+    * FIXES #11231 BridgeDB's txrecaptcha returns the "No bridges
+            available!" page if 'captcha_response_field' is blank
 
 And includes the following general changes:
-        * ADDS several new translations languages.
+    * ADDS several new translations languages.
 
 Changes in version 0.1.5 - 2014-02-27
 BridgeDB 0.1.5 includes fixes for the following bugs:
-        * FIXES #9264 Problem with transport lines in BridgeDB's bridge
-                pool assignment files
-        * FIXES #10809 reCAPTCHA on bridges.torproject.org are impossible
-                to solve for humans
-        * FIXES #10834 Configurable reCAPTCHA remoteip
-        * FIXES #11127 reCaptcha verification is hardcoded to use
-                plaintext HTTP
+    * FIXES #9264 Problem with transport lines in BridgeDB's bridge
+            pool assignment files
+    * FIXES #10809 reCAPTCHA on bridges.torproject.org are impossible
+            to solve for humans
+    * FIXES #10834 Configurable reCAPTCHA remoteip
+    * FIXES #11127 reCaptcha verification is hardcoded to use
+            plaintext HTTP
 
 And includes the following general changes:
-        * CHANGES the way the client's IP address is reported to the
-        reCaptcha API server. Previously, for each client request, a
-        completely random IP address was generated, and BridgeDB lied to
-        the reCaptcha server by sending this random IP and saying that it
-        was the client's IP. With these changes, BridgeDB can be
-        configured to report a static IP address (it's own IP) as the
-        client's IP, in the hopes that the IP whitelisting used by
-        reCaptcha makes the returned CAPTCHAs less impossible to solve.
-        * ADDS the ability to use a local cache of CAPTCHAs created by
-        scripting Gimp with Python. See:
-        https://github.com/isislovecruft/gimp-captcha
-        * USES TLS during CAPTCHA solution verification when using
-        reCaptcha.
-
+    * CHANGES the way the client's IP address is reported to the
+    reCaptcha API server. Previously, for each client request, a completely
+    random IP address was generated, and BridgeDB lied to the reCaptcha server
+    by sending this random IP and saying that it was the client's IP. With these
+    changes, BridgeDB can be configured to report a static IP address (it's own
+    IP) as the client's IP, in the hopes that the IP whitelisting used by
+    reCaptcha makes the returned CAPTCHAs less impossible to solve.
+    * ADDS the ability to use a local cache of CAPTCHAs created by
+    scripting Gimp with Python. See:
+    https://github.com/isislovecruft/gimp-captcha
+    * USES TLS during CAPTCHA solution verification when using
+    reCaptcha.
 
 Changes in version 0.1.4 - 2014-02-21
 BridgeDB 0.1.4 includes fixes for the following bugs:
-        * FIXES an RTL encoding issue in the "Step 2" text on index.html
-                of the HTTPS distributor.
-
+    * FIXES an RTL encoding issue in the "Step 2" text on index.html
+            of the HTTPS distributor.
 
 Changes in version 0.1.3 - 2014-02-21
 BridgeDB 0.1.3 includes fixes for the following bugs:
-        * FIXES #9264 Problem with transport lines in BridgeDB's bridge
-                pool assignment files
-        * FIXES a bug caused by attempts to convert descriptor digests
-                which could not be parsed into hexadecimal.
-        * FIXES a unicode decoding error within the bridgedb.persistent
-                module.
-        * REMOVES continuous integration testing for Python 2.6.
+    * FIXES #9264 Problem with transport lines in BridgeDB's bridge
+            pool assignment files
+    * FIXES a bug caused by attempts to convert descriptor digests
+            which could not be parsed into hexadecimal.
+    * FIXES a unicode decoding error within the bridgedb.persistent
+            module.
+    * REMOVES continuous integration testing for Python 2.6.
 
 Including the following general changes:
-        * ADD volunteer page text for GSoC 2014 applications.
-
+    * ADD volunteer page text for GSoC 2014 applications.
 
 Changes in version 0.1.2 - 2014-02-05
 BridgeDB 0.1.2 includes fixes for the following bugs:
-        * FIXES #10811 BridgeDB's assignments.log files are not being updated
-
+    * FIXES #10811 BridgeDB's assignments.log files are not being updated
 
 Changes in version 0.1.1 - 2014-02-03
 BridgeDB 0.1.1 includes fixes for the following bugs:
-        * FIXES #9127 Users can't ask for ipv6 bridges with the new bridgedb
-                interface
-        * FIXES #9988 Refactor BridgeDB's use of `sha` module to use `hashlib`
-        * FIXES #10724 Most of the time spent in testing, as well as most
-                of the time spent when "BridgeDB is down" (i.e. when I reply
-                with "BridgeDB is single-threaded (see #5232) and is parsing
-                millions of descriptors"), is within the same
-                `bridgedb.Stability.addOrUpdateBridgeHistory()` function (see
-                #10724). This function is pretty brutal on CPU and memory, is
-                blocking, and it needs to runs thousands and thousands of
-                times whenever BridgeDB is restarted (every half hour). The
-                algorithm within that function has a time complexity increasing
-                linearithmically relative to the number of bridges and timestamps
-                already within the database. [0]
-                This patch adds a config option to disable/enable running
-                the `addOrUpdateBridgeHistory()` function.
-                [0]: https://en.wikipedia.org/wiki/Time_complexity#Linearithmic_time
-        * FIXES #10737 POST arguments to bridges.torproject.org are dropped if
-                entering a CAPTCHA fails
+    * FIXES #9127 Users can't ask for ipv6 bridges with the new bridgedb
+            interface
+    * FIXES #9988 Refactor BridgeDB's use of `sha` module to use `hashlib`
+    * FIXES #10724 Most of the time spent in testing, as well as most
+            of the time spent when "BridgeDB is down" (i.e. when I reply
+            with "BridgeDB is single-threaded (see #5232) and is parsing
+            millions of descriptors"), is within the same
+            `bridgedb.Stability.addOrUpdateBridgeHistory()` function (see
+            #10724). This function is pretty brutal on CPU and memory, is
+            blocking, and it needs to runs thousands and thousands of
+            times whenever BridgeDB is restarted (every half hour). The
+            algorithm within that function has a time complexity increasing
+            linearithmically relative to the number of bridges and timestamps
+            already within the database. [0]
+            This patch adds a config option to disable/enable running
+            the `addOrUpdateBridgeHistory()` function.
+            [0]: https://en.wikipedia.org/wiki/Time_complexity#Linearithmic_time
+    * FIXES #10737 POST arguments to bridges.torproject.org are dropped if
+            entering a CAPTCHA fails
 
 Including the following general changes:
-        * ADDS A general simple error page to display rather than
-                webserver tracebacks. See #6127.
-        * MOVES The recently added BridgeDB specification file
-                ('doc/bridge-db-spec.txt') to the torspec repo:
-                https://gitweb.torproject.org/torspec.git
-        * FIXES template caching for the web interface.
-
+    * ADDS A general simple error page to display rather than
+            webserver tracebacks. See #6127.
+    * MOVES The recently added BridgeDB specification file
+            ('doc/bridge-db-spec.txt') to the torspec repo:
+            https://gitweb.torproject.org/torspec.git
+    * FIXES template caching for the web interface.
 
 Changes in version 0.1.0 - 2014-01-14
 BridgeDB 0.1.0 includes fixes for the following bugs:
-        * FIXES #1606 Write a BridgeDB spec
-        * FIXES #3573 bridges.torproject.org doesn't have a robots.txt
-        * FIXES #6127 bridges.tpo runs in development mode
-        * FIXES #9013 BridgeDB should pass pluggable transport
-                shared-secrets to clients
-        * FIXES #9157 Persian and Arabic should be right aligned on bridges.tpo
-        * FIXES #9462 BridgeDB netstatus descriptor parsers need refactoring
-        * FIXES #9959 BridgeDB seems to be missing English translations
-        * FIXES #9865 Add automated code coverage report generation
-        * FIXES #9872 Create a test runner for BridgeDB unittests
-        * FIXES #9873 Convert BridgeDB's old unittests to use twisted.trial
-        * FIXES #9937 Create fake non-sanitised bridge descriptors for
-                BridgeDB testing purposes
-        * FIXES #10333 Indexing list-like objects by 0L in
-                Bridges.getConfigLine
-        * FIXES #10446 BridgeDB is/was using a GeoIP module which is
-                incompatible with virtualenvs
-        * FIXES #10559 BridgeDB writes `keyid=` before fingerprints
+    * FIXES #1606 Write a BridgeDB spec
+    * FIXES #3573 bridges.torproject.org doesn't have a robots.txt
+    * FIXES #6127 bridges.tpo runs in development mode
+    * FIXES #9013 BridgeDB should pass pluggable transport
+            shared-secrets to clients
+    * FIXES #9157 Persian and Arabic should be right aligned on bridges.tpo
+    * FIXES #9462 BridgeDB netstatus descriptor parsers need refactoring
+    * FIXES #9959 BridgeDB seems to be missing English translations
+    * FIXES #9865 Add automated code coverage report generation
+    * FIXES #9872 Create a test runner for BridgeDB unittests
+    * FIXES #9873 Convert BridgeDB's old unittests to use twisted.trial
+    * FIXES #9937 Create fake non-sanitised bridge descriptors for
+            BridgeDB testing purposes
+    * FIXES #10333 Indexing list-like objects by 0L in
+            Bridges.getConfigLine
+    * FIXES #10446 BridgeDB is/was using a GeoIP module which is
+            incompatible with virtualenvs
+    * FIXES #10559 BridgeDB writes `keyid=` before fingerprints
 
 Including the following general changes:
-        * ADD Numerous unittests and automated continuous integration testing.
-        * ADD Patches by sysrqb to correctly render right-to-left languages.
-        * FIXES fallback languages for translations.
-        * ADD Sphinx makefiles, substantial amounts of documentation.
-        * ADD Documentations builds (currently at
-              https://para.noid.cat/bridgedb)
-
+    * ADD Numerous unittests and automated continuous integration testing.
+    * ADD Patches by sysrqb to correctly render right-to-left languages.
+    * FIXES fallback languages for translations.
+    * ADD Sphinx makefiles, substantial amounts of documentation.
+    * ADD Documentations builds (currently at
+          https://para.noid.cat/bridgedb)
 
 Changes in version 0.0.1 - 2013-08-20
 BridgeDB 0.0.1 includes fixes for the following bugs:
-        * FIXES #5332 Update BridgeDB documentation with deployment
-                instructions
-        * FIXES #9156 BridgeDB: Users try to add obfsbridges to their
-                normal TBB
-        These commits were added to fix a compatibility issue with
-        Vidalia, though they may be reverted to switch back to the old
-        behaviour of returning bridge lines in the form:
-          Bridge [transport_method] address:port [keyid=fingerprint] [K=v] […]
-        in order to work with torrc files and the new TBB-3.x packages
-        which use TorLauncher instead of Vidalia.
-        * PARTIAL FIX #9264 Problem with transport lines in BridgeDB's
-                  bridge pool assignment files.
-        * FIXES #9425 Create and document a better BridgeDB (re)deployment
-                strategy
+    * FIXES #5332 Update BridgeDB documentation with deployment
+            instructions
+    * FIXES #9156 BridgeDB: Users try to add obfsbridges to their
+            normal TBB
+    These commits were added to fix a compatibility issue with
+    Vidalia, though they may be reverted to switch back to the old
+    behaviour of returning bridge lines in the form:
+      Bridge [transport_method] address:port [keyid=fingerprint] [K=v] […]
+    in order to work with torrc files and the new TBB-3.x packages
+    which use TorLauncher instead of Vidalia.
+    * PARTIAL FIX #9264 Problem with transport lines in BridgeDB's
+              bridge pool assignment files.
+    * FIXES #9425 Create and document a better BridgeDB (re)deployment
+            strategy
 
 Including the following general changes:
-        * UPDATE translations files with finished files from Transifex for
-        the strings for the newly-refactored web interface created by
-        gsathya.
-        * ADD an automatic version-numbering system as part of developing
-        a better deployment strategy.
-        * CHANGE setup.py script to automatically install Python-based
-        dependencies from requirements.txt.
-        * REMOVE MANIFEST.in and put equivalent 'include' directives into
-        setup.py (the less places we have for manually keeping track of
-        files, the better).
-        * REMOVE the "bridge " prefix from the lines returned on the web
-        interface.
-
+    * UPDATE translations files with finished files from Transifex for
+    the strings for the newly-refactored web interface created by
+    gsathya.
+    * ADD an automatic version-numbering system as part of developing
+    a better deployment strategy.
+    * CHANGE setup.py script to automatically install Python-based
+    dependencies from requirements.txt.
+    * REMOVE MANIFEST.in and put equivalent 'include' directives into
+    setup.py (the less places we have for manually keeping track of
+    files, the better).
+    * REMOVE the "bridge " prefix from the lines returned on the web
+    interface.
