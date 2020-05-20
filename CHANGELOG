@@ -1,3 +1,7 @@
+    * FIXES https://bugs.torproject.org/34154
+    Add new fields to the SQLite table BlockedBridges in preparation for taking
+    into account OONI's bridge measurement results.
+
     * FIXES https://bugs.torproject.org/31528
     BridgeDB's UI uses a bunch of obscure "chatspeak" references in its UI.  One
     example is that it responds with "Uh oh, spaghettios!" if there are
