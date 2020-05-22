@@ -70,7 +70,13 @@ SCHEMA2_SCRIPT = """
  CREATE TABLE BlockedBridges (
      id INTEGER PRIMARY KEY NOT NULL,
      hex_key,
-     blocking_country
+     bridge_type,
+     address,
+     port,
+     blocking_country,
+     blocking_asn,
+     measured_by,
+     last_measured
  );
 
  CREATE INDEX BlockedBridgesBlockingCountry on BlockedBridges(hex_key);
