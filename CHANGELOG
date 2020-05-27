@@ -1,3 +1,5 @@
+Changes in version 0.10.1 - 2020-05-27
+
     * FIXES https://bugs.torproject.org/33945
     This patch fixes a bug that caused the email autoresponder to fail after
     a while.
