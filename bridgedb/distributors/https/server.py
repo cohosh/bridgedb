@@ -166,11 +166,9 @@ def replaceErrorPage(request, error, template_name=None, html=True):
 
 
 def redirectMaliciousRequest(request):
-    '''Redirect the client to a "daring work of art" which "in true
-    post-modern form, […] tends to raise more questions than answers."
-    '''
-    logging.debug("Redirecting %s to a daring work of art..." % getClientIP(request))
-    request.write(redirectTo(base64.b64decode("aHR0cDovLzJnaXJsczFjdXAuY2Ev"), request))
+    '''Setting the reponse code to 400 (Bad Request)'''
+    logging.debug("Setting response code to 400 for %s" % getClientIP(request))
+    request.setResponseCode(400)
     request.finish()
     return request
 
@@ -367,7 +365,7 @@ class ErrorResource(CSPResource):
 
     render_POST = render_GET
 
-
+resource400 = ErrorResource('error-400.html', code=400)
 resource404 = ErrorResource('error-404.html', code=404)
 resource500 = ErrorResource('error-500.html', code=500)
 maintenance = ErrorResource('error-503.html', code=503)
@@ -1143,7 +1141,6 @@ def addWebServer(config, distributor):
     info    = InfoResource()
     robots  = static.File(os.path.join(TEMPLATE_DIR, 'robots.txt'))
     assets  = static.File(os.path.join(TEMPLATE_DIR, 'assets/'))
-    keys    = static.Data(strings.BRIDGEDB_OPENPGP_KEY.encode('utf-8'), 'text/plain')
     csp     = CSPResource(enabled=config.CSP_ENABLED,
                           includeSelf=config.CSP_INCLUDE_SELF,
                           reportViolations=config.CSP_REPORT_ONLY,
@@ -1152,13 +1149,13 @@ def addWebServer(config, distributor):
     root = CustomErrorHandlingResource()
     root.putChild(b'', index)
     root.putChild(b'robots.txt', robots)
-    root.putChild(b'keys', keys)
     root.putChild(b'assets', assets)
     root.putChild(b'options', options)
     root.putChild(b'howto', howto)
     root.putChild(b'info', info)
     root.putChild(b'maintenance', maintenance)
     root.putChild(b'error', resource500)
+    root.putChild(b'malicious', resource400)
     root.putChild(CSPResource.reportURI, csp)
 
     if config.RECAPTCHA_ENABLED:

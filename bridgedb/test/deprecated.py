@@ -282,7 +282,7 @@ class Bridge(object):
 class PluggableTransport(object):
     """A PT with reference to the parent bridge on which it is running.
 
-    Deprecated :class:`bridgedb.Bridges.PluggableTransport`, replaced in
+    Deprecated :class:`bridgedb.bridgerings.PluggableTransport`, replaced in
     bridgedb-0.2.4, by :class:`bridgedb.bridges.PluggableTransport`.
     """
 
@@ -392,7 +392,7 @@ class PluggableTransport(object):
     Version('bridgedb', 0, 0, 1),
     replacement='bridgedb.parse.addr.PortList')
 class PortList:
-    """Deprecated :class:`bridgedb.Bridges.PortList`, replaced in
+    """Deprecated :class:`bridgedb.bridgerings.PortList`, replaced in
     bridgedb-0.1.0, in commit 1f111e5, by
     :class:`bridgedb.parse.addr.PortList`.
 

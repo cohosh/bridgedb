@@ -20,7 +20,7 @@ bridgedb.distributors.email.autoresponder
 A :class:`~bridgedb.distribute.Distributor` which hands out :class:`bridges
 <bridgedb.bridges.Bridge>` to clients via an email interface.
 
-.. inheritance-diagram:: IgnoreEmail TooSoonEmail EmailRequestedHelp EmailRequestedKey EmailDistributor
+.. inheritance-diagram:: IgnoreEmail TooSoonEmail EmailDistributor
     :parts: 1
 """
 
@@ -29,8 +29,8 @@ import time
 
 import bridgedb.Storage
 
-from bridgedb.Bridges import BridgeRing
-from bridgedb.Bridges import FilteredBridgeSplitter
+from bridgedb.bridgerings import BridgeRing
+from bridgedb.bridgerings import FilteredBridgeSplitter
 from bridgedb.crypto import getHMAC
 from bridgedb.crypto import getHMACFunc
 from bridgedb.distribute import Distributor
@@ -55,19 +55,11 @@ class TooSoonEmail(addr.BadEmail):
     """Raised when we got a request from this address too recently."""
 
 
-class EmailRequestedHelp(Exception):
-    """Raised when a client has emailed requesting help."""
-
-
-class EmailRequestedKey(Exception):
-    """Raised when an incoming email requested a copy of our GnuPG keys."""
-
-
 class EmailDistributor(Distributor):
     """Object that hands out bridges based on the email address of an incoming
     request and the current time period.
 
-    :type hashring: :class:`~bridgedb.Bridges.BridgeRing`
+    :type hashring: :class:`~bridgedb.bridgerings.BridgeRing`
     :ivar hashring: A hashring to hold all the bridges we hand out.
     """
 
@@ -135,7 +127,7 @@ class EmailDistributor(Distributor):
             than :api:`time.time`. This should likely only be used for
             testing.
         :rtype: :any:`list` or ``None``
-        :returns: A list of :class:`~bridgedb.bridges.Bridges` for the
+        :returns: A list of :class:`~bridgedb.bridges.Bridge` for the
             ``bridgeRequest.client``, if allowed.  Otherwise, returns ``None``.
         """
         if (not bridgeRequest.client) or (bridgeRequest.client == 'default'):

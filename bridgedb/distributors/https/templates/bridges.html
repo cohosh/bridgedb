@@ -60,11 +60,6 @@ ${bridgeline | h,trim}<br />
               </p>
 % else:
               <p class="text-danger">
-## TRANSLATORS: Please translate this into some silly way to say
-##              "There was a problem!" in your language. For example,
-##              for Italian, you might translate this into "Mama mia!",
-##              or for French: "Sacrebleu!". :)
-${_("""Uh oh, spaghettios!""")}
 ${_("""It seems there was an error getting your QRCode.""")}
                 <i class="icon icon-frown"></i>
               </p>
@@ -106,17 +101,13 @@ ${_("""This QRCode contains your bridge lines. Scan it with a QRCode """ \
 </div>
 
 % else:
-<div class="bs-component" id="uh-oh-spaghettios">
+<div class="bs-component" id="error">
   <div class="alert alert-dismissable alert-danger">
     <p>
       <br />
       <strong>
         <em class="primary">
-## TRANSLATORS: Please translate this into some silly way to say
-##              "There was a problem!" in your language. For example,
-##              for Italian, you might translate this into "Mama mia!",
-##              or for French: "Sacrebleu!". :)
-${_("""Uh oh, spaghettios!""")}
+${_("""BridgeDB encountered an error.""")}
         </em>
       </strong>
       <br />

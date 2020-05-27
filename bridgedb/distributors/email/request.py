@@ -43,9 +43,8 @@ from __future__ import unicode_literals
 import logging
 import re
 
+from bridgedb import strings
 from bridgedb import bridgerequest
-from bridgedb.distributors.email.distributor import EmailRequestedHelp
-from bridgedb.distributors.email.distributor import EmailRequestedKey
 
 
 #: A regular expression for matching the Pluggable Transport method TYPE in
@@ -61,23 +60,19 @@ UNBLOCKED_PATTERN = re.compile(UNBLOCKED_REGEXP)
 #: Regular expressions that we use to match for email commands.  Any command is
 #: valid as long as it wasn't quoted, i.e., the line didn't start with a '>'
 #: character.
-HELP_LINE      = re.compile("([^>].*)?h[ae]lp")
 GET_LINE       = re.compile("([^>].*)?get")
-KEY_LINE       = re.compile("([^>].*)?key")
 IPV6_LINE      = re.compile("([^>].*)?ipv6")
 TRANSPORT_LINE = re.compile("([^>].*)?transport")
 UNBLOCKED_LINE = re.compile("([^>].*)?unblocked")
 
 def determineBridgeRequestOptions(lines):
-    """Figure out which :mod:`~bridgedb.filters` to apply, or offer help.
+    """Figure out which :mod:`~bridgedb.filters` to apply.
 
     .. note:: If any ``'transport TYPE'`` was requested, or bridges not
         blocked in a specific CC (``'unblocked CC'``), then the ``TYPE``
         and/or ``CC`` will *always* be stored as a *lowercase* string.
 
     :param list lines: A list of lines from an email, including the headers.
-    :raises EmailRequestedHelp: if the client requested help.
-    :raises EmailRequestedKey: if the client requested our GnuPG key.
     :rtype: :class:`EmailBridgeRequest`
     :returns: A :class:`~bridgerequest.BridgeRequest` with all of the requested
         parameters set. The returned ``BridgeRequest`` will have already had
@@ -92,21 +87,26 @@ def determineBridgeRequestOptions(lines):
         if not line: skippedHeaders = True
         if not skippedHeaders: continue
 
-        if HELP_LINE.match(line) is not None:
-            raise EmailRequestedHelp("Client requested help.")
-
         if GET_LINE.match(line) is not None:
             request.isValid(True)
             logging.debug("Email request was valid.")
-        if KEY_LINE.match(line) is not None:
-            request.wantsKey(True)
-            raise EmailRequestedKey("Email requested a copy of our GnuPG key.")
         if IPV6_LINE.match(line) is not None:
             request.withIPv6()
         if TRANSPORT_LINE.match(line) is not None:
             request.withPluggableTransportType(line)
         if UNBLOCKED_LINE.match(line) is not None:
             request.withoutBlockInCountry(line)
+
+    # We cannot expect all users to understand BridgeDB's commands, so we will
+    # return bridges even if the request was invalid.
+    if not request.isValid():
+        logging.debug("Email request was invalid.")
+        request.isValid(True)
+        # We will respond with our default transport protocol.
+        if not len(request.transports):
+            # Note that this variable must satisfy TRANSPORT_PATTERN.
+            default_transport = "transport %s" % strings._getDefaultTransport()
+            request.withPluggableTransportType(default_transport)
 
     logging.debug("Generating hashring filters for request.")
     request.generateFilters()
@@ -121,22 +121,6 @@ class EmailBridgeRequest(bridgerequest.BridgeRequestBase):
         :class:`~bridgedb.distributors.email.distributor.EmailDistributor`.
         """
         super(EmailBridgeRequest, self).__init__()
-        self._wantsKey = False
-
-    def wantsKey(self, wantsKey=None):
-        """Get or set whether this bridge request wanted our GnuPG key.
-
-        If called without parameters, this method will return the current
-        state, otherwise (if called with the **wantsKey** parameter set), it
-        will set the current state for whether or not this request wanted our
-        key.
-
-        :param bool wantsKey: If given, set the validity state of this
-            request. Otherwise, get the current state.
-        """
-        if wantsKey is not None:
-            self._wantsKey = bool(wantsKey)
-        return self._wantsKey
 
     def withoutBlockInCountry(self, line):
         """This request was for bridges not blocked in **country**.

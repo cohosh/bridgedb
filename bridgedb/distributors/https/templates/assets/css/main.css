@@ -373,11 +373,11 @@ div.bridge-lines.-webkit-scrollbar-thumb.horizontal{
   align-content: left;
 }
 
-#uh-oh-spaghettios {
+#error {
   width: 80%;
   margin: auto;
 }
-.uh-oh-spaghettios~p {
+.error~p {
   text-align: center;
   font-size: 115%;
 }

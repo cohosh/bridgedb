@@ -55,8 +55,6 @@ from bridgedb import safelog
 from bridgedb.distributors.email import dkim
 from bridgedb.distributors.email import request
 from bridgedb.distributors.email import templates
-from bridgedb.distributors.email.distributor import EmailRequestedHelp
-from bridgedb.distributors.email.distributor import EmailRequestedKey
 from bridgedb.distributors.email.distributor import TooSoonEmail
 from bridgedb.distributors.email.distributor import IgnoreEmail
 from bridgedb.parse import addr
@@ -98,21 +96,9 @@ def createResponseBody(lines, context, client, lang='en'):
         bridgeRequest = request.determineBridgeRequestOptions(lines)
         bridgeRequest.client = str(client)
 
-        # The request was invalid, respond with a help email which explains
-        # valid email commands:
-        if not bridgeRequest.isValid():
-            raise EmailRequestedHelp("Email request from '%s' was invalid."
-                                     % str(client))
-
         # Otherwise they must have requested bridges:
         interval = context.schedule.intervalStart(time.time())
         bridges = context.distributor.getBridges(bridgeRequest, interval)
-    except EmailRequestedHelp as error:
-        logging.info(error)
-        return templates.buildWelcomeText(translator, client)
-    except EmailRequestedKey as error:
-        logging.info(error)
-        return templates.buildKeyMessage(translator, client)
     except TooSoonEmail as error:
         logging.info("Got a mail too frequently: %s." % error)
         return templates.buildSpamWarning(translator, client)
@@ -130,7 +116,7 @@ def createResponseBody(lines, context, client, lang='en'):
         return templates.buildAnswerMessage(translator, client, answer)
 
 def generateResponse(fromAddress, client, body, subject=None,
-                     messageID=None, gpgSignFunc=None):
+                     messageID=None):
     """Create an :class:`EmailResponse`, which acts like an
     :class:`io.StringIO` instance, by creating and writing all headers and the
     email body into the file-like :attr:`EmailResponse.mailfile`.
@@ -141,21 +127,15 @@ def generateResponse(fromAddress, client, body, subject=None,
     :param client: The client's email address which should be in the
         ``'To:'`` header of the response email.
     :param str subject: The string to write to the ``'Subject:'`` header.
-    :param str body: The body of the email. If a **gpgSignFunc** is also
-        given, then :meth:`EmailResponse.writeBody` will generate and include
-        an ascii-armored OpenPGP signature in the **body**.
+    :param str body: The body of the email.
     :type messageID: ``None`` or :any:`str`
     :param messageID: The :rfc:`2822` specifier for the ``'Message-ID:'``
         header, if including one is desirable.
-    :type gpgSignFunc: callable
-    :param gpgSignFunc: If given, this should be a callable function for
-        signing messages.  See :func:`bridgedb.crypto.initializeGnuPG` for
-        obtaining a pre-configured **gpgSignFunc**.
     :returns: An :class:`EmailResponse` which contains the entire email. To
         obtain the contents of the email, including all headers, simply use
         :meth:`EmailResponse.readContents`.
     """
-    response = EmailResponse(gpgSignFunc)
+    response = EmailResponse()
     response.to = client
     response.writeHeaders(fromAddress.encode('utf-8'), str(client), subject,
                           inReplyTo=messageID)
@@ -178,10 +158,7 @@ class EmailResponse(object):
 
     .. todo:: At some point, we may want to change this class to optionally
         handle creating Multipart MIME encoding messages, so that we can
-        include attachments. (This would be useful for attaching our GnuPG
-        keyfile, for example, rather than simply pasting it into the body of
-        the email.)
-
+        include attachments.
 
     :var str delimiter: Delimiter between lines written to the
         :data:`mailfile`.
@@ -190,18 +167,12 @@ class EmailResponse(object):
     :var to: The client's email address, to which this response should be sent.
     """
 
-    def __init__(self, gpgSignFunc=None):
+    def __init__(self):
         """Create a response to an email we have recieved.
 
         This class deals with correctly formatting text for the response email
         headers and the response body into an instance of :data:`mailfile`.
-
-        :type gpgSignFunc: callable
-        :param gpgSignFunc: If given, this should be a callable function for
-            signing messages.  See :func:`bridgedb.crypto.initializeGnuPG` for
-            obtaining a pre-configured **gpgSignFunc**.
         """
-        self.gpgSign = gpgSignFunc
         self.mailfile = io.StringIO()
         self.delimiter = '\n'
         self.closed = False
@@ -348,18 +319,9 @@ class EmailResponse(object):
     def writeBody(self, body):
         """Write the response body into the :attr:`mailfile`.
 
-        If :attr:`EmailResponse.gpgSignFunc` is set, and signing is configured,
-        the **body** will be automatically signed before writing its contents
-        into the :attr:`mailfile`.
-
         :param str body: The body of the response email.
         """
         logging.info("Writing email body...")
-        if self.gpgSign:
-            logging.info("Attempting to sign email...")
-            sig = self.gpgSign(body)
-            if sig:
-                body = sig
         self.writelines(body)
 
 
@@ -443,8 +405,7 @@ class SMTPAutoresponder(smtp.SMTPClient):
         messageID = self.incoming.message.get("Message-ID", None)
         subject = self.incoming.message.get("Subject", None)
         response = generateResponse(recipient, client,
-                                    body, subject, messageID,
-                                    self.incoming.context.gpgSignFunc)
+                                    body, subject, messageID)
         return response
 
     def getMailTo(self):

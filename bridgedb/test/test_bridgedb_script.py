@@ -66,6 +66,7 @@ class BridgeDBCliTest(unittest.TestCase):
         if not self.pid or not processExists(self.pid):
             raise SkipTest("Can't run test: no BridgeDB process running.")
 
+        self.doSleep()
         self.assertTrue(os.path.isfile(self.assignmentsFile))
 
     def test_bridgedb_SIGHUP_assignments_log(self):
@@ -78,6 +79,7 @@ class BridgeDBCliTest(unittest.TestCase):
         if not self.pid or not processExists(self.pid):
             raise SkipTest("Can't run test: no BridgeDB process running.")
 
+        self.doSleep()
         os.unlink(self.assignmentsFile)
         os.kill(self.pid, signal.SIGHUP)
         self.doSleep()
