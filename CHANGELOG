@@ -1,3 +1,6 @@
+    * FIXES https://gitlab.torproject.org/tpo/anti-censorship/bridgedb/-/issues/40001
+    Remove the --reload command line switch.  It doesn't actually do anything.
+
     * FIXES https://bugs.torproject.org/29184
     Add a new configuration option, BLACKLISTED_TOR_VERSIONS, which contains a
     list of Tor versions.  BridgeDB won't hand out bridges whose Tor version
