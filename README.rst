@@ -318,10 +318,6 @@ Reloading Bridges From Their Descriptor Files:
 When you have new lists of bridges from the Bridge Authority, replace
 the old files and do::
 
-      bridgedb --reload
-
-Or just give it a SIGHUP::
-
       kill -s SIGHUP `cat .../run/bridgedb.pid`
 
 

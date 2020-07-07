@@ -290,8 +290,6 @@ class SIGUSR1Options(BaseOptions):
 class MainOptions(BaseOptions):
     """Main commandline options parser for BridgeDB."""
 
-    optFlags = [
-        ['reload', 'R', 'Reload bridge descriptors into running servers']]
     subCommands = [
         ['mock', None, MockOptions, "Generate a testing environment"],
         ['SIGHUP', None, SIGHUPOptions,
