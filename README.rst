@@ -1,20 +1,14 @@
-**********************************************************
-BridgeDB |Latest Version| |Build Status| |Coverage Status|
-**********************************************************
+***********************
+BridgeDB |Build Status|
+***********************
 
 BridgeDB is a collection of backend servers used to distribute `Tor Bridges
 <https://www.torproject.org/docs/bridges>`__. Currently, it mainly consists of
 a webserver with `an HTTPS interface <https://bridges.torproject.org>`__,
 `an email responder <mailto:bridges@torproject.org>`__, and an SQLite database.
 
-.. |Latest Version| image:: https://pypip.in/version/bridgedb/badge.svg?style=flat
-   :target: https://pypi.python.org/pypi/bridgedb/
-.. |Build Status| image:: https://travis-ci.org/sysrqbci/bridgedb.svg
-   :target: https://travis-ci.org/sysrqbci/bridgedb
-.. |Coverage Status| image:: https://coveralls.io/repos/github/sysrqbci/bridgedb/badge.svg?branch=develop
-   :target: https://coveralls.io/github/sysrqbci/bridgedb?branch=develop
-
-
+.. |Build Status| image:: https://travis-ci.org/NullHypothesis/bridgedb.svg?branch=master
+   :target: https://travis-ci.org/github/NullHypothesis/bridgedb
 
 .. image:: doc/sphinx/source/_static/bay-bridge.jpg
    :scale: 80%
