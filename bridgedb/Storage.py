@@ -12,6 +12,7 @@ from functools import wraps
 from ipaddr import IPAddress
 from contextlib import contextmanager
 import sys
+import datetime
 
 from bridgedb.Stability import BridgeHistory
 import threading
@@ -19,6 +20,7 @@ import threading
 toHex = binascii.b2a_hex
 fromHex = binascii.a2b_hex
 HEX_ID_LEN = 40
+BRIDGE_REACHABLE, BRIDGE_BLOCKED = 0, 1
 
 def _escapeValue(v):
     return "'%s'" % v.replace("'", "''")
@@ -68,7 +70,7 @@ SCHEMA2_SCRIPT = """
 
  CREATE INDEX EmailedBridgesWhenMailed on EmailedBridges ( email );
 
- CREATE TABLE BlockedBridges (
+ CREATE TABLE BridgeMeasurements (
      id INTEGER PRIMARY KEY NOT NULL,
      hex_key,
      bridge_type,
@@ -77,10 +79,11 @@ SCHEMA2_SCRIPT = """
      blocking_country,
      blocking_asn,
      measured_by,
-     last_measured
+     last_measured,
+     verdict INTEGER
  );
 
- CREATE INDEX BlockedBridgesBlockingCountry on BlockedBridges(hex_key);
+ CREATE INDEX BlockedBridgesBlockingCountry on BridgeMeasurements(hex_key);
 
  CREATE TABLE WarnedEmails (
      email PRIMARY KEY NOT NULL,
@@ -242,6 +245,34 @@ class Database(object):
 
         return retBridges
 
+    def getBlockedBridges(self):
+        """Return a dictionary of bridges that are blocked.
+
+        :rtype: dict
+        :returns: A dictionary that maps bridge fingerprints (as strings) to a
+            three-tuple that captures its blocking state: (country,  address,
+            port).
+        """
+        ms = self.__fetchBridgeMeasurements()
+        return getBlockedBridgesFromSql(ms)
+
+    def __fetchBridgeMeasurements(self):
+        """Return all bridge measurement rows from the last three years.
+
+        We limit our search to three years for performance reasons because the
+        bridge measurement table keeps growing and therefore slowing down
+        queries.
+
+        :rtype: list
+        :returns: A list of tuples.
+        """
+        cur = self._cur
+        old_year = datetime.datetime.utcnow() - datetime.timedelta(days=365*3)
+        cur.execute("SELECT * FROM BridgeMeasurements WHERE last_measured > "
+                    "'%s' ORDER BY blocking_country DESC" %
+                    old_year.strftime("%Y-%m-%d"))
+        return cur.fetchall()
+
     def getBridgesForDistributor(self, distributor):
         """Return a list of BridgeData value classes of all bridges in the
            database that are allocated to distributor 'distributor'
@@ -351,6 +382,107 @@ _LOCK = None
 _LOCKED = 0
 _OPENED_DB = None
 _REFCOUNT = 0
+
+class BridgeMeasurement(object):
+    def __init__(self, id, fingerprint, bridge_type, address, port,
+            country, asn, measured_by, last_measured, verdict):
+        self.fingerprint = fingerprint
+        self.country = country
+        self.address = address
+        self.port = port
+        try:
+            self.date = datetime.datetime.strptime(last_measured, "%Y-%m-%d")
+        except ValueError:
+            logging.error("Could not convert SQL date string '%s' to "
+                            "datetime object." % last_measured)
+            self.date = datetime.datetime(1970, 1, 1, 0, 0)
+        self.verdict = verdict
+
+    def compact(self):
+        return (self.country, self.address, self.port)
+
+    def __contains__(self, item):
+        return (self.country == item.country and
+                self.address == item.address and
+                self.port == item.port)
+
+    def newerThan(self, other):
+        return self.date > other.date
+
+    def conflicts(self, other):
+        return (self.verdict != other.verdict and
+                self.country == other.country and
+                self.address == other.address and
+                self.port == other.port)
+
+def getBlockedBridgesFromSql(sql_rows):
+    """Return a dictionary that maps bridge fingerprints to a list of
+    bridges that are known to be blocked somewhere.
+
+    :param list sql_rows: A list of tuples.  Each tuple represents an SQL row.
+    :rtype: dict
+    :returns: A dictionary that maps bridge fingerprints (as strings) to a
+        three-tuple that captures its blocking state: (country,  address,
+        port).
+    """
+    # Separately keep track of measurements that conclude that a bridge is
+    # blocked or reachable.
+    blocked = {}
+    reachable = {}
+
+    def _shouldSkip(m1):
+        """Return `True` if we can skip this measurement."""
+        # Use our 'reachable' dictionary if our original measurement says that
+        # a bridge is blocked, and vice versa.  The purpose is to process
+        # measurements that are possibly conflicting with the one at hand.
+        d = reachable if m1.verdict == BRIDGE_BLOCKED else blocked
+        maybe_conflicting = d.get(m1.fingerprint, None)
+        if maybe_conflicting is None:
+            # There is no potentially conflicting measurement.
+            return False
+
+        for m2 in maybe_conflicting:
+            if m1.compact() != m2.compact():
+                continue
+            # Conflicting measurement.  If m2 is newer than m1, we believe m2.
+            if m2.newerThan(m1):
+                return True
+            # Conflicting measurement.  If m1 is newer than m2, we believe m1,
+            # and remove m1.
+            if m1.newerThan(m2):
+                d[m1.fingerprint].remove(m2)
+                # If we're left with an empty list, get rid of the dictionary
+                # key altogether.
+                if len(d[m1.fingerprint]) == 0:
+                    del d[m1.fingerprint]
+                return False
+        return False
+
+    for fields in sql_rows:
+        m = BridgeMeasurement(*fields)
+        if _shouldSkip(m):
+            continue
+
+        d = blocked if m.verdict == BRIDGE_BLOCKED else reachable
+        other_measurements = d.get(m.fingerprint, None)
+        if other_measurements is None:
+            # We're dealing with the first "blocked" or "reachable" measurement
+            # for the given bridge fingerprint.
+            d[m.fingerprint] = [m]
+        else:
+            # Do we have an existing measurement that agrees with the given
+            # measurement?
+            if m in other_measurements:
+                d[m.fingerprint] = [m if m.compact() == x.compact() and
+                                    m.newerThan(x) else x for x in other_measurements]
+            # We're dealing with a new measurement.  Add it to the list.
+            else:
+                d[m.fingerprint] = other_measurements + [m]
+
+    # Compact-ify the measurements in our dictionary.
+    for k, v in blocked.items():
+        blocked[k] = [i.compact() for i in v]
+    return blocked
 
 def clearGlobalDB():
     """Start from scratch.

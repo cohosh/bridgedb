@@ -1,3 +1,6 @@
+    * FIXES https://bugs.torproject.org/34260
+    Parse bridge blocking information from SQL database.
+
     * FIXES https://gitlab.torproject.org/tpo/anti-censorship/bridgedb/-/issues/40001
     Remove the --reload command line switch.  It doesn't actually do anything.
 
