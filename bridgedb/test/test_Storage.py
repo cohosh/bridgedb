@@ -4,6 +4,7 @@
 import os
 import threading
 import time
+import datetime
 
 from twisted.python import log
 from twisted.trial import unittest
@@ -11,6 +12,8 @@ from twisted.internet import reactor
 from twisted.internet.threads import deferToThread
 
 import bridgedb.Storage as Storage
+import bridgedb.main as main
+from bridgedb.bridges import Bridge
 
 from bridgedb.test.util import generateFakeBridges
 
@@ -113,3 +116,157 @@ class DatabaseTest(unittest.TestCase):
         with Storage.getDB() as db:
             ringname = db.getBridgeDistributor(bridge, self.validRings)
             self.assertEqual(ringname, "unallocated")
+
+    def test_BridgeMeasurementComparison(self):
+        m1 = Storage.BridgeMeasurement(0, "", "", "", "", "", "", "",
+                                       "2020-06-17", 0)
+        m2 = Storage.BridgeMeasurement(0, "", "", "", "", "", "", "",
+                                       "2020-06-18", 0)
+        self.assertTrue(m2.newerThan(m1))
+        self.assertFalse(m1.newerThan(m2))
+        self.assertFalse(m1.newerThan(m1))
+
+    def test_BridgeMeasurementCompact(self):
+        m = Storage.BridgeMeasurement(0, "FINGERPRINT", "obfs4", "1.2.3.4",
+                                      "1234", "ru", "1234", "ooni",
+                                      "2020-06-17", 0)
+        self.assertEquals(m.compact(), ("ru", "1.2.3.4", "1234"))
+
+    def test_fetchBridgeMeasurements(self):
+
+        query = "INSERT INTO BridgeMeasurements (hex_key, bridge_type, " \
+                "address, port, blocking_country, blocking_asn, " \
+                "measured_by, last_measured, verdict) VALUES ('key', " \
+                "'obfs4', '1.2.3.4', '1234', 'RU', '1234', 'OONI', '%s', 1)"
+        oldMsmt = query % "2017-01-01"
+        newMsmt = query % datetime.datetime.utcnow().strftime("%Y-%m-%d")
+
+        Storage.initializeDBLock()
+        with Storage.getDB() as db:
+            db._cur.execute(oldMsmt)
+            # We're calling _Database__fetchBridgeMeasurements instead of
+            # __fetchBridgeMeasurements to account for Python's name meddling.
+            rows = db._Database__fetchBridgeMeasurements()
+            # Outdated measurements should not be returned.
+            self.assertEquals(len(rows), 0)
+
+            db._cur.execute(newMsmt)
+            rows = db._Database__fetchBridgeMeasurements()
+            # Measurements that are "young enough" should be returned.
+            self.assertEquals(len(rows), 1)
+
+    def test_main_loadBlockedBridges(self):
+        Storage.initializeDBLock()
+
+        # Mock configuration object that we use to initialize our bridge rings.
+        class Cfg(object):
+            def __init__(self):
+                self.FORCE_PORTS = [(443, 1)]
+                self.FORCE_FLAGS = [("Stable", 1)]
+                self.MOAT_DIST = False
+                self.HTTPS_DIST = True
+                self.HTTPS_SHARE = 10
+                self.N_IP_CLUSTERS = 1
+                self.EMAIL_DIST = False
+                self.RESERVED_SHARE = 0
+
+        bridge = self.fakeBridges[0]
+        addr, port, _ = bridge.orAddresses[0]
+        cc= "de"
+
+        # Mock object that we use to simulate a database connection.
+        class DummyDB(object):
+            def __init__(self):
+                pass
+            def __enter__(self):
+                return self
+            def __exit__(self, type, value, traceback):
+                pass
+            def getBlockedBridges(self):
+                return {bridge.fingerprint: [(cc, addr, port)]}
+            def getBridgeDistributor(self, bridge, validRings):
+                return "https"
+            def insertBridgeAndGetRing(self, bridge, setRing, seenAt, validRings, defaultPool="unallocated"):
+                return "https"
+            def commit(self):
+                pass
+
+        oldObj = Storage.getDB
+        Storage.getDB = DummyDB
+
+        hashring, _, _, _ = main.createBridgeRings(Cfg(), None, b'key')
+        hashring.insert(bridge)
+
+        self.assertEqual(len(hashring), 1)
+        self.assertFalse(bridge.isBlockedIn(cc))
+        self.assertFalse(bridge.isBlockedIn("ab"))
+        self.assertFalse(bridge.addressIsBlockedIn(cc, addr, port))
+
+        main.loadBlockedBridges(hashring)
+
+        self.assertTrue(bridge.isBlockedIn(cc))
+        self.assertFalse(bridge.isBlockedIn("ab"))
+        self.assertTrue(bridge.addressIsBlockedIn(cc, addr, port))
+
+        Storage.getDB = oldObj
+
+    def test_getBlockedBridgesFromSql(self):
+
+        elems = [(0, "0000000000000000000000000000000000000000", "obfs4",
+                  "1.2.3.4", "1234", "ru", "4321", "ooni", "2020-06-17",
+                  Storage.BRIDGE_BLOCKED),
+                 (1, "1111111111111111111111111111111111111111", "obfs4",
+                  "1.2.3.4", "1234", "ru", "4321", "ooni", "2020-06-01",
+                  Storage.BRIDGE_BLOCKED),
+                 (2, "1111111111111111111111111111111111111111", "obfs4",
+                  "1.2.3.4", "4321", "ru", "4321", "ooni", "2020-06-01",
+                  Storage.BRIDGE_BLOCKED),
+                 (3, "1111111111111111111111111111111111111111", "obfs4",
+                  "1.2.3.4", "4321", "ru", "4321", "ooni", "2020-05-01",
+                  Storage.BRIDGE_REACHABLE)]
+        b = Storage.getBlockedBridgesFromSql(elems)
+        self.assertEqual(b, {"0000000000000000000000000000000000000000":
+                             [("ru", "1.2.3.4", "1234")],
+                             "1111111111111111111111111111111111111111":
+                             [("ru", "1.2.3.4", "1234"),
+                              ("ru", "1.2.3.4", "4321")]})
+
+        # If multiple measurements disagree, we believe the newest one.
+        elems = [(0, "0000000000000000000000000000000000000000", "obfs4",
+                  "1.2.3.4", "1234", "ru", "4321", "ooni", "2020-06-17",
+                  Storage.BRIDGE_BLOCKED),
+                 (1, "0000000000000000000000000000000000000000", "obfs4",
+                  "1.2.3.4", "1234", "ru", "4321", "ooni", "2020-06-01",
+                  Storage.BRIDGE_REACHABLE)]
+        b = Storage.getBlockedBridgesFromSql(elems)
+        self.assertEqual(b, {"0000000000000000000000000000000000000000":
+                             [("ru", "1.2.3.4", "1234")]})
+
+        elems = [(0, "0000000000000000000000000000000000000000", "obfs4",
+                  "1.2.3.4", "1234", "ru", "4321", "ooni", "2020-06-01",
+                  Storage.BRIDGE_BLOCKED),
+                 (1, "0000000000000000000000000000000000000000", "obfs4",
+                  "1.2.3.4", "1234", "ru", "4321", "ooni", "2020-06-17",
+                  Storage.BRIDGE_REACHABLE)]
+        b = Storage.getBlockedBridgesFromSql(elems)
+        self.assertTrue(len(b) == 0)
+
+        # Element ordering must not affect the outcome.
+        elems = [(1, "0000000000000000000000000000000000000000", "obfs4",
+                  "1.2.3.4", "1234", "ru", "4321", "ooni", "2020-06-17",
+                  Storage.BRIDGE_REACHABLE),
+                 (0, "0000000000000000000000000000000000000000", "obfs4",
+                  "1.2.3.4", "1234", "ru", "4321", "ooni", "2020-06-01",
+                  Storage.BRIDGE_BLOCKED)]
+        b = Storage.getBlockedBridgesFromSql(elems)
+        self.assertTrue(len(b) == 0)
+
+        # Redundant measurements should be discarded.
+        elems = [(1, "0000000000000000000000000000000000000000", "obfs4",
+                  "1.2.3.4", "1234", "ru", "4321", "ooni", "2020-06-17",
+                  Storage.BRIDGE_BLOCKED),
+                 (0, "0000000000000000000000000000000000000000", "obfs4",
+                  "1.2.3.4", "1234", "ru", "4321", "ooni", "2020-06-01",
+                  Storage.BRIDGE_BLOCKED)]
+        b = Storage.getBlockedBridgesFromSql(elems)
+        self.assertTrue(len(b) == 1)

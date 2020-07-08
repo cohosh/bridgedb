@@ -38,6 +38,7 @@ from bridgedb.distributors.https.distributor import HTTPSDistributor
 from bridgedb.distributors.moat.distributor import MoatDistributor
 from bridgedb.parse import descriptors
 from bridgedb.parse.blacklist import parseBridgeBlacklistFile
+from bridgedb.parse.versions import parseVersionsList
 
 import bridgedb.Storage
 
@@ -211,6 +212,10 @@ def load(state, hashring, clear=False):
             elif bridge in blacklist.keys():
                 logging.warn("Not distributing blacklisted Bridge %s %s:%s: %s" %
                              (bridge, bridge.address, bridge.orPort, blacklist[bridge]))
+            # Skip bridges that are running a blacklisted version of Tor.
+            elif bridge.runsVersion(state.BLACKLISTED_TOR_VERSIONS):
+                logging.warn("Not distributing bridge %s because it runs blacklisted "
+                             "Tor version %s." % (router.fingerprint, bridge.software))
             else:
                 # If the bridge is not running, then it is skipped during the
                 # insertion process.
@@ -302,6 +307,31 @@ def createBridgeRings(cfg, proxyList, key):
                          cfg.RESERVED_SHARE)
 
     return hashring, emailDistributor, ipDistributor, moatDistributor
+
+def loadBlockedBridges(hashring):
+    """Load bridge blocking info from our SQL database and add it to bridge
+    objects."""
+
+    blockedBridges = {}
+    with bridgedb.Storage.getDB() as db:
+        blockedBridges = db.getBlockedBridges()
+
+    num_blocked = 0
+    for name, ring in hashring.ringsByName.items():
+        if name == "unallocated":
+            continue
+        for _, bridge in ring.bridges.items():
+            l = []
+            try:
+                l = blockedBridges[bridge.fingerprint]
+            except KeyError:
+                continue
+            for blocking_country, address, port in l:
+                bridge.setBlockedIn(blocking_country, address, port)
+            num_blocked += 1
+
+    logging.info("Loaded blocking info for %d bridges.".format(num_blocked))
+
 
 def run(options, reactor=reactor):
     """This is BridgeDB's main entry point and main runtime loop.
@@ -418,6 +448,8 @@ def run(options, reactor=reactor):
             proxy.loadProxiesFromFile(proxyfile, proxies, removeStale=True)
         metrics.setProxies(proxies)
 
+        state.BLACKLISTED_TOR_VERSIONS = parseVersionsList(state.BLACKLISTED_TOR_VERSIONS)
+
         logging.info("Reloading blacklisted request headers...")
         antibot.loadBlacklistedRequestHeaders(config.BLACKLISTED_REQUEST_HEADERS_FILE)
         logging.info("Reloading decoy bridges...")
@@ -434,6 +466,7 @@ def run(options, reactor=reactor):
         logging.info("Reparsing bridge descriptors...")
         load(state, hashring, clear=False)
         logging.info("Bridges loaded: %d" % len(hashring))
+        loadBlockedBridges(hashring)
 
         if emailDistributorTmp is not None:
             emailDistributorTmp.prepopulateRings() # create default rings
@@ -449,6 +482,23 @@ def run(options, reactor=reactor):
             moatDistributorTmp.prepopulateRings()
         else:
             logging.warn("No Moat distributor created!")
+
+        metrix = metrics.InternalMetrics()
+        logging.info("Logging bridge ring metrics for %d rings." %
+                     len(hashring.ringsByName))
+        for ringName, ring in hashring.ringsByName.items():
+            # Ring is of type FilteredBridgeSplitter or UnallocatedHolder.
+            # FilteredBridgeSplitter splits bridges into subhashrings based on
+            # filters.
+            if hasattr(ring, "filterRings"):
+                for (ringname, (filterFn, subring)) in ring.filterRings.items():
+                    subRingName = "-".join(ring.extractFilterNames(ringname))
+                    metrix.recordBridgesInHashring(ringName,
+                                                   subRingName,
+                                                   len(subring))
+            elif hasattr(ring, "fingerprints"):
+                metrix.recordBridgesInHashring(ringName, "unallocated",
+                                               len(ring.fingerprints))
 
         # Dump bridge pool assignments to disk.
         writeAssignments(hashring, state.ASSIGNMENTS_FILE)

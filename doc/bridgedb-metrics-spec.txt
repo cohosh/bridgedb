@@ -1,4 +1,4 @@
-                      BridgeDB metrics (version 1)
+                      BridgeDB metrics (version 2)
 
 BridgeDB exports usage metrics once every 24 hours.  These metrics
 encode how many approximate successful/failed requests BridgeDB has seen
@@ -33,42 +33,82 @@ file is formatted as follows:
   "bridgedb-metric-count" METRIC_KEY COUNT NL
       [Any number.]
 
-      METRIC_KEY determines a metrics key, which consists of several
-      fields, separated by a period:
+      METRIC_KEY specifies a metrics key, which consists of several fields,
+      separated by a period.  These fields form a hierarchy.  At the root of
+      the hierarchy are our three distribution mechanisms ("https", "email",
+      and "moat") and "internal", which represents BridgeDB-internal metrics.
+      The hierarchy is of the following form:
 
-      DISTRIBUTION "." TRANSPORT "." CC/EMAIL "." "success" | "fail" "." RESERVED
+      * "https"
+      └─* TRANSPORT
+        └─* CC
+          └─* "success" | "fail"
+            └─* RESERVED
 
-      DISTRIBUTION is BridgeDB's distribution mechanism, which includes
-      "https", "email", and "moat".  These distribution mechanisms may
-      change in the future.
+      * "email"
+      └─* TRANSPORT
+        └─* EMAIL
+          └─* "success" | "fail"
+            └─* RESERVED
+
+      * "moat"
+      └─* TRANSPORT
+        └─* CC
+          └─* "success" | "fail"
+            └─* RESERVED
+
+      * "internal"
+      ├─* "handouts"
+      │ ├─* "min"
+      │ ├─* "max"
+      │ ├─* "median"
+      │ ├─* "quartile1"
+      │ ├─* "quartile3"
+      │ ├─* "lower-whisker"
+      │ ├─* "upper-whisker"
+      │ ├─* "ipv4"
+      │ └─* "ipv6"
+      │
+      └─* TRANSPORT
+        ├─* "empty-response"
+        └─* SUBRING
+
+      Strings in between quotes (e.g., "handouts") are literals and show up in
+      the hierarchy as is.  Upper-case strings (e.g., TRANSPORT) are
+      placeholders, which are explained below.
 
       TRANSPORT refers to a pluggable transport protocol.  This includes
       "obfs2", "obfs3", "obfs4", "scramblesuit", and "fte".  These
       pluggable transports will change in the future.
 
-      CC/EMAIL refers to a two-letter country code of the user's IP
-      address iff DISTRIBUTION is "moat" or "https"; or to an email
-      provider iff DISTRIBUTION is "email".  We use two reserved country
-      codes, "??" and "zz".  "??" denotes that we couldn't map an IP
-      address to its country, e.g., because our geolocation API was
-      unable to.  "zz" denotes a proxy IP address, e.g., Tor exit
-      relays.  The two allowed email providers are "gmail" and "riseup".
+      CC refers to a two-letter country code of the user's IP address.  We use
+      two reserved country codes, "??" and "zz".  "??" denotes that we couldn't
+      map an IP address to its country, e.g., because our geolocation API was
+      unable to.  "zz" denotes a proxy IP address, e.g., Tor exit relays.
 
-      The next field is either "success" or "fail", depending on if the
-      BridgeDB request was successful or not.  A request is successful
-      if BridgeDB attempts to provide the user with bridges, even if
-      BridgeDB currently has no bridges available.  A request has failed
-      if BridgeDB won't provide the user with bridges, for example, if
-      the user could not solve the CAPTCHA.
+      EMAIL refers to an email provider.  The two currently-supported email
+      providers are "gmail" and "riseup".
 
-      The field RESERVED is reserved for an anomaly score.  It is
-      currently set to "none" and should be ignored by implementations.
+      The field RESERVED is reserved for an anomaly score.  It is currently set
+      to "none" and should be ignored by implementations.
 
       COUNT is the approximate number of user requests for the given
       METRIC_KEY.  We round up the number of requests to the next
-      multiple of 10 to preserve some user privacy.
+      multiple of 10 to preserve some user privacy.  Some metrics key are not
+      rounded up to the next multiple of ten because they are not sensitive.
 
-      Examples:
+      One label either takes on the value "success" or "fail", depending on if
+      the BridgeDB request was successful or not.  A request is successful if
+      BridgeDB attempts to provide the user with bridges, even if BridgeDB
+      currently has no bridges available.  A request has failed if BridgeDB
+      won't provide the user with bridges, for example, if the user could not
+      solve the CAPTCHA.
+
+      Here are several examples:
         bridgedb-metric-count https.scramblesuit.zz.fail.none 100
         bridgedb-metric-count moat.obfs4.??.success.none 3550
         bridgedb-metric-count email.fte.gmail.fail.none 10
+        bridgedb-metric-count internal.handouts.ipv4 20
+        bridgedb-metric-count internal.moat.empty-response 10
+        bridgedb-metric-count internal.handouts.min 23
+        bridgedb-metric-count internal.https.byipv6-bysubring1of4 40

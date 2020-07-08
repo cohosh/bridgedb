@@ -1,3 +1,23 @@
+Changes in version 0.11.0 - 2020-07-08
+
+    * FIXES https://bugs.torproject.org/31422
+    Make BridgeDB report internal metrics, like the median number of users that
+    bridges were handed out to.
+
+    * FIXES https://bugs.torproject.org/34260
+    Parse bridge blocking information from SQL database.
+
+    * FIXES https://gitlab.torproject.org/tpo/anti-censorship/bridgedb/-/issues/40001
+    Remove the --reload command line switch.  It doesn't actually do anything.
+
+    * FIXES https://bugs.torproject.org/29184
+    Add a new configuration option, BLACKLISTED_TOR_VERSIONS, which contains a
+    list of Tor versions.  BridgeDB won't hand out bridges whose Tor version
+    is present in this blacklist.
+
+    * FIXES https://bugs.torproject.org/19774
+    Add a favicon to BridgeDB's web UI.
+
 Changes in version 0.10.1 - 2020-05-27
 
     * FIXES https://bugs.torproject.org/33945
