@@ -18,6 +18,8 @@ import ipaddr
 import operator
 import json
 import datetime
+import statistics
+import numpy
 
 from bridgedb import geo
 from bridgedb.distributors.common.http import getClientIP
@@ -54,7 +56,7 @@ SUPPORTED_TRANSPORTS = None
 
 # Version number for our metrics format.  We increment the version if our
 # format changes.
-METRICS_VERSION = 1
+METRICS_VERSION = 2
 
 
 def setProxies(proxies):
@@ -106,14 +108,14 @@ def export(fh, measurementInterval):
         and dump our metrics.
     """
 
-    httpsMetrix = HTTPSMetrics()
-    emailMetrix = EmailMetrics()
-    moatMetrix = MoatMetrics()
+    metrics = [HTTPSMetrics(),
+               EmailMetrics(),
+               MoatMetrics(),
+               InternalMetrics()]
 
     # Rotate our metrics.
-    httpsMetrix.rotate()
-    emailMetrix.rotate()
-    moatMetrix.rotate()
+    for m in metrics:
+        m.rotate()
 
     numProxies = len(PROXIES) if PROXIES is not None else 0
     if numProxies == 0:
@@ -127,17 +129,14 @@ def export(fh, measurementInterval):
              measurementInterval))
     fh.write("bridgedb-metrics-version %d\n" % METRICS_VERSION)
 
-    httpsLines = httpsMetrix.getMetrics()
-    for line in httpsLines:
-        fh.write("bridgedb-metric-count %s\n" % line)
+    for m in metrics:
+        distLines = m.getMetrics()
+        for line in distLines:
+            fh.write("bridgedb-metric-count %s\n" % line)
+            logging.debug("Writing metrics line to file: %s" % line)
 
-    moatLines = moatMetrix.getMetrics()
-    for line in moatLines:
-        fh.write("bridgedb-metric-count %s\n" % line)
-
-    emailLines = emailMetrix.getMetrics()
-    for line in emailLines:
-        fh.write("bridgedb-metric-count %s\n" % line)
+    for m in metrics:
+        m.reset()
 
 
 def resolveCountryCode(ipAddr):
@@ -200,6 +199,7 @@ class Metrics(metaclass=Singleton):
         # that, our hot metrics turn into cold metrics, and we start over.
         self.hotMetrics = dict()
         self.coldMetrics = dict()
+        self.unsanitisedSet = set()
 
     def rotate(self):
         """Rotate our metrics."""
@@ -216,8 +216,15 @@ class Metrics(metaclass=Singleton):
 
         return anomaly
 
-    def getMetrics(self):
-        """Get our sanitized current metrics, one per line.
+    def doNotSanitise(self, key):
+        """
+        :param str key: A key that will not be sanitised when exporting our
+            metrics.
+        """
+        self.unsanitisedSet.add(key)
+
+    def getMetrics(self, sanitized=True):
+        """Get our (sanitized) current metrics, one per line.
 
         Metrics are of the form:
 
@@ -227,15 +234,19 @@ class Metrics(metaclass=Singleton):
              ...
             ]
 
+        :param bool sanitized: ``True`` if the metrics must be sanitized.
         :rtype: list
         :returns: A list of metric lines.
         """
         lines = []
         for key, value in self.coldMetrics.items():
-            # Round up our value to the nearest multiple of self.binSize to
-            # reduce the accuracy of our real values.
-            if (value % self.binSize) > 0:
-                value += self.binSize - (value % self.binSize)
+
+            # There's no need to sanitize internal metrics.
+            if sanitized and not key in self.unsanitisedSet:
+                # Round up our value to the nearest multiple of self.binSize to
+                # reduce the accuracy of our real values.
+                if (value % self.binSize) > 0:
+                    value += self.binSize - (value % self.binSize)
             lines.append("%s %d" % (key, value))
         return lines
 
@@ -289,6 +300,148 @@ class Metrics(metaclass=Singleton):
                                   countryOrProvider, success, anomaly)
 
         return key
+
+    def reset(self):
+        """Reset internal variables after a metrics interval."""
+        pass
+
+
+class InternalMetrics(Metrics):
+
+    def __init__(self):
+        super(InternalMetrics, self).__init__()
+        self.keyPrefix = "internal"
+        # Maps bridges to the number of time they have been handed out.
+        self.bridgeHandouts = {}
+
+        # There's no reason for the following metrics to be sanitised.
+        handoutsPrefix = "{}.handouts".format(self.keyPrefix)
+        self.doNotSanitise("{}.unique-bridges".format(handoutsPrefix))
+        self.doNotSanitise("{}.median".format(handoutsPrefix))
+        self.doNotSanitise("{}.min".format(handoutsPrefix))
+        self.doNotSanitise("{}.max".format(handoutsPrefix))
+        self.doNotSanitise("{}.quartile1".format(handoutsPrefix))
+        self.doNotSanitise("{}.quartile3".format(handoutsPrefix))
+        self.doNotSanitise("{}.lower-whisker".format(handoutsPrefix))
+        self.doNotSanitise("{}.upper-whisker".format(handoutsPrefix))
+
+    def reset(self):
+        """Reset bridge handouts after each interval."""
+
+        # Log the bridge that has seen the most handouts.  This helps us
+        # understand BridgeDB better.
+        items = self.bridgeHandouts.items()
+        if len(items):
+            bridgeLine, num = sorted(items, key=lambda x: x[1],
+                                     reverse=True)[0]
+            logging.debug("Bridge line with most handouts (%d): %s" %
+                          (num, bridgeLine))
+
+        self.bridgeHandouts = {}
+
+    def _recordEmptyResponse(self, distributor):
+        """
+        Record an empty bridge request response for the given distributor.
+
+        :param str distributor: A bridge distributor, e.g., "https".
+        """
+        self.inc("{}.{}.empty-response".format(self.keyPrefix, distributor))
+
+    def recordEmptyEmailResponse(self):
+        self._recordEmptyResponse("email")
+
+    def recordEmptyHTTPSResponse(self):
+        self._recordEmptyResponse("https")
+
+    def recordEmptyMoatResponse(self):
+        self._recordEmptyResponse("moat")
+
+    def recordHandoutsPerBridge(self, bridgeRequest, bridges):
+        """
+        Record how often a given bridge was handed out.
+
+        Note that bridges that were not handed out will not be part of these
+        metrics.
+
+        :type bridgeRequest: :api:`bridgerequest.BridgeRequestBase`
+        :param bridgeRequest: A bridge request for either one of our
+            distributors.
+        :param list bridges: A list of :class:`~bridgedb.Bridges.Bridge`s.
+        """
+
+        handoutsPrefix = "{}.handouts".format(self.keyPrefix)
+
+        if bridgeRequest is None or bridges is None:
+            logging.warning("Given bridgeRequest and bridges cannot be None.")
+            return
+
+        # Keep track of how many IPv4 and IPv6 requests we are seeing.
+        ipVersion = bridgeRequest.ipVersion
+        if ipVersion not in [4, 6]:
+            logging.warning("Got bridge request for unsupported IP version "
+                            "{}.".format(ipVersion))
+            return
+        else:
+            self.inc("{}.ipv{}".format(handoutsPrefix, ipVersion))
+
+        # Keep track of how many times we're handing out a given bridge.
+        for bridge in bridges:
+            # Use bridge lines as dictionary key.  We cannot use the bridge
+            # objects because BridgeDB reloads its descriptors every 30
+            # minutes, at which points the bridge objects change.
+            key = bridge.getBridgeLine(bridgeRequest)
+            num = self.bridgeHandouts.get(key, None)
+            if num is None:
+                self.bridgeHandouts[key] = 1
+            else:
+                self.bridgeHandouts[key] = num + 1
+
+        # We need more than two handouts to calculate our statistics.
+        values = self.bridgeHandouts.values()
+        if len(values) <= 2:
+            return
+
+        # Update our statistics.
+        self.set("{}.median".format(handoutsPrefix),
+                 statistics.median(values))
+        self.set("{}.min".format(handoutsPrefix), min(values))
+        self.set("{}.max".format(handoutsPrefix), max(values))
+        self.set("{}.unique-bridges".format(handoutsPrefix),
+                 len(self.bridgeHandouts))
+        # Python 3.8 comes with a statistics.quantiles function, which we
+        # should use instead of numpy once 3.8 is available in Debian stable.
+        q1, q3 = numpy.quantile(numpy.array(list(values)), [0.25, 0.75])
+        self.set("{}.quartile1".format(handoutsPrefix), q1)
+        self.set("{}.quartile3".format(handoutsPrefix), q3)
+        # Determine our inter-quartile range (the difference between quartile 3
+        # and quartile 1) and use it to calculate the upper and lower whiskers
+        # as you would see them in a boxplot.
+        iqr = q3 - q1
+        lowerWhisker = min([x for x in values if x >= q1 - (1.5 * iqr)])
+        upperWhisker = max([x for x in values if x <= q3 + (1.5 * iqr)])
+        self.set("{}.lower-whisker".format(handoutsPrefix), lowerWhisker)
+        self.set("{}.upper-whisker".format(handoutsPrefix), upperWhisker)
+
+    def recordBridgesInHashring(self, ringName, subRingName, numBridges):
+        """
+        Record the number of bridges per hashring.
+
+        :param str ringName: The name of the ring, e.g., "https".
+        :param str subRingName: The name of the subring, e.g.,
+            "byIPv6-bySubring1of4".
+        :param int numBridges: The number of bridges in the given subring.
+        """
+
+        if not ringName or not subRingName:
+            logging.warning("Ring name ({}) and subring name ({}) cannot be "
+                            "empty.".format(ringName, subRingName))
+            return
+
+        logging.info("Recording metrics for bridge (sub)rings: %s/%s/%d." %
+                     (ringName, subRingName, numBridges))
+        # E.g, concatenate "https" with "byipv6-bysubring1of4".
+        key = "{}.{}.{}".format(self.keyPrefix, ringName, subRingName.lower())
+        self.set(key, numBridges)
 
 
 class HTTPSMetrics(Metrics):

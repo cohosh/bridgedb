@@ -586,7 +586,7 @@ class MockCaptchaCheckResource(server.CaptchaCheckResource):
     """A mocked :class:`server.CaptchaCheckResource` whose
     ``getBridgeLines`` method returns no bridges.
     """
-    def getBridgeLines(self, bridgeRequest):
+    def getBridgeLines(self, bridgeRequest, bridges):
         return list()
 
 
@@ -860,7 +860,8 @@ class CaptchaCheckResourceTests(unittest.TestCase):
         content = json.loads(encoded_content)['data'][0]
 
         bridgeRequest = self.resource.createBridgeRequest('3.3.3.3', content)
-        bridgelines = self.resource.getBridgeLines(bridgeRequest)
+        bridges = self.resource.getBridges(bridgeRequest)
+        bridgelines = self.resource.getBridgeLines(bridgeRequest, bridges)
 
         self.assertTrue(bridgelines)
 
@@ -869,7 +870,8 @@ class CaptchaCheckResourceTests(unittest.TestCase):
         request.client = requesthelper.IPv4Address('TCP', '3.3.3.3', 443)
 
         bridgeRequest = self.resource.createBridgeRequest('3.3.3.3', None)
-        bridgelines = self.resource.getBridgeLines(bridgeRequest)
+        bridges = self.resource.getBridges(bridgeRequest)
+        bridgelines = self.resource.getBridgeLines(bridgeRequest, bridges)
 
         self.assertFalse(bridgeRequest.isValid())
         self.assertEqual(len(bridgelines), 0)

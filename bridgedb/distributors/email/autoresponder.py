@@ -62,9 +62,10 @@ from bridgedb.parse.addr import canonicalizeEmailDomain
 from bridgedb.util import levenshteinDistance
 from bridgedb import translations
 
-# We use our metrics singleton to keep track of BridgeDB metrics such as
+# We use our metrics singletons to keep track of BridgeDB metrics such as
 # "number of failed HTTPS bridge requests."
-metrix = metrics.EmailMetrics()
+emailMetrix = metrics.EmailMetrics()
+internalMetrix = metrics.InternalMetrics()
 
 
 def createResponseBody(lines, context, client, lang='en'):
@@ -113,6 +114,9 @@ def createResponseBody(lines, context, client, lang='en'):
             transport = bridgeRequest.justOnePTType()
             answer = "".join("  %s\r\n" % b.getBridgeLine(
                 bridgeRequest, context.includeFingerprints) for b in bridges)
+            internalMetrix.recordHandoutsPerBridge(bridgeRequest, bridges)
+        else:
+            internalMetrix.recordEmptyEmailResponse()
         return templates.buildAnswerMessage(translator, client, answer)
 
 def generateResponse(fromAddress, client, body, subject=None,
@@ -396,9 +400,9 @@ class SMTPAutoresponder(smtp.SMTPClient):
         # request.
         translator = translations.installTranslations(lang)
         if body is not None and translator.gettext(strings.EMAIL_MISC_TEXT[1]) in body:
-            metrix.recordValidEmailRequest(self)
+            emailMetrix.recordValidEmailRequest(self)
         else:
-            metrix.recordInvalidEmailRequest(self)
+            emailMetrix.recordInvalidEmailRequest(self)
 
         if not body: return  # The client was already warned.
 

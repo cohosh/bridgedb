@@ -51,9 +51,10 @@ from bridgedb.schedule import Unscheduled
 from bridgedb.schedule import ScheduledInterval
 from bridgedb.util import replaceControlChars
 
-# We use our metrics singleton to keep track of BridgeDB metrics such as
+# We use our metrics singletons to keep track of BridgeDB metrics such as
 # "number of failed HTTPS bridge requests."
-metrix = metrics.MoatMetrics()
+moatMetrix = metrics.MoatMetrics()
+internalMetrix = metrics.InternalMetrics()
 
 
 #: The current version of the moat JSON API that we speak
@@ -538,26 +539,37 @@ class CaptchaCheckResource(CaptchaResource):
 
         return bridgeRequest
 
-    def getBridgeLines(self, bridgeRequest):
-        """Get bridge lines for a client's HTTP request.
+    def getBridges(self, bridgeRequest):
+        """Get bridges for a client's HTTP request.
 
         :type bridgeRequest: :class:`MoatBridgeRequest`
         :param bridgeRequest: A valid bridge request object with pre-generated
             filters (as returned by :meth:`createBridgeRequest`).
         :rtype: list
-        :returns: A list of bridge lines.
+        :return: A list of :class:`~bridgedb.bridges.Bridge`s.
         """
-        bridgeLines = list()
+        bridges = list()
         interval = self.schedule.intervalStart(time.time())
 
         logging.debug("Replying to JSON API request from %s." % bridgeRequest.client)
 
         if bridgeRequest.isValid():
             bridges = self.distributor.getBridges(bridgeRequest, interval)
-            bridgeLines = [replaceControlChars(bridge.getBridgeLine(bridgeRequest))
-                           for bridge in bridges]
 
-        return bridgeLines
+        return bridges
+
+    def getBridgeLines(self, bridgeRequest, bridges):
+        """
+        :type bridgeRequest: :class:`MoatBridgeRequest`
+        :param bridgeRequest: A valid bridge request object with pre-generated
+            filters (as returned by :meth:`createBridgeRequest`).
+        :param list bridges: A list of :class:`~bridgedb.bridges.Bridge`
+            objects.
+        :rtype: list
+        :return: A list of bridge lines.
+        """
+        return [replaceControlChars(bridge.getBridgeLine(bridgeRequest))
+                for bridge in bridges]
 
     def extractClientSolution(self, data):
         """Extract the client's CAPTCHA solution from a POST request.
@@ -686,7 +698,7 @@ class CaptchaCheckResource(CaptchaResource):
 
         if error:  # pragma: no cover
             logging.debug("Error while checking moat request headers.")
-            metrix.recordInvalidMoatRequest(request)
+            moatMetrix.recordInvalidMoatRequest(request)
             return error.render(request)
 
         data = {
@@ -714,25 +726,30 @@ class CaptchaCheckResource(CaptchaResource):
             valid = self.checkSolution(challenge, solution, clientIP)
         except captcha.CaptchaExpired:
             logging.debug("The challenge had timed out")
-            metrix.recordInvalidMoatRequest(request)
+            moatMetrix.recordInvalidMoatRequest(request)
             return self.failureResponse(5, request)
         except Exception as impossible:
             logging.warn("Unhandled exception while processing a POST /fetch request!")
             logging.error(impossible)
-            metrix.recordInvalidMoatRequest(request)
+            moatMetrix.recordInvalidMoatRequest(request)
             return self.failureResponse(4, request)
 
         if valid:
             qrcode = None
             bridgeRequest = self.createBridgeRequest(clientIP, client_data)
-            bridgeLines = self.getBridgeLines(bridgeRequest)
-            metrix.recordValidMoatRequest(request)
+            bridges = self.getBridges(bridgeRequest)
+            bridgeLines = self.getBridgeLines(bridgeRequest, bridges)
+            moatMetrix.recordValidMoatRequest(request)
 
             # If we can only return less than the configured
             # MOAT_BRIDGES_PER_ANSWER then log a warning.
             if len(bridgeLines) < self.nBridgesToGive:
                 logging.warn(("Not enough bridges of the type specified to "
                               "fulfill the following request: %s") % bridgeRequest)
+            if not bridgeLines:
+                internalMetrix.recordEmptyMoatResponse()
+            else:
+                internalMetrix.recordHandoutsPerBridge(bridgeRequest, bridges)
 
             if antibot.isRequestFromBot(request):
                 ttype = transport or "vanilla"
@@ -754,7 +771,7 @@ class CaptchaCheckResource(CaptchaResource):
 
             return self.formatDataForResponse(data, request)
         else:
-            metrix.recordInvalidMoatRequest(request)
+            moatMetrix.recordInvalidMoatRequest(request)
             return self.failureResponse(4, request)
 
 
