@@ -308,6 +308,31 @@ def createBridgeRings(cfg, proxyList, key):
 
     return hashring, emailDistributor, ipDistributor, moatDistributor
 
+def loadBlockedBridges(hashring):
+    """Load bridge blocking info from our SQL database and add it to bridge
+    objects."""
+
+    blockedBridges = {}
+    with bridgedb.Storage.getDB() as db:
+        blockedBridges = db.getBlockedBridges()
+
+    num_blocked = 0
+    for name, ring in hashring.ringsByName.items():
+        if name == "unallocated":
+            continue
+        for _, bridge in ring.bridges.items():
+            l = []
+            try:
+                l = blockedBridges[bridge.fingerprint]
+            except KeyError:
+                continue
+            for blocking_country, address, port in l:
+                bridge.setBlockedIn(blocking_country, address, port)
+            num_blocked += 1
+
+    logging.info("Loaded blocking info for %d bridges.".format(num_blocked))
+
+
 def run(options, reactor=reactor):
     """This is BridgeDB's main entry point and main runtime loop.
 
@@ -441,6 +466,7 @@ def run(options, reactor=reactor):
         logging.info("Reparsing bridge descriptors...")
         load(state, hashring, clear=False)
         logging.info("Bridges loaded: %d" % len(hashring))
+        loadBlockedBridges(hashring)
 
         if emailDistributorTmp is not None:
             emailDistributorTmp.prepopulateRings() # create default rings
