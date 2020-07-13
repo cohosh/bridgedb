@@ -25,10 +25,10 @@ file is formatted as follows:
 
       VERSION determines the version of the metrics format.  As the
       format changes over time, we will increment VERSION.  The latest
-      version is 1 -- the first iteration of the metrics format.
+      version is 2 -- the second iteration of the metrics format.
 
       Example:
-        bridgedb-metrics-version 1
+        bridgedb-metrics-version 2
 
   "bridgedb-metric-count" METRIC_KEY COUNT NL
       [Any number.]
@@ -75,11 +75,16 @@ file is formatted as follows:
 
       Strings in between quotes (e.g., "handouts") are literals and show up in
       the hierarchy as is.  Upper-case strings (e.g., TRANSPORT) are
-      placeholders, which are explained below.
+      placeholders, which are explained below.  The internal.handouts 
+      metrics provide statistics on how often a given bridge was handed out 
+      during the measurement interval. Bridges that were not handed out will 
+      not be part of these metrics.
 
       TRANSPORT refers to a pluggable transport protocol.  This includes
       "obfs2", "obfs3", "obfs4", "scramblesuit", and "fte".  These
-      pluggable transports will change in the future.
+      pluggable transports will change in the future.  This field also includes 
+      "unallocated" when reporting internal metrics to report on bridges left 
+      unallocated as configured.
 
       CC refers to a two-letter country code of the user's IP address.  We use
       two reserved country codes, "??" and "zz".  "??" denotes that we couldn't
@@ -91,6 +96,9 @@ file is formatted as follows:
 
       The field RESERVED is reserved for an anomaly score.  It is currently set
       to "none" and should be ignored by implementations.
+      
+      SUBRING refers to a subring of a hashring that bridges are arranged into 
+      during distribution.
 
       COUNT is the approximate number of user requests for the given
       METRIC_KEY.  We round up the number of requests to the next
