@@ -50,6 +50,7 @@ Servers which interface with clients and distribute bridges over SMTP.
 from __future__ import unicode_literals
 
 import email.message
+import email.policy
 import logging
 import io
 import socket
@@ -228,6 +229,20 @@ class SMTPMessage(object):
         if not self.ignoring:
             self.message = self.getIncomingMessage()
             self.responder.reply()
+
+        # If a user sends a multipart email, we only consider the part whose
+        # content type is text/plain.
+        if self.message.is_multipart():
+            has_plaintext = False
+            for part in self.message.get_payload():
+                if part.get_content_type() != "text/plain":
+                    continue
+                self.lines = part.get_payload().split("\n")
+                has_plaintext = True
+
+            if not has_plaintext:
+                logging.warning("User email had no text/plain content type.")
+
         return defer.succeed(None)
 
     def connectionLost(self):
@@ -242,7 +257,8 @@ class SMTPMessage(object):
         :returns: A ``Message`` comprised of all lines received thus far.
         """
 
-        return email.message_from_string('\n'.join(self.lines))
+        return email.message_from_string('\n'.join(self.lines),
+                                         policy=email.policy.compat32)
 
 
 @implementer(smtp.IMessageDelivery)
