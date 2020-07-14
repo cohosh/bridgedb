@@ -1,3 +1,6 @@
+    * FIXES https://bugs.torproject.org/33647
+    Fix broken link in the README and fix our Makefile's pylint target.
+
 Changes in version 0.11.0 - 2020-07-08
 
     * FIXES https://bugs.torproject.org/31422
