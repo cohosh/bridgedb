@@ -104,6 +104,9 @@ def get_transport_line(probing_resistant, addr, port):
             transports.append("scramblesuit 216.117.3.62:63174 "
                               "password=ABCDEFGHIJKLMNOPQRSTUVWXYZ234567")
     else:
+        # Occasionally leave transports empty (vanilla bridges)
+        if random.randint(0, 1) > 0:
+            return ""
         transports.append("obfs2 %s:%s" % (addr, port-10))
         transports.append("obfs3 %s:%s" % (addr, port-20))
 
@@ -216,12 +219,9 @@ def create_extrainfo_desc(server_desc, signing_key, probing_resistant):
 
     ts = server_desc.published
 
-    extrainfo_desc = RelayExtraInfoDescriptor.create({
+    attributes = {
         "extra-info": "%s %s" % (server_desc.nickname,
                                  server_desc.fingerprint),
-        "transport": get_transport_line(probing_resistant,
-                                        server_desc.address,
-                                        server_desc.or_port),
         "write-history": "%s (900 s) 3188736,2226176,2866176" % ts,
         "read-history": "%s (900 s) 3891200,2483200,2698240" % ts,
         "dirreq-write-history": "%s (900 s) 1024,0,2048" % ts,
@@ -238,11 +238,18 @@ def create_extrainfo_desc(server_desc, signing_key, probing_resistant):
         "bridge-stats-end": "%s (86400 s)" % ts,
         "bridge-ips": "ca=8",
         "bridge-ip-versions": "v4=8,v6=0",
-        "bridge-ip-transports": "<OR>=8",
-    }, signing_key=signing_key)
+        "bridge-ip-transports": "<OR>=8"
+    }
 
-    return extrainfo_desc
+    transport = get_transport_line(probing_resistant,
+                server_desc.address,
+                server_desc.or_port)
 
+    if transport:
+        attributes["transport"] = transport
+
+    return RelayExtraInfoDescriptor.create(attributes,
+        signing_key=signing_key)
 
 def make_descriptors(count, num_probing_resistant):
     """
