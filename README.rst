@@ -274,15 +274,11 @@ additional dependencies in the Pip requirements file,
 
 To create a bunch of fake bridge descriptors to test BridgeDB, do::
 
-      bridgedb mock [-n NUMBER_OF_DESCRIPTORS]
+      ./scripts/create_descriptors [--num-resistant-descs NUM_RESISTANT_DESCS] NUM_DESCS
 
 To run the test suites, do::
 
       make coverage
-
-If you just want to run the tests, and don't care about code coverage
-statistics, see the ``bridgedb trial`` and ``bridgedb test`` commands.
-
 
 ================
 Running BridgeDB
