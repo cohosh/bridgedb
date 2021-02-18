@@ -262,16 +262,25 @@ def parseExtraInfoFiles(*filenames, **kwargs):
         logging.info("Parsing %s descriptors in %s..."
                      % (descriptorType, filename))
 
-        document = parse_file(filename, descriptorType, validate=validate)
+        # Make sure we open the file rather than passing in a path so that
+        # subsequent calls to parse_file will use the current file position
+        # to continue parsing the remaining descriptors after an exception
+        # is raised
+        descFile = open(filename, 'rb')
+        while True:
+            try:
+                document = parse_file(descFile, descriptorType, validate=validate)
 
-        try:
-            for router in document:
-                descriptors.append(router)
-        except (ValueError, ProtocolError) as error:
-            logging.error(
-                ("Stem exception while parsing extrainfo descriptor from "
-                 "file '%s':\n%s") % (filename, str(error)))
-            _copyUnparseableDescriptorFile(filename)
+                for router in document:
+                    descriptors.append(router)
+
+                break # Reached end of file
+
+            except (ValueError, ProtocolError) as error:
+                logging.error(
+                    ("Stem exception while parsing extrainfo descriptor from "
+                     "file '%s':\n%s") % (filename, str(error)))
+                _copyUnparseableDescriptorFile(filename)
 
     routers = deduplicate(descriptors)
     return routers

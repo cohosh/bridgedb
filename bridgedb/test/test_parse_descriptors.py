@@ -280,6 +280,37 @@ EXVgdbhn8RrQiVT69evPXjdr6hmgllUofRT7LimvR60=
 -----END SIGNATURE-----
 '''
 
+BRIDGE_EXTRA_INFO_DESCRIPTOR_MALFORMED = b'''\
+extra-info MiserLandfalls E08B324D20AD0A13E114F027AB9AC3F32CA696A0
+published 2014-11-04 06:23:22
+write-history 2014-11-04 06:23:22 (900 s) 3188736,2226176,2866176
+read-history 2014-11-04 06:23:22 (900 s) 3891200,2483200,2698240
+dirreq-write-history 2014-11-04 06:23:22 (900 s) 1024,0,2048
+dirreq-read-history 2014-11-04 06:23:22 (900 s) 0,0,0
+geoip-db-digest 09A0E093100B279AD9CFF47A67B13A21C6E1483F
+geoip6-db-digest E983833985E4BCA34CEF611B2DF51942D188E638
+dirreq-stats-end 2014-11-04 06:23:22 (86400 s)
+dirreq-v3-ips
+dirreq-v3-reqs
+dirreq-v3-resp ok=16,not-enough-sigs=0,unavailable=0,not-found=0,not-modified=0,busy=0
+dirreq-v3-direct-dl complete=0,timeout=0,running=0
+dirreq-v3-tunneled-dl complete=12,timeout=0,running=0
+transport obfs3 [malformed$#*$*(]:4057
+transport obfs2 2.215.61.223:4058
+transport scramblesuit 2.215.61.223:4059 password=ABCDEFGHIJKLMNOPQRSTUVWXYZ234567
+transport obfs4 2.215.61.223:4060 iat-mode=0,node-id=19a448c01aa2e7d55979473b647e282459995b85,public-key=7a61b53701befdae0eeeffaecc73f14e20b537bb0f8b91ad7c2936dc63562b25
+bridge-stats-end 2014-11-04 06:23:22 (86400 s)
+bridge-ips ca=8
+bridge-ip-versions v4=8,v6=0
+bridge-ip-transports <OR>=8
+router-signature
+-----BEGIN SIGNATURE-----
+KOXNPCoe+Q+thFA/Lz7RTja2tWp4oC6SvyIooEZibHtEDgiXuU4sELWT4bSOk3np
+RVmu7QPMmNybx4LHowq3pOeNLtJzpWg8Pfo+N6tR+K4nqPwBRmpsuDhCD/tIXJlP
+U36EY4UoN5ABPowhNZFeyr5A3vKiDr6j0hCOqYOhxPY=
+-----END SIGNATURE-----
+'''
+
 
 class ParseDescriptorsTests(unittest.TestCase):
     """Unittests for :class:`bridgedb.parse.descriptors` module."""
@@ -469,7 +500,8 @@ class ParseDescriptorsTests(unittest.TestCase):
         """The return type of ``b.p.descriptors.parseExtraInfoFiles``
         should be a dictionary (after deduplication).
         """
-        descFile = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
+        descFile = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR)
         routers = descriptors.parseExtraInfoFiles(descFile)
         self.assertIsInstance(routers, dict)
 
@@ -477,7 +509,8 @@ class ParseDescriptorsTests(unittest.TestCase):
         """The return of ``b.p.descriptors.parseExtraInfoFiles`` should
         contain ``BridgeExtraInfoDescriptor``s.
         """
-        descFile = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
+        descFile = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR)
         routers = descriptors.parseExtraInfoFiles(descFile)
         bridge = list(routers.values())[0]
         self.assertIsInstance(bridge, RelayExtraInfoDescriptor)
@@ -486,7 +519,8 @@ class ParseDescriptorsTests(unittest.TestCase):
         """Test for ``b.p.descriptors.parseExtraInfoFiles`` with only one
         bridge extrainfo file.
         """
-        descFile = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
+        descFile = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR)
         routers = descriptors.parseExtraInfoFiles(descFile)
         bridge = list(routers.values())[0]
 
@@ -502,9 +536,9 @@ class ParseDescriptorsTests(unittest.TestCase):
         timestamps should log a ``b.p.descriptors.DescriptorWarning``
         and retain only one copy of the descriptor.
         """
-        descFileOne = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
-        descFileTwo = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
-        routers = descriptors.parseExtraInfoFiles(descFileOne, descFileTwo)
+        descFile = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR, BRIDGE_EXTRA_INFO_DESCRIPTOR)
+        routers = descriptors.parseExtraInfoFiles(descFile)
 
         self.assertEqual(len(routers), 1)
 
@@ -513,8 +547,10 @@ class ParseDescriptorsTests(unittest.TestCase):
         bridge extrainfo files, and check that only the newest extrainfo
         descriptor is used.
         """
-        descFileOne = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
-        descFileTwo = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWER_DUPLICATE)
+        descFileOne = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR)
+        descFileTwo = self.writeTestDescriptorsToFile('cached-extrainfo.2',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWER_DUPLICATE)
         routers = descriptors.parseExtraInfoFiles(descFileOne, descFileTwo)
 
         # We shouldn't have duplicates:
@@ -534,8 +570,10 @@ class ParseDescriptorsTests(unittest.TestCase):
         that we only keep the newer duplicates of descriptors, no matter what
         order they appeared in the files.
         """
-        descFileOne = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWER_DUPLICATE)
-        descFileTwo = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
+        descFileOne = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWER_DUPLICATE)
+        descFileTwo = self.writeTestDescriptorsToFile('cached-extrainfo.2',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR)
         routers = descriptors.parseExtraInfoFiles(descFileOne, descFileTwo)
 
         self.assertEqual(len(routers), 1,
@@ -552,9 +590,12 @@ class ParseDescriptorsTests(unittest.TestCase):
         bridge extrainfo files, and check that only the newest extrainfo
         descriptor is used.
         """
-        descFileOne = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWER_DUPLICATE)
-        descFileTwo = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
-        descFileThree = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWEST_DUPLICATE)
+        descFileOne = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWER_DUPLICATE)
+        descFileTwo = self.writeTestDescriptorsToFile('cached-extrainfo.2',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR)
+        descFileThree = self.writeTestDescriptorsToFile('cached-extrainfo.3',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWEST_DUPLICATE)
         routers = descriptors.parseExtraInfoFiles(descFileOne,
                                                   descFileTwo,
                                                   descFileThree)
@@ -604,7 +645,10 @@ class ParseDescriptorsTests(unittest.TestCase):
                         newerDuplicate = BRIDGE_EXTRA_INFO_DESCRIPTOR[:].replace(
                             fpr, newerFpr).replace(
                                 timestamp, newerTimestamp)
-                        descFiles.append(io.BytesIO(newerDuplicate))
+                        descFile = self.writeTestDescriptorsToFile(
+                                    "cached-extrainfo.%s" % total,
+                                    newerDuplicate)
+                        descFiles.append(descFile)
                         count += 1
                         total += 1
                     else:
@@ -650,7 +694,8 @@ class ParseDescriptorsTests(unittest.TestCase):
         """Test for ``b.p.descriptors.parseExtraInfoFiles`` with
         descriptor validation disabled.
         """
-        descFileOne = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
+        descFileOne = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR)
         routers = descriptors.parseExtraInfoFiles(descFileOne,
                                                   validate=False)
         self.assertGreaterEqual(len(routers), 1)
@@ -668,8 +713,10 @@ class ParseDescriptorsTests(unittest.TestCase):
                 b"geoip-db-digest 09A0E093100B279AD9CFF47A67B13A21C6E1483F",
                 b"geoip-db-digest FOOOOOOOOOOOOOOOOOOBAAAAAAAAAAAAAAAAAARR")
 
-        descFileOne = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWEST_DUPLICATE)
-        descFileTwo = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
+        descFileOne = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWEST_DUPLICATE)
+        descFileTwo = self.writeTestDescriptorsToFile('cached-extrainfo.2',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR)
         # This must be a "real" file or _copyUnparseableDescriptorFile() will
         # raise an AttributeError saying:
         # '_io.BytesIO' object has no attribute 'rpartition'"
@@ -712,18 +759,16 @@ class ParseDescriptorsTests(unittest.TestCase):
             b"MiserLandfalls E08B324D20AD0A13E114F027AB9AC3F32CA696A0",
             b"ImOkWithBeingParsed 2B5DA67FBA13A6449DE625673B7AE9E3AA7DF75F")
 
-        descFileOne = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
-        descFileTwo = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWEST_DUPLICATE)
         # This must be a "real" file or _copyUnparseableDescriptorFile() will
         # raise an AttributeError saying:
         # '_io.BytesIO' object has no attribute 'rpartition'"
-        descFileThree = self.writeTestDescriptorsToFile(
-            "unparseable-descriptor.new", unparseable)
-        descFileFour = io.BytesIO(parseable)
-        routers = descriptors.parseExtraInfoFiles(descFileOne,
-                                                  descFileTwo,
-                                                  descFileThree,
-                                                  descFileFour)
+        descFile = self.writeTestDescriptorsToFile(
+                "unparseable-descriptor.new",
+                BRIDGE_EXTRA_INFO_DESCRIPTOR,
+                BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWEST_DUPLICATE,
+                unparseable, parseable)
+        routers = descriptors.parseExtraInfoFiles(descFile)
+
         self.assertIsInstance(routers, dict)
         self.assertEqual(len(routers), 2, (
             "There were four extrainfo descriptors: one was a duplicate, "
@@ -794,12 +839,12 @@ class ParseDescriptorsTests(unittest.TestCase):
 
         self.assertEqual(len(routers), 0)
 
-    def test_parse_descriptors_parseExtraInfoFiles_unparseable_BytesIO(self):
+    def test_parse_descriptors_parseExtraInfoFiles_unparseable(self):
         """Test parsing three extrainfo descriptors: one is a valid descriptor,
         one is an older duplicate, and one is unparseable (it has a bad
-        geoip-db-digest line). The parsing should raise an unhandled
-        AttributeError because _copyUnparseableDescriptorFile() tries to
-        manipulate the io.BytesIO object's filename, and it doesn't have one.
+        geoip-db-digest line). The parsing should cause
+         _copyUnparseableDescriptorFile() to be called and create a copy
+         based on the filename.
         """
         # Give it a bad geoip-db-digest:
         unparseable = BRIDGE_EXTRA_INFO_DESCRIPTOR.replace(
@@ -808,24 +853,39 @@ class ParseDescriptorsTests(unittest.TestCase):
                 b"geoip-db-digest 09A0E093100B279AD9CFF47A67B13A21C6E1483F",
                 b"geoip-db-digest FOOOOOOOOOOOOOOOOOOBAAAAAAAAAAAAAAAAAARR")
 
-        descFileOne = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR)
-        descFileTwo = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWEST_DUPLICATE)
-        descFileThree = io.BytesIO(unparseable)
-        self.assertRaises(AttributeError,
-                          descriptors.parseExtraInfoFiles,
-                          descFileOne, descFileTwo, descFileThree)
+        descFileOne = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR)
+        descFileTwo = self.writeTestDescriptorsToFile('cached-extrainfo.2',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWEST_DUPLICATE)
+        descFileThree = self.writeTestDescriptorsToFile(
+                'copy-unparseable-test',
+                unparseable)
+        
+        descriptors.parseExtraInfoFiles(descFileOne, descFileTwo, descFileThree)
+
+        timestamp = datetime.datetime.now()
+        timestamp = timestamp.isoformat(sep=chr(0x2d))
+        timestamp = timestamp.rsplit('.', 1)[0]
+
+        path, sep, fname = descFileThree.rpartition(os.path.sep)
+        newfilename = "%s%s%s_%s%sunparseable" % (path, sep, timestamp,
+                                                  fname, os.path.extsep)
+
+        self.assertTrue(os.path.exists(newfilename))
 
     def test_parse_descriptors_parseExtraInfoFiles_empty_file(self):
         """Test parsing an empty extrainfo descriptors file."""
-        routers = descriptors.parseExtraInfoFiles(io.BytesIO(b''))
+        descFile = self.writeTestDescriptorsToFile('cached-extrainfo', b'')
+        routers = descriptors.parseExtraInfoFiles(descFile)
         self.assertIsInstance(routers, dict)
         self.assertEqual(len(routers), 0)
 
     def test_parse_descriptors_parseExtraInfoFiles_ed25519(self):
         """Test parsing an extrainfo descriptor with Ed25519 keys/certificates.
         """
-        descFileOne = io.BytesIO(BRIDGE_EXTRA_INFO_DESCRIPTOR_ED25519)
-        routers = descriptors.parseExtraInfoFiles(descFileOne)
+        descFile = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR_ED25519)
+        routers = descriptors.parseExtraInfoFiles(descFile)
         self.assertEqual(len(routers), 1)
 
     def test_parse_descriptors_parseExtraInfoFiles_ed25519(self):
