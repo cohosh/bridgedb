@@ -215,7 +215,7 @@ def deduplicate(descriptors, statistics=False):
 
     return newest
 
-def parseExtraInfoFiles(*filenames, **kwargs):
+def parseExtraInfoFiles(*descriptorFiles):
     """Open **filenames** and parse any ``@type bridge-extrainfo-descriptor``
     contained within.
 
@@ -229,13 +229,6 @@ def parseExtraInfoFiles(*filenames, **kwargs):
     .. note:: This function will call :func:`deduplicate` to deduplicate the
         extrainfo descriptors parsed from all **filenames**.
 
-    :kwargs validate: If there is a ``'validate'`` keyword argument, its value
-        will be passed along as the ``'validate'`` argument to
-        :class:`stem.descriptor.extrainfo_descriptor.BridgeExtraInfoDescriptor`.
-        The ``'validate'`` keyword argument defaults to ``True``, meaning that
-        the hash digest stored in the ``router-digest`` line will be checked
-        against the actual contents of the descriptor and the extrainfo
-        document's signature will be verified.
     :rtype: dict
     :returns: A dictionary mapping bridge fingerprints to their corresponding,
         deduplicated
@@ -254,33 +247,45 @@ def parseExtraInfoFiles(*filenames, **kwargs):
     #      to be a signature).
     descriptorType = 'extra-info 1.0'
 
-    validate = True
-    if ('validate' in kwargs) and (kwargs['validate'] is False):
-        validate = False
-
-    for filename in filenames:
-        logging.info("Parsing %s descriptors in %s..."
-                     % (descriptorType, filename))
+    for descFile in descriptorFiles:
 
         # Make sure we open the file rather than passing in a path so that
         # subsequent calls to parse_file will use the current file position
         # to continue parsing the remaining descriptors after an exception
         # is raised
-        descFile = open(filename, 'rb')
+        if isinstance(descFile, str):
+          descFile = open(descFile, 'rb')  # open by filename
+
+        filename = os.path.basename(descFile.name)
+        copied = False
         while True:
             try:
-                document = parse_file(descFile, descriptorType, validate=validate)
-
+                document = parse_file(descFile, descriptorType, validate=True)
                 for router in document:
-                    descriptors.append(router)
-
+                    logging.info("Successfully parsed descriptor for %s."
+                            % router.fingerprint)
                 break # Reached end of file
 
             except (ValueError, ProtocolError) as error:
-                logging.error(
-                    ("Stem exception while parsing extrainfo descriptor from "
+                # For now we are just logging validation errors, we'll
+                # trust and parse all descriptors later
+                logging.warning(
+                    ("Stem exception while validating extrainfo descriptor from "
                      "file '%s':\n%s") % (filename, str(error)))
-                _copyUnparseableDescriptorFile(filename)
+                if not copied:
+                    _copyUnparseableDescriptorFile(filename)
+                    copied = True
+
+        # Now seek to start of document and parse all descriptors again
+        descFile.seek(0)
+        try:
+            document = parse_file(descFile, descriptorType, validate=False)
+            for router in document:
+                descriptors.append(router)
+        except Exception as error:
+            logging.error("Stem exception while parsing extrainfo descriptor %s"
+                    % str(error))
+
 
     routers = deduplicate(descriptors)
     return routers

@@ -690,16 +690,6 @@ class ParseDescriptorsTests(unittest.TestCase):
             with Benchmarker():
                 routers = descriptors.parseExtraInfoFiles(*descFiles)
 
-    def test_parse_descriptors_parseExtraInfoFiles_no_validate(self):
-        """Test for ``b.p.descriptors.parseExtraInfoFiles`` with
-        descriptor validation disabled.
-        """
-        descFileOne = self.writeTestDescriptorsToFile('cached-extrainfo',
-                BRIDGE_EXTRA_INFO_DESCRIPTOR)
-        routers = descriptors.parseExtraInfoFiles(descFileOne,
-                                                  validate=False)
-        self.assertGreaterEqual(len(routers), 1)
-
     def test_parse_descriptors_parseExtraInfoFiles_unparseable(self):
         """Test parsing three extrainfo descriptors: one is a valid descriptor,
         one is an older duplicate, and one is unparseable (it has a bad
@@ -742,11 +732,39 @@ class ParseDescriptorsTests(unittest.TestCase):
             datetime.datetime.strptime("2014-12-04 03:10:25", "%Y-%m-%d %H:%M:%S"),
             "We should have the newest available descriptor for this router.")
 
+    def test_parse_descriptors_parseExtraInfoFiles_invalid(self):
+        """Test parsing three extrainfo descriptors: one is a valid descriptor,
+        and the other is completely invalid (lacking a signature).
+        BridgeDB should parse the valid descriptor if it preceeds the mangled
+        one and then terminate.
+        """
+        # Give it a bad geoip-db-digest:
+        unparseable = b'DontParseMe F373CC1D86D82267F1F1F5D39470F0E0A022122E'
+
+        descFile = self.writeTestDescriptorsToFile('cached-extrainfo',
+                BRIDGE_EXTRA_INFO_DESCRIPTOR_NEWEST_DUPLICATE, unparseable,
+                BRIDGE_EXTRA_INFO_DESCRIPTOR)
+        routers = descriptors.parseExtraInfoFiles(descFile)
+
+        self.assertIsInstance(routers, dict)
+        self.assertEqual(len(routers), 2, (
+            "There were three extrainfo descriptors: one lacks a signature, "
+            "and one was duplicate. Given our trust-but-verify policy that should "
+            "give us two descriptors"))
+
+        bridge = list(routers.values())[0]
+        self.assertEqual(
+            bridge.fingerprint,
+            "E08B324D20AD0A13E114F027AB9AC3F32CA696A0",
+            ("It looks like the (supposedly) unparseable bridge was returned "
+             "instead of the valid one!"))
+
     def test_parse_descriptors_parseExtraInfoFiles_unparseable_and_parseable(self):
         """Test parsing four extrainfo descriptors: two are valid descriptors,
-        one is an older duplicate of one of the valid descriptors, and one is
-        unparseable (it has a line we shouldn't recognise). There should be
-        only two descriptors returned after parsing.
+        one is an older duplicate of one of the valid descriptors, and fails
+        Stem's validation. Since the bridge authority already does validation,
+        we should except the unparseable descriptor. There should be three
+        descriptors returned after parsing.
         """
         # Mess up the bridge-ip-transports line:
         unparseable = BRIDGE_EXTRA_INFO_DESCRIPTOR.replace(
@@ -770,13 +788,13 @@ class ParseDescriptorsTests(unittest.TestCase):
         routers = descriptors.parseExtraInfoFiles(descFile)
 
         self.assertIsInstance(routers, dict)
-        self.assertEqual(len(routers), 2, (
+        self.assertEqual(len(routers), 3, (
             "There were four extrainfo descriptors: one was a duplicate, "
-            "and one was unparseable, so that should only leave two "
-            "descriptors remaining."))
+            "and one will throw a validation error, but all three "
+            "descriptors should be returned."))
 
-        self.assertNotIn("F373CC1D86D82267F1F1F5D39470F0E0A022122E", routers.keys(),
-                         "The 'unparseable' descriptor was returned by the parser.")
+        self.assertIn("F373CC1D86D82267F1F1F5D39470F0E0A022122E", routers.keys(),
+                         "The 'unparseable' descriptor was not returned by the parser.")
 
         self.assertIn("E08B324D20AD0A13E114F027AB9AC3F32CA696A0", routers.keys(),
             ("A bridge extrainfo which had duplicates was completely missing "
@@ -788,56 +806,6 @@ class ParseDescriptorsTests(unittest.TestCase):
 
         self.assertIn("2B5DA67FBA13A6449DE625673B7AE9E3AA7DF75F", routers.keys(),
                       "The 'parseable' descriptor wasn't returned by the parser.")
-
-    def test_parse_descriptors_parseExtraInfoFiles_bad_signature_footer(self):
-        """Calling parseExtraInfoFiles() with a descriptor which has a
-        signature with a bad "-----END SIGNATURE-----" footer should return
-        zero parsed descriptors.
-        """
-        unparseable = BRIDGE_EXTRA_INFO_DESCRIPTOR.replace(
-            b'-----END SIGNATURE-----',
-            b'-----END SIGNATURE FOR REALZ-----')
-        # This must be a "real" file or _copyUnparseableDescriptorFile() will
-        # raise an AttributeError saying:
-        # '_io.BytesIO' object has no attribute 'rpartition'"
-        descFileOne = self.writeTestDescriptorsToFile(
-            "bad-signature-footer", unparseable)
-        routers = descriptors.parseExtraInfoFiles(descFileOne)
-
-        self.assertEqual(len(routers), 0)
-
-    def test_parse_descriptors_parseExtraInfoFiles_missing_signature(self):
-        """Calling parseExtraInfoFiles() with a descriptor which is
-        missing the signature should return zero parsed descriptors.
-        """
-        # Remove the signature
-        BEGIN_SIG = b'-----BEGIN SIGNATURE-----'
-        unparseable, _ = BRIDGE_EXTRA_INFO_DESCRIPTOR.split(BEGIN_SIG)
-        # This must be a "real" file or _copyUnparseableDescriptorFile() will
-        # raise an AttributeError saying:
-        # '_io.BytesIO' object has no attribute 'rpartition'"
-        descFileOne = self.writeTestDescriptorsToFile(
-            "missing-signature", unparseable)
-        routers = descriptors.parseExtraInfoFiles(descFileOne)
-
-        self.assertEqual(len(routers), 0)
-
-    def test_parse_descriptors_parseExtraInfoFiles_bad_signature_too_short(self):
-        """Calling _verifyExtraInfoSignature() with a descriptor which has a
-        bad signature should raise an InvalidExtraInfoSignature exception.
-        """
-        # Truncate the signature to 50 bytes
-        BEGIN_SIG = b'-----BEGIN SIGNATURE-----'
-        doc, sig = BRIDGE_EXTRA_INFO_DESCRIPTOR.split(BEGIN_SIG)
-        unparseable = BEGIN_SIG.join([doc, sig[:50]])
-        # This must be a "real" file or _copyUnparseableDescriptorFile() will
-        # raise an AttributeError saying:
-        # '_io.BytesIO' object has no attribute 'rpartition'"
-        descFileOne = self.writeTestDescriptorsToFile(
-            "truncated-signature", unparseable)
-        routers = descriptors.parseExtraInfoFiles(descFileOne)
-
-        self.assertEqual(len(routers), 0)
 
     def test_parse_descriptors_parseExtraInfoFiles_unparseable(self):
         """Test parsing three extrainfo descriptors: one is a valid descriptor,
@@ -863,15 +831,23 @@ class ParseDescriptorsTests(unittest.TestCase):
         
         descriptors.parseExtraInfoFiles(descFileOne, descFileTwo, descFileThree)
 
-        timestamp = datetime.datetime.now()
-        timestamp = timestamp.isoformat(sep=chr(0x2d))
-        timestamp = timestamp.rsplit('.', 1)[0]
+        matchingFiles = glob.glob("*copy-unparseable-test.unparseable")
+        self.assertEqual(len(matchingFiles), 1)
 
-        path, sep, fname = descFileThree.rpartition(os.path.sep)
-        newfilename = "%s%s%s_%s%sunparseable" % (path, sep, timestamp,
-                                                  fname, os.path.extsep)
+        newFile = matchingFiles[-1]
+        self.assertTrue(os.path.isfile(newFile))
 
-        self.assertTrue(os.path.exists(newfilename))
+        timestamp = datetime.datetime.strptime(newFile.split("_")[0],
+                "%Y-%m-%d-%H:%M:%S")
+        # The timestamp should be roughly today (unless we just passed
+        # midnight, then it might be +/- 1):
+        self.assertApproximates(timestamp.now().day, timestamp.day, 1)
+
+        # The timestamp should be roughly this hour (+/- 1):
+        self.assertApproximates(timestamp.now().hour, timestamp.hour, 1)
+
+        # The timestamp should be roughly this minute (+/- 2):
+        self.assertApproximates(timestamp.now().minute, timestamp.minute, 2)
 
     def test_parse_descriptors_parseExtraInfoFiles_empty_file(self):
         """Test parsing an empty extrainfo descriptors file."""
@@ -930,7 +906,7 @@ class ParseDescriptorsTests(unittest.TestCase):
         self.assertTrue(os.path.isfile(newFile))
 
         timestamp = datetime.datetime.strptime(newFile.split("_")[0],
-                                               "%Y-%m-%d-%H:%M:%S")
+                "%Y-%m-%d-%H:%M:%S")
         # The timestamp should be roughly today (unless we just passed
         # midnight, then it might be +/- 1):
         self.assertApproximates(timestamp.now().day, timestamp.day, 1)
