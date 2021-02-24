@@ -21,4 +21,4 @@ def get_langs():
 #: This list will be rewritten by :func:`get_supported_langs` in setup.py at
 #: install time, so that the :attr:`bridgedb.__langs__` will hold a list of
 #: two-letter country codes for languages which were installed.
-supported = []
+supported = set(['ar', 'az', 'be', 'bg', 'bn', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'en_GB', 'en_US', 'eo', 'es', 'es_AR', 'es_CL', 'es_MX', 'et', 'eu', 'fa', 'fi', 'fr', 'fr_CA', 'ga', 'gd', 'gl', 'gu', 'he', 'hi', 'hr', 'hr_HR', 'hu', 'hy', 'id', 'is', 'it', 'ja', 'ka', 'kk', 'km', 'kn', 'ko', 'lt', 'lv', 'mk', 'ml', 'mr', 'ms_MY', 'nb', 'nl', 'nl_BE', 'nn', 'pa', 'pl', 'pt', 'pt_BR', 'pt_PT', 'ro', 'ru', 'si_LK', 'sk', 'sk_SK', 'sl', 'sl_SI', 'sq', 'sr', 'sv', 'sw', 'ta', 'th', 'tr', 'uk', 'ur', 'uz', 'vi', 'zh_CN', 'zh_HK', 'zh_TW'])
