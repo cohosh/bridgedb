@@ -344,6 +344,22 @@ class ParseDescriptorsTests(unittest.TestCase):
                 fh.flush()
         return descFilename
 
+    def removeTestDescriptorsFile(self, filename):
+        """Remove **filename** from current working directory.
+
+        :param str filename: A filename. It should include the current
+            working directory in its path.
+        :rtype: bool
+        "returns: A bool indicating the success of the operation.
+        """
+        if os.getcwd() not in filename:
+            return False
+        try:
+            os.remove(filename)
+        except:
+            return False
+        return True
+
     def test_parse_descriptors_parseServerDescriptorsFile(self):
         """Test for ``b.p.descriptors.parseServerDescriptorsFile``."""
         descFile = io.BytesIO(BRIDGE_SERVER_DESCRIPTOR)
@@ -362,6 +378,7 @@ class ParseDescriptorsTests(unittest.TestCase):
                                                    BRIDGE_NETWORKSTATUS_0)
         routers = descriptors.parseNetworkStatusFile(descFile)
         self.assertIsInstance(routers, list)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseNetworkStatusFile_has_RouterStatusEntryV2(self):
         """The items in the dict returned from
@@ -375,6 +392,7 @@ class ParseDescriptorsTests(unittest.TestCase):
         routers = descriptors.parseNetworkStatusFile(descFile)
         bridge = routers[0]
         self.assertIsInstance(bridge, RouterStatusEntryV3)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseNetworkStatusFile_one_file(self):
         """Test ``b.p.descriptors.parseNetworkStatusFile`` with one bridge
@@ -388,6 +406,7 @@ class ParseDescriptorsTests(unittest.TestCase):
         bridge = routers[0]
         self.assertEqual(bridge.address, self.expectedIPBridge0)
         self.assertEqual(bridge.fingerprint, self.expectedFprBridge0)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseNetworkStatusFile_two_files(self):
         """Test ``b.p.descriptors.parseNetworkStatusFile`` with two bridge
@@ -405,6 +424,7 @@ class ParseDescriptorsTests(unittest.TestCase):
 
         self.assertIn(bridge.address, expectedIPs)
         self.assertEqual(bridge.fingerprint, self.expectedFprBridge0)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseNetworkStatusFile_bad_nickname(self):
         """``b.p.descriptors.parseNetworkStatusFile`` with a bridge
@@ -421,6 +441,7 @@ class ParseDescriptorsTests(unittest.TestCase):
         self.assertRaises(descriptors.InvalidRouterNickname,
                           descriptors.parseNetworkStatusFile,
                           descFile)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseNetworkStatusFile_HSDir_flag(self):
         """A Bridge networkstatus descriptor with the HSDir flag should be
@@ -445,6 +466,7 @@ class ParseDescriptorsTests(unittest.TestCase):
                             ("Expected to parse the %r flag from a bridge "
                              "networkstatus document, but the flag was not "
                              "found!"))
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseNetworkStatusFile_IPv6_ORAddress(self):
         """A Bridge can't have its primary ORAddress be IPv6 without raising
@@ -457,6 +479,7 @@ class ParseDescriptorsTests(unittest.TestCase):
         self.assertRaises(ValueError,
                           descriptors.parseNetworkStatusFile,
                           descFile)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseNetworkStatusFile_with_annotations(self):
         """Test ``b.p.descriptors.parseNetworkStatusFile`` with some document
@@ -504,6 +527,7 @@ class ParseDescriptorsTests(unittest.TestCase):
                 BRIDGE_EXTRA_INFO_DESCRIPTOR)
         routers = descriptors.parseExtraInfoFiles(descFile)
         self.assertIsInstance(routers, dict)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseExtraInfoFiles_has_BridgeExtraInfoDescriptor(self):
         """The return of ``b.p.descriptors.parseExtraInfoFiles`` should
@@ -514,6 +538,7 @@ class ParseDescriptorsTests(unittest.TestCase):
         routers = descriptors.parseExtraInfoFiles(descFile)
         bridge = list(routers.values())[0]
         self.assertIsInstance(bridge, RelayExtraInfoDescriptor)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseExtraInfoFiles_one_file(self):
         """Test for ``b.p.descriptors.parseExtraInfoFiles`` with only one
@@ -530,6 +555,7 @@ class ParseDescriptorsTests(unittest.TestCase):
                          BRIDGE_EXTRA_INFO_DESCRIPTOR.count(b'transport '))
 
         self.assertEqual(bridge.fingerprint, self.expectedFprBridge0)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_deduplicate_identical_timestamps(self):
         """Parsing two descriptors for the same bridge with identical
@@ -541,6 +567,7 @@ class ParseDescriptorsTests(unittest.TestCase):
         routers = descriptors.parseExtraInfoFiles(descFile)
 
         self.assertEqual(len(routers), 1)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseExtraInfoFiles_two_files(self):
         """Test for ``b.p.descriptors.parseExtraInfoFiles`` with two
@@ -563,6 +590,8 @@ class ParseDescriptorsTests(unittest.TestCase):
             bridge.published,
             datetime.datetime.strptime("2014-11-04 08:10:25", "%Y-%m-%d %H:%M:%S"),
             "We should have the newest available descriptor for this router.")
+        self.assertTrue(self.removeTestDescriptorsFile(descFileOne))
+        self.assertTrue(self.removeTestDescriptorsFile(descFileTwo))
 
     def test_parse_descriptors_parseExtraInfoFiles_two_files_reverse(self):
         """Test for ``b.p.descriptors.parseExtraInfoFiles`` with two bridge
@@ -584,6 +613,8 @@ class ParseDescriptorsTests(unittest.TestCase):
             bridge.published,
             datetime.datetime.strptime("2014-11-04 08:10:25", "%Y-%m-%d %H:%M:%S"),
             "We should have the newest available descriptor for this router.")
+        self.assertTrue(self.removeTestDescriptorsFile(descFileOne))
+        self.assertTrue(self.removeTestDescriptorsFile(descFileTwo))
 
     def test_parse_descriptors_parseExtraInfoFiles_three_files(self):
         """Test for ``b.p.descriptors.parseExtraInfoFiles`` with three
@@ -610,6 +641,9 @@ class ParseDescriptorsTests(unittest.TestCase):
             bridge.published,
             datetime.datetime.strptime("2014-12-04 03:10:25", "%Y-%m-%d %H:%M:%S"),
             "We should have the newest available descriptor for this router.")
+        self.assertTrue(self.removeTestDescriptorsFile(descFileOne))
+        self.assertTrue(self.removeTestDescriptorsFile(descFileTwo))
+        self.assertTrue(self.removeTestDescriptorsFile(descFileThree))
 
     def createDuplicatesForBenchmark(self, b=1, n=1200):
         """Create a bunch of duplicate extrainfos for benchmark tests.
@@ -666,6 +700,8 @@ class ParseDescriptorsTests(unittest.TestCase):
             with Benchmarker():
                 routers = descriptors.parseExtraInfoFiles(*descFiles)
 
+            for descFile in descFiles:
+                self.assertTrue(self.removeTestDescriptorsFile(descFile))
     def test_parse_descriptors_parseExtraInfoFiles_benchmark_1000_bridges(self):
         """Benchmark test for ``b.p.descriptors.parseExtraInfoFiles``."""
         raise SkipTest(("This test can take several minutes to complete. "
@@ -676,6 +712,8 @@ class ParseDescriptorsTests(unittest.TestCase):
             descFiles = self.createDuplicatesForBenchmark(b=1000, n=i)
             with Benchmarker():
                 routers = descriptors.parseExtraInfoFiles(*descFiles)
+            for descFile in descFiles:
+                self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseExtraInfoFiles_benchmark_10000_bridges(self):
         """Benchmark test for ``b.p.descriptors.parseExtraInfoFiles``.
@@ -689,6 +727,8 @@ class ParseDescriptorsTests(unittest.TestCase):
             descFiles = self.createDuplicatesForBenchmark(b=10000, n=i)
             with Benchmarker():
                 routers = descriptors.parseExtraInfoFiles(*descFiles)
+            for descFile in descFiles:
+                self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseExtraInfoFiles_unparseable(self):
         """Test parsing three extrainfo descriptors: one is a valid descriptor,
@@ -731,6 +771,9 @@ class ParseDescriptorsTests(unittest.TestCase):
             bridge.published,
             datetime.datetime.strptime("2014-12-04 03:10:25", "%Y-%m-%d %H:%M:%S"),
             "We should have the newest available descriptor for this router.")
+        self.assertTrue(self.removeTestDescriptorsFile(descFileOne))
+        self.assertTrue(self.removeTestDescriptorsFile(descFileTwo))
+        self.assertTrue(self.removeTestDescriptorsFile(descFileThree))
 
     def test_parse_descriptors_parseExtraInfoFiles_invalid(self):
         """Test parsing three extrainfo descriptors: one is a valid descriptor,
@@ -758,6 +801,7 @@ class ParseDescriptorsTests(unittest.TestCase):
             "E08B324D20AD0A13E114F027AB9AC3F32CA696A0",
             ("It looks like the (supposedly) unparseable bridge was returned "
              "instead of the valid one!"))
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseExtraInfoFiles_unparseable_and_parseable(self):
         """Test parsing four extrainfo descriptors: two are valid descriptors,
@@ -806,6 +850,7 @@ class ParseDescriptorsTests(unittest.TestCase):
 
         self.assertIn("2B5DA67FBA13A6449DE625673B7AE9E3AA7DF75F", routers.keys(),
                       "The 'parseable' descriptor wasn't returned by the parser.")
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseExtraInfoFiles_unparseable(self):
         """Test parsing three extrainfo descriptors: one is a valid descriptor,
@@ -849,12 +894,18 @@ class ParseDescriptorsTests(unittest.TestCase):
         # The timestamp should be roughly this minute (+/- 2):
         self.assertApproximates(timestamp.now().minute, timestamp.minute, 2)
 
+        self.assertTrue(self.removeTestDescriptorsFile(descFileOne))
+        self.assertTrue(self.removeTestDescriptorsFile(descFileTwo))
+        self.assertTrue(self.removeTestDescriptorsFile(descFileThree))
+        self.assertTrue(self.removeTestDescriptorsFile(os.path.abspath(newFile)))
+
     def test_parse_descriptors_parseExtraInfoFiles_empty_file(self):
         """Test parsing an empty extrainfo descriptors file."""
         descFile = self.writeTestDescriptorsToFile('cached-extrainfo', b'')
         routers = descriptors.parseExtraInfoFiles(descFile)
         self.assertIsInstance(routers, dict)
         self.assertEqual(len(routers), 0)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseExtraInfoFiles_ed25519(self):
         """Test parsing an extrainfo descriptor with Ed25519 keys/certificates.
@@ -863,6 +914,7 @@ class ParseDescriptorsTests(unittest.TestCase):
                 BRIDGE_EXTRA_INFO_DESCRIPTOR_ED25519)
         routers = descriptors.parseExtraInfoFiles(descFile)
         self.assertEqual(len(routers), 1)
+        self.assertTrue(self.removeTestDescriptorsFile(descFile))
 
     def test_parse_descriptors_parseExtraInfoFiles_ed25519(self):
         """Test parsing an extrainfo descriptor with Ed25519 keys/certificates.
@@ -913,3 +965,4 @@ class ParseDescriptorsTests(unittest.TestCase):
 
         # The timestamp should be roughly this hour (+/- 1):
         self.assertApproximates(timestamp.now().hour, timestamp.hour, 1)
+        self.assertTrue(self.removeTestDescriptorsFile(os.path.abspath(newFile)))
